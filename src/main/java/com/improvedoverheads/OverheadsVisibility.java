@@ -4,7 +4,7 @@ import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 
-enum OverheadsVisibility
+public enum OverheadsVisibility
 {
     ALL("Always"),
     CURRENT_TARGET("Current target"),
