@@ -213,6 +213,19 @@ final class OverheadsSetups
                 });
             }
         }
+        if (version == 2 && profiles != null && !themes
+            && settingsValue.getAsJsonObject().keySet().stream().noneMatch(key -> key.startsWith("party.")))
+        {
+            JsonObject existing = settingsValue.getAsJsonObject().deepCopy();
+            existing.entrySet().forEach(entry ->
+            {
+                if (entry.getKey().startsWith("players."))
+                {
+                    String key = "party." + entry.getKey().substring("players.".length());
+                    if (schema.entries.containsKey(key)) settingsValue.getAsJsonObject().add(key, entry.getValue());
+                }
+            });
+        }
         List<Change> changes = new ArrayList<>();
         int ignored = 0;
         for (Map.Entry<String, JsonElement> setting : settingsValue.getAsJsonObject().entrySet())
@@ -289,7 +302,7 @@ final class OverheadsSetups
     String copyGroup(int source, int destination, Session session)
     {
         check(session);
-        if (source < 0 || source > 2 || destination < 0 || destination > 2 || source == destination)
+        if (source < 0 || source > (profiles == null ? 2 : 3) || destination < 0 || destination > (profiles == null ? 2 : 3) || source == destination)
         {
             throw new IllegalArgumentException("Choose two different actor groups.");
         }

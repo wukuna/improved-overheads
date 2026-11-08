@@ -32,6 +32,8 @@ final class OverheadsIndicators
     private final OverheadsActorUiSpriteCache sprites;
     private final OverheadsPartyState party;
     private final OverheadsLocalTimers timers;
+    private final OverheadsHealthBarRenderer healthStyle;
+    private long partySession = Long.MIN_VALUE;
 
     OverheadsIndicators(Client client, OverheadsConfig config, OverheadsPartyState party, OverheadsLocalTimers timers)
     {
@@ -40,6 +42,7 @@ final class OverheadsIndicators
         this.sharing = config;
         this.party = party;
         this.timers = timers;
+        healthStyle = new OverheadsHealthBarRenderer(client, config);
         sprites = new OverheadsActorUiSpriteCache(client);
     }
 
@@ -67,7 +70,7 @@ final class OverheadsIndicators
         OverheadsIndicators selected = scoped == null ? this : scoped.forActor(actor);
         if (selected != this) { return selected.replacesHealth(actor); }
 
-        return actor instanceof Player && config.partyShowHealth() && sharing.partyDisplay() != OverheadsBarDisplay.HIDDEN
+        return actor instanceof Player && showPartyHealth(actor) && sharing.partyDisplay() != OverheadsBarDisplay.HIDDEN
             && party.value((Player) actor, 0) != null && config.otherHealthDisplay() != OverheadsBarDisplay.HIDDEN
             && (config.healthBarOpacity() > 0 || config.otherHealthDisplay() != OverheadsBarDisplay.BAR_ONLY && config.healthTextColor().getAlpha() > 0);
     }
@@ -86,19 +89,19 @@ final class OverheadsIndicators
         {
             String[] labels = {"HP", "Pray", "Run", "Spec"};
             Color[] colors = {config.healthBarFrontColor(), config.prayerColor(), config.runColor(), config.specialColor()};
-            boolean[] enabled = {config.partyShowHealth(), config.partyShowPrayer(), config.partyShowRun(), config.partyShowSpecial()};
+            boolean[] enabled = {showPartyHealth(actor), config.partyShowPrayer(), config.partyShowRun(), config.partyShowSpecial()};
             int slot = 0;
             for (int i = 0; i < 4; i++)
             {
                 OverheadsPartyState.Value value = enabled[i] ? party.value((Player) actor, i) : null;
-                if (value == null) { continue; }
+                if (value == null) { if (i == 0) healthStyle.remove(actor); continue; }
                 OverheadsBarDisplay display = i == 0 ? config.otherHealthDisplay() : i == 1 ? config.prayerDisplay() : i == 2 ? config.runDisplay() : config.specialDisplay();
                 if (display == OverheadsBarDisplay.HIDDEN || value.current >= value.maximum
                     && (i == 2 && config.runHideWhenFull() || i == 3 && config.specialHideWhenFull())) { continue; }
                 OverheadsNumberFormat format = i == 0 ? config.healthNumberFormat() : i == 1 ? config.prayerNumberFormat() : i == 2 ? config.runNumberFormat() : config.specialNumberFormat();
                 String label = labels[i] + " ~" + format.format(value.current, value.maximum);
                 draw(graphics, actor, anchor, layout, "party" + i, label, value.current / (double) value.maximum,
-                    display, colors[i], slot++, i);
+                    display, colors[i], slot++, i, value.maximum);
             }
         }
     }
@@ -108,11 +111,16 @@ final class OverheadsIndicators
     {
         if (fraction < 0 || display == OverheadsBarDisplay.HIDDEN) { return; }
         String text = label + " ~" + (int) Math.ceil(fraction * ticks * 0.6) + "s";
-        draw(graphics, actor, anchor, layout, "timer" + label, text, fraction, display, color, slot, -1);
+        draw(graphics, actor, anchor, layout, "timer" + label, text, fraction, display, color, slot, -1, 0);
+    }
+
+    private boolean showPartyHealth(Actor actor)
+    {
+        return config.partyShowHealth() && config.healthBarsEnabled() && config.otherHealthVisibility().includes(client, actor);
     }
 
     private void draw(Graphics2D graphics, Actor actor, Point anchor, OverheadsCollisionLayout layout,
-        String key, String text, double fraction, OverheadsBarDisplay display, Color color, int slot, int resource)
+        String key, String text, double fraction, OverheadsBarDisplay display, Color color, int slot, int resource, int maximum)
     {
         int opacity = resource == 0 ? config.healthBarOpacity() : resource == 1 ? config.prayerOpacity() : resource == 2 ? config.runOpacity() : resource == 3 ? config.specialOpacity() : config.indicatorOpacity();
         net.runelite.client.config.FontType textFont = resource == 1 ? config.prayerTextFont() : resource == 2 ? config.runFont() : resource == 3 ? config.specialFont() : config.healthTextFont();
@@ -132,8 +140,12 @@ final class OverheadsIndicators
         if (opacity <= 0 && (display == OverheadsBarDisplay.BAR_ONLY || textColor.getAlpha() == 0)) { return; }
         double zoom = OverheadsPlacement.zoom(client, actor, scaleWithZoom);
         boolean vertical = orientation == OverheadsOrientation.VERTICAL;
-        int length = OverheadsHealthBarRenderer.barDimension(width, 20, 200, zoom);
-        int thickness = OverheadsHealthBarRenderer.barDimension(height, 2, 30, zoom);
+        double widthScale = resource == 0 ? OverheadsHealthBarRenderer.effectiveScalePercent(config.healthBarScaleMode(),
+            config.healthBarScalePercent(), config.healthBarLargeScalePercent(), config.healthBarScaleThreshold(), actor.getHealthScale()) / 100.0 : 1;
+        double heightScale = resource == 0 ? OverheadsHealthBarRenderer.effectiveScalePercent(config.healthBarScaleMode(),
+            config.healthBarScalePercent(), config.healthBarLargeHeightScalePercent(), config.healthBarScaleThreshold(), actor.getHealthScale()) / 100.0 : 1;
+        int length = OverheadsHealthBarRenderer.barDimension(width, resource == 0 ? 10 : 20, 200, zoom * widthScale);
+        int thickness = OverheadsHealthBarRenderer.barDimension(height, 2, 30, zoom * heightScale);
         OverheadsPosition position = resource == 0 ? config.healthPosition() : resource == 1 ? config.prayerPosition() : resource == 2 ? config.runPosition() : resource == 3 ? config.specialPosition() : config.indicatorPosition();
         Font baseFont = textFont.getFont();
         Font font = baseFont.deriveFont((float) Math.max(6, Math.min(96, baseFont.getSize2D() * zoom)));
@@ -146,6 +158,15 @@ final class OverheadsIndicators
         if (bounds == null) { return; }
         Rectangle painted = OverheadsCollisionLayout.barBounds(graphics, bounds, vertical, display, position, text,
             textFont, zoom, borderThickness, opacity, textColor.getAlpha());
+        if (resource == 0)
+        {
+            double trail = healthTrail(actor, fraction, maximum, System.nanoTime() / 1_000_000L);
+            OverheadsCollisionLayout.draw(layout, graphics, key, position, painted, target ->
+                healthStyle.paintBar(target, bounds, vertical, display, position, fraction, trail, color,
+                    config.healthBarFrontSecondaryColor(), opacity, text, textFont, textColor, zoom,
+                    config.healthBarSegmentsEnabled() ? maximum : 0, false, 0, maximum));
+            return;
+        }
         OverheadsCollisionLayout.draw(layout, graphics, key, position, painted, target ->
         {
             Graphics2D g = (Graphics2D) target.create();
@@ -153,7 +174,11 @@ final class OverheadsIndicators
             {
                 g.setComposite(AlphaComposite.SrcOver.derive(Math.max(0, Math.min(100, opacity)) / 100f));
                 double fill = Math.max(0, Math.min(1, fraction));
-                OverheadsHealthBarFillDirection direction = vertical ? OverheadsHealthBarFillDirection.BOTTOM_TO_TOP : OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
+                OverheadsHealthBarFillDirection selectedDirection = resource == 1 ? config.prayerFillDirection()
+                    : resource == 2 ? config.runFillDirection() : resource == 3 ? config.specialFillDirection() : OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
+                OverheadsHealthBarFillDirection direction = vertical
+                    ? (selectedDirection == OverheadsHealthBarFillDirection.TOP_TO_BOTTOM ? selectedDirection : OverheadsHealthBarFillDirection.BOTTOM_TO_TOP)
+                    : (selectedDirection == OverheadsHealthBarFillDirection.RIGHT_TO_LEFT ? selectedDirection : OverheadsHealthBarFillDirection.LEFT_TO_RIGHT);
                 if (display != OverheadsBarDisplay.NUMBERS_ONLY)
                 {
                     OverheadsSprite front = style == OverheadsHealthBarStyle.NATIVE ? sprite(SpriteID.StandardHealth30.FRONT) : null;
@@ -196,6 +221,22 @@ final class OverheadsIndicators
         return source == null ? sprites.get(id, 0) : source;
     }
 
+    double healthTrail(Actor actor, double fraction, int maximum, long nowMillis)
+    {
+        if (partySession != party.session())
+        {
+            healthStyle.clearCache();
+            partySession = party.session();
+        }
+        if (!config.healthBarDamageTrailEnabled() || config.healthBarStyle() != OverheadsHealthBarStyle.SOLID)
+        {
+            healthStyle.remove(actor);
+            return fraction;
+        }
+        return healthStyle.damageTrailState(actor, nowMillis).update(fraction, maximum, nowMillis,
+            config.healthBarDamageTrailHold(), config.healthBarDamageTrailDrain());
+    }
+
     private BufferedImage tint(BufferedImage source, Color color)
     {
         if (source != tintSource) { tinted.clear(); tintSource = source; }
@@ -204,5 +245,6 @@ final class OverheadsIndicators
 
     void clear() {
         if (scoped != null) scoped.forEach(child -> child.clear());
- sprites.clear(); tinted.clear(); tintSource = null; }
+        sprites.clear(); tinted.clear(); tintSource = null; healthStyle.clearCache(); partySession = Long.MIN_VALUE;
+    }
 }

@@ -240,7 +240,7 @@ final class OverheadsHealthBarRenderer
 				text, font, textColor, zoom, segmentMaximum, prayer, restore, maximum));
 	}
 
-	private void paintBar(Graphics2D graphics, Rectangle bounds, boolean vertical,
+	void paintBar(Graphics2D graphics, Rectangle bounds, boolean vertical,
 		OverheadsBarDisplay display, OverheadsPosition position, double fraction, double trail,
 		Color fill, Color secondFill, int opacity, String text, net.runelite.client.config.FontType font,
 		Color textColor, double zoom, int segmentMaximum, boolean prayer, int restore, int maximum)

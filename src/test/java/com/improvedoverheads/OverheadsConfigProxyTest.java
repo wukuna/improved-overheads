@@ -17,7 +17,7 @@ public class OverheadsConfigProxyTest
     @Test
     public void inheritedActorInterfacesUseTheirOwnRuneLiteConfigGroup() throws Exception
     {
-        for (Class<?> type : new Class<?>[]{OverheadsProfiles.PlayersConfig.class, OverheadsProfiles.NpcsConfig.class, OverheadsProfiles.UniversalConfig.class})
+        for (Class<?> type : new Class<?>[]{OverheadsProfiles.PlayersConfig.class, OverheadsProfiles.PartyConfig.class, OverheadsProfiles.NpcsConfig.class, OverheadsProfiles.UniversalConfig.class})
         {
             ConfigManager manager = mock(ConfigManager.class);
             Constructor<?> constructor = Class.forName("net.runelite.client.config.ConfigInvocationHandler")

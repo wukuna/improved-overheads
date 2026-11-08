@@ -37,9 +37,46 @@ public class OverheadsPanelVisibilityTest
             ((javax.swing.JSpinner) find(panel, "healthBarOpacity")).setValue(22);
             assertEquals(22, f.get(OverheadsProfiles.Scope.PLAYERS, "healthBarOpacity"));
             assertNotEquals(22, f.self.healthBarOpacity());
+            actors.setSelectedItem(OverheadsProfiles.Scope.PARTY);
+            assertNotNull(find(panel, "runDisplay"));
+            assertTrue(row(panel, "partyShowHealth").isVisible());
+            assertNotSame(row(panel, "healthBarOpacity").getParent(), row(panel, "healthBarDamageTrailEnabled").getParent());
+            ((javax.swing.JSpinner) find(panel, "healthBarOpacity")).setValue(77);
+            ((javax.swing.JSpinner) find(panel, "healthBarDamageTrailHold")).setValue(600);
+            assertEquals(77, f.get(OverheadsProfiles.Scope.PARTY, "healthBarOpacity"));
+            assertEquals(600, f.get(OverheadsProfiles.Scope.PARTY, "healthBarDamageTrailHold"));
+            assertEquals(22, f.get(OverheadsProfiles.Scope.PLAYERS, "healthBarOpacity"));
+            assertNotEquals(600, f.get(OverheadsProfiles.Scope.PLAYERS, "healthBarDamageTrailHold"));
+            ((javax.swing.JComboBox<?>) find(panel, "partyDisplay")).setSelectedItem(OverheadsBarDisplay.BOTH);
+            assertEquals(OverheadsBarDisplay.BOTH, f.self.partyDisplay());
+            assertNull(f.get(OverheadsProfiles.Scope.PARTY, "partyDisplay"));
             actors.setSelectedItem(OverheadsProfiles.Scope.NPCS);
             assertTrue(row(panel, "npcHealthDisplay").isVisible());
             assertNull(find(panel, "runDisplay"));
+        });
+    }
+
+    @Test
+    public void prayerBackgroundControlsOnlyShowForSupportedActorAndShape() throws Exception
+    {
+        OverheadsProfilesTest.Fixture f = new OverheadsProfilesTest.Fixture();
+        f.profiles.initialize();
+        SwingUtilities.invokeAndWait(() ->
+        {
+            OverheadsPanel panel = new OverheadsPanel(f.self, f.manager, mock(ColorPickerManager.class));
+            panel.configureProfiles(f.profiles);
+            panel.rebuild();
+            assertFalse(row(panel, "prayerIconBackgroundTracksPoints").isVisible());
+            ((javax.swing.JComboBox<?>) find(panel, "prayerIconShape")).setSelectedItem(OverheadsIconShape.ROUND);
+            panel.refresh();
+            assertTrue(row(panel, "prayerIconBackgroundTracksPoints").isVisible());
+            assertFalse(row(panel, "prayerIconEmptyBackground").isVisible());
+            ((javax.swing.JCheckBox) find(panel, "prayerIconBackgroundTracksPoints")).doClick();
+            panel.refresh();
+            assertTrue(row(panel, "prayerIconEmptyBackground").isVisible());
+            actorPicker(panel).setSelectedItem(OverheadsProfiles.Scope.PLAYERS);
+            assertFalse(row(panel, "prayerIconBackgroundTracksPoints").isVisible());
+            assertNull(find(panel, "partyDisplay"));
         });
     }
 
@@ -145,7 +182,7 @@ public class OverheadsPanelVisibilityTest
     {
         Component editor = find(parent, key);
         assertNotNull(key, editor);
-        return editor.getParent();
+        return editor instanceof javax.swing.JCheckBox ? editor : editor.getParent();
     }
 
     private static Component find(Container parent, String key)

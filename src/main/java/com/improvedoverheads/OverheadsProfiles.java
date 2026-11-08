@@ -18,6 +18,7 @@ public final class OverheadsProfiles
         SELF("My player", OverheadsConfig.GROUP),
         PLAYERS("Other players", "improvedoverheadsplayers"),
         NPCS("NPCs", "improvedoverheadsnpcs"),
+        PARTY("Party", "improvedoverheadsparty"),
         UNIVERSAL("Universal", "improvedoverheadsuniversal");
 
         final String label;
@@ -30,9 +31,12 @@ public final class OverheadsProfiles
     public interface PlayersConfig extends OverheadsConfig {}
     @ConfigGroup("improvedoverheadsnpcs")
     public interface NpcsConfig extends OverheadsConfig {}
+    @ConfigGroup("improvedoverheadsparty")
+    public interface PartyConfig extends OverheadsConfig {}
     @ConfigGroup("improvedoverheadsuniversal")
     public interface UniversalConfig extends OverheadsConfig {}
 
+    @Inject private OverheadsPartyState party;
     private final Client client;
     private final ConfigManager manager;
     private final Map<Scope, OverheadsConfig> configs = new EnumMap<>(Scope.class);
@@ -46,13 +50,15 @@ public final class OverheadsProfiles
         configs.put(Scope.SELF, self);
         configs.put(Scope.PLAYERS, manager.getConfig(PlayersConfig.class));
         configs.put(Scope.NPCS, manager.getConfig(NpcsConfig.class));
+        configs.put(Scope.PARTY, manager.getConfig(PartyConfig.class));
         configs.put(Scope.UNIVERSAL, manager.getConfig(UniversalConfig.class));
         configs.forEach((scope, config) -> settings.put(scope, new OverheadsSettings(config)));
     }
 
     Scope scope(Actor actor)
     {
-        return actor == client.getLocalPlayer() ? Scope.SELF : actor instanceof NPC ? Scope.NPCS : Scope.PLAYERS;
+        return actor == client.getLocalPlayer() ? Scope.SELF : actor instanceof NPC ? Scope.NPCS
+            : actor != null && party != null && party.contains(actor.getName()) ? Scope.PARTY : Scope.PLAYERS;
     }
 
     OverheadsConfig config(Scope scope) { return configs.get(scope); }
@@ -78,10 +84,10 @@ public final class OverheadsProfiles
             }
             manager.setConfiguration(Scope.SELF.group, "prayerSettingsVersion", "1");
         }
-        OverheadsSetupSchema source = new OverheadsSetupSchema(config(Scope.SELF));
         for (Scope scope : Scope.values())
         {
             if (scope == Scope.SELF || "1".equals(manager.getConfiguration(scope.group, "actorSettingsVersion"))) continue;
+            OverheadsSetupSchema source = new OverheadsSetupSchema(config(scope == Scope.PARTY ? Scope.PLAYERS : Scope.SELF));
             for (OverheadsSetupSchema.Entry<?> entry : source.entries.values())
             {
                 if (entry.key.equals("partyDisplay") || manager.getConfiguration(scope.group, entry.key) != null) continue;
@@ -99,7 +105,7 @@ public final class OverheadsProfiles
     void applyUniversal(OverheadsComponent component)
     {
         OverheadsSetupSchema source = new OverheadsSetupSchema(config(Scope.UNIVERSAL));
-        for (Scope scope : new Scope[]{Scope.SELF, Scope.PLAYERS, Scope.NPCS})
+        for (Scope scope : new Scope[]{Scope.SELF, Scope.PLAYERS, Scope.NPCS, Scope.PARTY})
         {
             for (OverheadsSetupSchema.Entry<?> entry : source.entries.values())
             {
@@ -119,11 +125,11 @@ public final class OverheadsProfiles
         {
             case "showNpcOverheadChat": case "overheadChatEnabled": return scope == Scope.NPCS ? "showNpcOverheadChat" : "overheadChatEnabled";
             case "selfHealthDisplay": case "otherHealthDisplay": case "npcHealthDisplay":
-                return scope == Scope.NPCS ? "npcHealthDisplay" : scope == Scope.PLAYERS ? "otherHealthDisplay" : "selfHealthDisplay";
+                return scope == Scope.NPCS ? "npcHealthDisplay" : (scope == Scope.PLAYERS || scope == Scope.PARTY) ? "otherHealthDisplay" : "selfHealthDisplay";
             case "selfNameVisibility": case "playerNameVisibility": case "npcNameVisibility":
-                return scope == Scope.NPCS ? "npcNameVisibility" : scope == Scope.PLAYERS ? "playerNameVisibility" : "selfNameVisibility";
+                return scope == Scope.NPCS ? "npcNameVisibility" : (scope == Scope.PLAYERS || scope == Scope.PARTY) ? "playerNameVisibility" : "selfNameVisibility";
             case "disableMyHitsplats": case "disableAllyHitsplats": case "disableEnemyHitsplats":
-                return scope == Scope.NPCS ? "disableEnemyHitsplats" : scope == Scope.PLAYERS ? "disableAllyHitsplats" : "disableMyHitsplats";
+                return scope == Scope.NPCS ? "disableEnemyHitsplats" : (scope == Scope.PLAYERS || scope == Scope.PARTY) ? "disableAllyHitsplats" : "disableMyHitsplats";
             default: return key;
         }
     }

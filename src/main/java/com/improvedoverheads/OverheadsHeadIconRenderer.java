@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.LinkedHashMap;
+import net.runelite.api.Skill;
 import javax.inject.Inject;
 import net.runelite.api.Actor;
 import net.runelite.api.Client;
@@ -25,11 +27,17 @@ import net.runelite.api.gameval.SpriteID;
 
 final class OverheadsHeadIconRenderer
 {
+    @Inject private OverheadsPartyState party;
+    private int prayerLevel = -1;
     private OverheadsActorRenderers<OverheadsHeadIconRenderer> scoped;
     @javax.inject.Inject
     void configureProfiles(OverheadsProfiles profiles)
     {
-        scoped = new OverheadsActorRenderers<>(this, profiles, selected -> new OverheadsHeadIconRenderer(client, selected, sprites));
+        scoped = new OverheadsActorRenderers<>(this, profiles, selected -> {
+            OverheadsHeadIconRenderer child = new OverheadsHeadIconRenderer(client, selected, sprites);
+            child.party = party;
+            return child;
+        });
     }
 
 	private static final int NPC_HINT_SPRITE_INDEX = 0;
@@ -56,7 +64,9 @@ final class OverheadsHeadIconRenderer
 	private final float[] projectionBuffer = new float[3];
 	private Actor preparedActor;
 	private final Map<Integer, OverheadsSprite> styledSources = new HashMap<>();
-	private final Map<Integer, OverheadsSprite> styledIcons = new HashMap<>();
+	private final Map<Integer, OverheadsSprite> styledIcons = new LinkedHashMap<Integer, OverheadsSprite>(128, .75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<Integer, OverheadsSprite> entry) { return size() > 128; }
+    };
 
 	@Inject
 	OverheadsHeadIconRenderer(
@@ -80,6 +90,7 @@ final class OverheadsHeadIconRenderer
 			return false;
 		}
 
+		prayerLevel = prayerLevel(actor);
 		if (actor instanceof Player)
 		{
 			addPlayerIcons(iconBuffer, (Player) actor);
@@ -328,17 +339,42 @@ final class OverheadsHeadIconRenderer
     private OverheadsSprite stylePrayerIcon(int prayerIndex, OverheadsSprite source)
     {
         if (source == null) { return null; }
-		if (styledSources.get(prayerIndex) == source)
-		{
-			return styledIcons.get(prayerIndex);
-		}
+        if (styledSources.get(prayerIndex) != source)
+        {
+            styledIcons.keySet().removeIf(key -> (key >> 8) == prayerIndex);
+            styledSources.put(prayerIndex, source);
+        }
+        int key = (prayerIndex << 8) | (prayerLevel + 1);
+        OverheadsSprite cached = styledIcons.get(key);
+        if (cached != null) return cached;
 		OverheadsSprite styled = OverheadsPrayerIconStyle.create(source,
 			config.showPrayerIconBackground() ? config.prayerIconShape() : OverheadsIconShape.ORIGINAL,
-			config.prayerIconBackground(), config.prayerIconBorder(), config.prayerIconScalePercent());
+			config.prayerIconBackground(), config.prayerIconBorder(), config.prayerIconScalePercent(),
+            prayerLevel < 0 ? 1 : prayerLevel / 100.0, config.prayerIconEmptyBackground());
 		styledSources.put(prayerIndex, source);
-		styledIcons.put(prayerIndex, styled);
+		styledIcons.put(key, styled);
 		return styled;
 	}
+
+    int prayerLevel(Actor actor)
+    {
+        if (!config.prayerIconBackgroundTracksPoints() || !config.showPrayerIconBackground()
+            || config.prayerIconShape() == OverheadsIconShape.ORIGINAL) return -1;
+        int current, maximum;
+        if (actor == client.getLocalPlayer())
+        {
+            current = client.getBoostedSkillLevel(Skill.PRAYER);
+            maximum = client.getRealSkillLevel(Skill.PRAYER);
+        }
+        else if (actor instanceof Player && party != null)
+        {
+            OverheadsPartyState.Value value = party.value((Player) actor, 1);
+            if (value == null) return -1;
+            current = value.current; maximum = value.maximum;
+        }
+        else return -1;
+        return maximum <= 0 || current < 0 ? -1 : (int) Math.round(Math.max(0, Math.min(1, current / (double) maximum)) * 100);
+    }
 
 	static int resourcePackPrayerSpriteId(int prayerIndex)
 	{
