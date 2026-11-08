@@ -89,8 +89,8 @@ public class OverheadsNpcHealthTextTest
     @Test
     public void observedNpcNumbersUseSelectedFormatWithoutPretendingUnknownHpIsExact()
     {
-        assertEquals("~50/100", OverheadsHealthBarRenderer.observedHealthText(0.5, 100, OverheadsNumberFormat.CURRENT_MAXIMUM));
-        assertEquals("~50", OverheadsHealthBarRenderer.observedHealthText(0.5, 100, OverheadsNumberFormat.CURRENT));
+        assertEquals("50/100", OverheadsHealthBarRenderer.observedHealthText(0.5, 100, OverheadsNumberFormat.CURRENT_MAXIMUM));
+        assertEquals("50", OverheadsHealthBarRenderer.observedHealthText(0.5, 100, OverheadsNumberFormat.CURRENT));
         assertEquals("50%", OverheadsHealthBarRenderer.observedHealthText(0.5, 100, OverheadsNumberFormat.PERCENTAGE));
         assertEquals("50%", OverheadsHealthBarRenderer.observedHealthText(0.5, null, OverheadsNumberFormat.CURRENT));
     }

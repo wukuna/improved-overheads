@@ -468,7 +468,7 @@ final class OverheadsHealthBarRenderer
         double bounded = Math.max(0, Math.min(1, fraction));
         if (maximum == null || maximum <= 0 || format == OverheadsNumberFormat.PERCENTAGE) return Math.round(bounded * 100) + "%";
         String value = format.format((int) Math.round(bounded * maximum), maximum);
-        return bounded > 0 && bounded < 1 ? "~" + value : value;
+        return value;
     }
 
     private boolean showHealth(Actor actor)
