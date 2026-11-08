@@ -99,7 +99,7 @@ final class OverheadsIndicators
                 if (display == OverheadsBarDisplay.HIDDEN || value.current >= value.maximum
                     && (i == 2 && config.runHideWhenFull() || i == 3 && config.specialHideWhenFull())) { continue; }
                 OverheadsNumberFormat format = i == 0 ? config.healthNumberFormat() : i == 1 ? config.prayerNumberFormat() : i == 2 ? config.runNumberFormat() : config.specialNumberFormat();
-                String label = labels[i] + " ~" + format.format(value.current, value.maximum);
+                String label = labels[i] + (i == 0 ? " " : " ~") + format.format(value.current, value.maximum);
                 draw(graphics, actor, anchor, layout, "party" + i, label, value.current / (double) value.maximum,
                     display, colors[i], slot++, i, value.maximum);
             }
