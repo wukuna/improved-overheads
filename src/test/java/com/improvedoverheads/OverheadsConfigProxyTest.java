@@ -38,6 +38,24 @@ public class OverheadsConfigProxyTest
     }
 
     @Test
+    public void savedHitsplatSidesAndNativeDeserializeThroughRuneLite() throws Exception
+    {
+        for (OverheadsHitsplatPosition position : OverheadsHitsplatPosition.values())
+        {
+            ConfigManager manager = mock(ConfigManager.class, call -> call.getMethod().getName().equals("stringToObject")
+                ? call.callRealMethod() : RETURNS_DEFAULTS.answer(call));
+            when(manager.getConfiguration(OverheadsConfig.GROUP, "hitsplatPosition")).thenReturn(position.name());
+            Constructor<?> constructor = Class.forName("net.runelite.client.config.ConfigInvocationHandler")
+                .getDeclaredConstructor(ConfigManager.class);
+            constructor.setAccessible(true);
+            InvocationHandler handler = (InvocationHandler) constructor.newInstance(manager);
+            OverheadsConfig config = (OverheadsConfig) Proxy.newProxyInstance(OverheadsConfig.class.getClassLoader(),
+                new Class<?>[]{OverheadsConfig.class}, handler);
+            assertEquals(position, config.hitsplatPosition());
+        }
+    }
+
+    @Test
     public void settingsAndPanelWorkThroughRuneLiteConfigProxy() throws Exception
     {
         ConfigManager manager = mock(ConfigManager.class);

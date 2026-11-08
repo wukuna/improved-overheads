@@ -1808,13 +1808,13 @@ public interface OverheadsConfig extends Config
 		hidden = true,
         keyName = "hitsplatPosition",
         name = "Hitsplat position",
-        description = "Hitsplat position.",
+        description = "Native anchors hitsplats on the target. Other positions place the group outside the target.",
         section = DISPLAY_SECTION,
         position = 127
     )
-    default OverheadsPosition hitsplatPosition()
+    default OverheadsHitsplatPosition hitsplatPosition()
     {
-        return OverheadsPosition.ABOVE;
+        return OverheadsHitsplatPosition.ABOVE;
     }
 
     @ConfigItem(

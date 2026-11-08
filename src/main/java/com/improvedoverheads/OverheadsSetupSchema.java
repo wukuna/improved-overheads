@@ -303,7 +303,7 @@ final class OverheadsSetupSchema
         add("chatScaleWithZoom", "Chat: Scale chat with zoom", config::chatScaleWithZoom,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("hitsplatPosition", "Hits: Hitsplat position", config::hitsplatPosition,
-            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPosition.values()));
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsHitsplatPosition.values()));
         add("hitsplatScaleWithZoom", "Hits: Scale hitsplat with zoom", config::hitsplatScaleWithZoom,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("iconsPosition", "Icons: Icon position", config::iconsPosition,

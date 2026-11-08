@@ -512,7 +512,9 @@ public class OverheadsOverlay extends Overlay
 			return false;
 		}
 
-        Point top = actorTopAnchor(actor, actorProjectionHeight(actorBaseOverheadHeight(actor, gameCycle)));
+        boolean nativePosition = config.hitsplatPosition() == OverheadsHitsplatPosition.NATIVE;
+        Point top = nativePosition ? actor.getCanvasImageLocation(ANCHOR_IMAGE, actor.getLogicalHeight() / 2)
+            : actorTopAnchor(actor, actorProjectionHeight(actorBaseOverheadHeight(actor, gameCycle)));
         if (top == null)
 		{
 			return true;
@@ -606,18 +608,19 @@ public class OverheadsOverlay extends Overlay
             + (Math.max(1, Math.min(4, config.hitsplatScrollColumns())) - 1)
                 * OverheadsRenderLayout.scaleCoordinate(Math.max(0, settings.xSpacing()) + 2, scalePercent)
             : layoutBounds.width;
-        Rectangle group = OverheadsPlacement.bounds(actor, top, config.hitsplatPosition(),
+        Rectangle group = nativePosition ? new Rectangle(top.getX(), top.getY(), 0, 0)
+            : OverheadsPlacement.bounds(actor, top, config.hitsplatPosition().side(),
             baseWidth, scrolling ? slotSize.height : layoutBounds.height, 0, 0);
 		if (group == null)
 		{
 			return true;
 		}
-        Point anchor = scrolling ? new Point(group.x + group.width / 2, group.y + group.height / 2)
+        Point anchor = nativePosition ? top : scrolling ? new Point(group.x + group.width / 2, group.y + group.height / 2)
             : new Point(group.x - layoutBounds.x, group.y - layoutBounds.y);
         Rectangle painted = new Rectangle(layoutBounds);
         painted.translate(anchor.getX() + xOffsetFor(config, bossLike), anchor.getY() - yOffsetFor(config, bossLike));
         painted.grow(2, 2);
-		OverheadsCollisionLayout.draw(collision, graphics, "hits", config.hitsplatPosition(), painted, target ->
+		OverheadsCollisionLayout.draw(nativePosition ? null : collision, graphics, "hits", config.hitsplatPosition().side(), painted, target ->
 		{
 		for (int i = 0; i < preparedHitsplats.size(); i++)
 		{
