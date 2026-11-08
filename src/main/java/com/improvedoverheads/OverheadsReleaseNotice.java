@@ -27,7 +27,7 @@ public final class OverheadsReleaseNotice
         "Share named setups and hitsplat themes with JSON; Undo restores the last applied changes.",
         "Optional run and special-energy displays can hide while full.",
         "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
-        "Protection and combat/misc prayers have separate sizes, positions and two-row layouts; icon backgrounds can follow prayer points.",
+        "Protection and combat/misc prayers have separate sizes, positions and two-row layouts; each row has independent backgrounds and prayer-point drain effects.",
         "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
     };
 

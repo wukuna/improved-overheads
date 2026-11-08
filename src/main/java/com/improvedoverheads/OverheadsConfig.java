@@ -2859,4 +2859,32 @@ public interface OverheadsConfig extends Config
     @Range(min = -300, max = 300)
     default int prayerIconCombatYOffset() { return 0; }
 
+
+    @ConfigItem(hidden = true, keyName = "prayerIconRow2BackgroundEnabled", name = "Row 2: Background",
+        description = "Show the background for prayer icons assigned to Row 2.", section = HEAD_ICONS_SECTION, position = 520)
+    default boolean prayerIconRow2BackgroundEnabled() { return true; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconRow2Shape", name = "Row 2: Frame",
+        description = "Frame shape for Row 2 prayer icons.", section = HEAD_ICONS_SECTION, position = 521)
+    default OverheadsIconShape prayerIconRow2Shape() { return OverheadsIconShape.ORIGINAL; }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "prayerIconRow2Background", name = "Row 2: Background color",
+        description = "Background color and opacity for Row 2.", section = HEAD_ICONS_SECTION, position = 522)
+    default Color prayerIconRow2Background() { return new Color(35, 40, 46, 210); }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "prayerIconRow2Border", name = "Row 2: Border color",
+        description = "Border color and opacity for Row 2.", section = HEAD_ICONS_SECTION, position = 523)
+    default Color prayerIconRow2Border() { return new Color(170, 180, 190); }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconRow2TracksPoints", name = "Row 2: Follow prayer points",
+        description = "Drain and refill Row 2 backgrounds with your prayer points or available shared party prayer.", section = HEAD_ICONS_SECTION, position = 524)
+    default boolean prayerIconRow2TracksPoints() { return false; }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "prayerIconRow2EmptyBackground", name = "Row 2: Empty background",
+        description = "Empty background color and opacity for Row 2.", section = HEAD_ICONS_SECTION, position = 525)
+    default Color prayerIconRow2EmptyBackground() { return new Color(12, 15, 18, 150); }
+
 }

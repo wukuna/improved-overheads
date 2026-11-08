@@ -294,4 +294,11 @@ final class OverheadsScopedConfig implements OverheadsConfig
     @Override public int prayerIconCombatScalePercent() { return read("prayerIconCombatScalePercent", Integer.class, DEFAULTS::prayerIconCombatScalePercent); }
     @Override public int prayerIconCombatXOffset() { return read("prayerIconCombatXOffset", Integer.class, DEFAULTS::prayerIconCombatXOffset); }
     @Override public int prayerIconCombatYOffset() { return read("prayerIconCombatYOffset", Integer.class, DEFAULTS::prayerIconCombatYOffset); }
+
+    @Override public boolean prayerIconRow2BackgroundEnabled() { return read("prayerIconRow2BackgroundEnabled", Boolean.class, DEFAULTS::prayerIconRow2BackgroundEnabled); }
+    @Override public OverheadsIconShape prayerIconRow2Shape() { return read("prayerIconRow2Shape", OverheadsIconShape.class, DEFAULTS::prayerIconRow2Shape); }
+    @Override public Color prayerIconRow2Background() { return read("prayerIconRow2Background", Color.class, DEFAULTS::prayerIconRow2Background); }
+    @Override public Color prayerIconRow2Border() { return read("prayerIconRow2Border", Color.class, DEFAULTS::prayerIconRow2Border); }
+    @Override public boolean prayerIconRow2TracksPoints() { return read("prayerIconRow2TracksPoints", Boolean.class, DEFAULTS::prayerIconRow2TracksPoints); }
+    @Override public Color prayerIconRow2EmptyBackground() { return read("prayerIconRow2EmptyBackground", Color.class, DEFAULTS::prayerIconRow2EmptyBackground); }
 }

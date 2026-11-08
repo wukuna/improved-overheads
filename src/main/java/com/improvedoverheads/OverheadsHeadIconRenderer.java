@@ -394,37 +394,56 @@ final class OverheadsHeadIconRenderer
 
 	private OverheadsSprite getPrayerIcon(int prayerIndex)
 	{
+        boolean row2 = secondPrayerRow(prayerIndex);
 		OverheadsSprite source = sprites.getPrayerIcon(
 			prayerIndex,
 			resourcePackPrayerSpriteId(prayerIndex),
-			config.showPrayerIconBackground() && config.prayerIconShape() == OverheadsIconShape.ORIGINAL);
+            row2 ? config.prayerIconRow2BackgroundEnabled() && config.prayerIconRow2Shape() == OverheadsIconShape.ORIGINAL
+                : config.showPrayerIconBackground() && config.prayerIconShape() == OverheadsIconShape.ORIGINAL);
         return stylePrayerIcon(prayerIndex, source);
     }
 
     private OverheadsSprite stylePrayerIcon(int prayerIndex, OverheadsSprite source)
     {
         if (source == null) { return null; }
+        boolean row2 = secondPrayerRow(prayerIndex);
+        boolean background = row2 ? config.prayerIconRow2BackgroundEnabled() : config.showPrayerIconBackground();
+        OverheadsIconShape shape = row2 ? config.prayerIconRow2Shape() : config.prayerIconShape();
+        int level = background && shape != OverheadsIconShape.ORIGINAL
+            && (row2 ? config.prayerIconRow2TracksPoints() : config.prayerIconBackgroundTracksPoints()) ? prayerLevel : -1;
         if (styledSources.get(prayerIndex) != source)
         {
-            styledIcons.keySet().removeIf(key -> (key >> 8) == prayerIndex);
+            styledIcons.keySet().removeIf(key -> (key >> 9) == prayerIndex);
             styledSources.put(prayerIndex, source);
         }
-        int key = (prayerIndex << 8) | (prayerLevel + 1);
+        int key = (prayerIndex << 9) | (row2 ? 256 : 0) | (level + 1);
         OverheadsSprite cached = styledIcons.get(key);
         if (cached != null) return cached;
 		OverheadsSprite styled = OverheadsPrayerIconStyle.create(source,
-			config.showPrayerIconBackground() ? config.prayerIconShape() : OverheadsIconShape.ORIGINAL,
-			config.prayerIconBackground(), config.prayerIconBorder(), protection(prayerIndex) ? config.prayerIconScalePercent() : config.prayerIconCombatScalePercent(),
-            prayerLevel < 0 ? 1 : prayerLevel / 100.0, config.prayerIconEmptyBackground());
+            background ? shape : OverheadsIconShape.ORIGINAL,
+            row2 ? config.prayerIconRow2Background() : config.prayerIconBackground(),
+            row2 ? config.prayerIconRow2Border() : config.prayerIconBorder(),
+            protection(prayerIndex) ? config.prayerIconScalePercent() : config.prayerIconCombatScalePercent(),
+            level < 0 ? 1 : level / 100.0,
+            row2 ? config.prayerIconRow2EmptyBackground() : config.prayerIconEmptyBackground());
 		styledSources.put(prayerIndex, source);
 		styledIcons.put(key, styled);
 		return styled;
 	}
 
+    private boolean secondPrayerRow(int index)
+    {
+        return config.separatePrayerPosition()
+            && (protection(index) ? config.prayerIconRow() : config.prayerIconCombatRow()) == OverheadsPrayerRow.ROW_2;
+    }
+
     int prayerLevel(Actor actor)
     {
-        if (!config.prayerIconBackgroundTracksPoints() || !config.showPrayerIconBackground()
-            || config.prayerIconShape() == OverheadsIconShape.ORIGINAL) return -1;
+        boolean first = config.prayerIconBackgroundTracksPoints() && config.showPrayerIconBackground()
+            && config.prayerIconShape() != OverheadsIconShape.ORIGINAL;
+        boolean second = config.separatePrayerPosition() && config.prayerIconRow2TracksPoints()
+            && config.prayerIconRow2BackgroundEnabled() && config.prayerIconRow2Shape() != OverheadsIconShape.ORIGINAL;
+        if (!first && !second) return -1;
         int current, maximum;
         if (actor == client.getLocalPlayer())
         {

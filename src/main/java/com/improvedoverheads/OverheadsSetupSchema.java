@@ -328,6 +328,18 @@ final class OverheadsSetupSchema
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("iconsPosition", "Icons: Icon position", config::iconsPosition,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPosition.values()));
+        add("prayerIconRow2BackgroundEnabled", "Icons: Row 2 background", config::prayerIconRow2BackgroundEnabled,
+            value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
+        add("prayerIconRow2Shape", "Icons: Row 2 frame", config::prayerIconRow2Shape,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsIconShape.values()));
+        add("prayerIconRow2Background", "Icons: Row 2 background color", config::prayerIconRow2Background,
+            OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerIconRow2Border", "Icons: Row 2 border color", config::prayerIconRow2Border,
+            OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerIconRow2TracksPoints", "Icons: Row 2 follow prayer points", config::prayerIconRow2TracksPoints,
+            value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
+        add("prayerIconRow2EmptyBackground", "Icons: Row 2 empty background", config::prayerIconRow2EmptyBackground,
+            OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
         add("prayerIconBackgroundTracksPoints", "Icons: Background follows prayer points", config::prayerIconBackgroundTracksPoints,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("prayerIconEmptyBackground", "Icons: Empty prayer background", config::prayerIconEmptyBackground,

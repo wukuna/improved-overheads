@@ -87,7 +87,7 @@ public final class OverheadsProfiles
             OverheadsSetupSchema source = new OverheadsSetupSchema(config(scope == Scope.PARTY ? Scope.PLAYERS : Scope.SELF));
             for (OverheadsSetupSchema.Entry<?> entry : source.entries.values())
             {
-                if (entry.key.startsWith("prayerIconCombat")) continue;
+                if (entry.key.startsWith("prayerIconCombat") || entry.key.startsWith("prayerIconRow2")) continue;
                 if (entry.key.equals("partyDisplay") || manager.getConfiguration(scope.group, entry.key) != null) continue;
                 Object value = entry.getter.get();
                 if (scope == Scope.PLAYERS && (entry.key.equals("prayerDisplay") || entry.key.equals("runDisplay") || entry.key.equals("specialDisplay")))
@@ -99,6 +99,7 @@ public final class OverheadsProfiles
             manager.setConfiguration(scope.group, "actorSettingsVersion", "1");
         }
         initializePrayerGroups();
+        initializePrayerRowBackgrounds();
     }
 
     private void initializePrayerGroups()
@@ -113,6 +114,26 @@ public final class OverheadsProfiles
                 if (manager.getConfiguration(scope.group, pair[0]) == null)
                     manager.setConfiguration(scope.group, pair[0], schema.entries.get(pair[1]).getter.get());
             manager.setConfiguration(scope.group, "prayerIconGroupsVersion", "1");
+            invalidate(scope.group);
+        }
+    }
+
+    private void initializePrayerRowBackgrounds()
+    {
+        String[][] keys = {{"prayerIconRow2BackgroundEnabled", "showPrayerIconBackground"},
+            {"prayerIconRow2Shape", "prayerIconShape"},
+            {"prayerIconRow2Background", "prayerIconBackground"},
+            {"prayerIconRow2Border", "prayerIconBorder"},
+            {"prayerIconRow2TracksPoints", "prayerIconBackgroundTracksPoints"},
+            {"prayerIconRow2EmptyBackground", "prayerIconEmptyBackground"}};
+        for (Scope scope : Scope.values())
+        {
+            if ("1".equals(manager.getConfiguration(scope.group, "prayerRowBackgroundVersion"))) continue;
+            OverheadsSetupSchema schema = new OverheadsSetupSchema(config(scope));
+            for (String[] pair : keys)
+                if (manager.getConfiguration(scope.group, pair[0]) == null)
+                    manager.setConfiguration(scope.group, pair[0], schema.entries.get(pair[1]).getter.get());
+            manager.setConfiguration(scope.group, "prayerRowBackgroundVersion", "1");
             invalidate(scope.group);
         }
     }

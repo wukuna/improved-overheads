@@ -704,6 +704,12 @@ final class OverheadsPanel extends PluginPanel
                 "Prayer icon background.",
                 config::prayerIconBackground);
             color(advanced, "prayerIconBorder", "Prayer icon border", "Prayer icon border.", config::prayerIconBorder);
+            toggle(advanced, "prayerIconRow2BackgroundEnabled", "Background", "Show the background for prayer icons assigned to Row 2.", config::prayerIconRow2BackgroundEnabled);
+            choice(advanced, "prayerIconRow2Shape", "Frame", "Frame shape for Row 2 prayer icons.", config::prayerIconRow2Shape, OverheadsIconShape.values());
+            color(advanced, "prayerIconRow2Background", "Background color", "Background color and opacity for Row 2.", config::prayerIconRow2Background);
+            color(advanced, "prayerIconRow2Border", "Border color", "Border color and opacity for Row 2.", config::prayerIconRow2Border);
+            toggle(advanced, "prayerIconRow2TracksPoints", "Follow prayer points", "Drain and refill Row 2 backgrounds with your prayer points or available shared party prayer.", config::prayerIconRow2TracksPoints);
+            color(advanced, "prayerIconRow2EmptyBackground", "Empty background", "Empty background color and opacity for Row 2.", config::prayerIconRow2EmptyBackground);
             number(advanced, "prayerIconScalePercent", "Protection size",
                 "Prayer icon size.",
                 config::prayerIconScalePercent, 25, 300);
@@ -816,7 +822,7 @@ final class OverheadsPanel extends PluginPanel
                 if (OverheadsComponent.forKey(key) != component) { return; }
                 if (row.getParent() != null) { row.getParent().remove(row); }
             });
-            for (String section : new String[]{"Display", "Party sharing", "Styling", "Position and size", "Protection prayers", "Combat / misc prayers", "Effects", "Animation", "Large targets", "Damage trail", "Segments", "Restore and warnings", "Status icons"})
+            for (String section : new String[]{"Display", "Party sharing", "Styling", "Position and size", "Protection prayers", "Combat / misc prayers", "Row 1 background", "Row 2 background", "Effects", "Animation", "Large targets", "Damage trail", "Segments", "Restore and warnings", "Status icons"})
             {
                 if (settingRows.keySet().stream().noneMatch(key -> OverheadsComponent.forKey(key) == component && sectionName(component, key).equals(section))) continue;
                 section(basic, section, content -> settingRows.forEach((key, row) ->
@@ -893,6 +899,9 @@ final class OverheadsPanel extends PluginPanel
     private static String sectionName(OverheadsComponent component, String key)
     {
         if (component == OverheadsComponent.HEALTH) return healthSection(key);
+        if (key.startsWith("prayerIconRow2")) return "Row 2 background";
+        if (key.equals("showPrayerIconBackground") || key.equals("prayerIconShape") || key.equals("prayerIconBackground")
+            || key.equals("prayerIconBorder") || key.equals("prayerIconBackgroundTracksPoints") || key.equals("prayerIconEmptyBackground")) return "Row 1 background";
         if (key.equals("separatePrayerPosition")) return "Display";
         if (key.startsWith("prayerIconCombat") || key.equals("localBoostPrayerIcons")) return "Combat / misc prayers";
         if (key.equals("prayerIconRow") || key.equals("prayerIconPosition") || key.equals("prayerIconXOffset")
@@ -1299,6 +1308,18 @@ final class OverheadsPanel extends PluginPanel
             || key.equals("prayerIconRow") || key.startsWith("prayerIconCombat") && !key.endsWith("ScalePercent"))
         {
             return config.separatePrayerPosition();
+        }
+        if (key.startsWith("prayerIconRow2"))
+        {
+            if (!config.separatePrayerPosition()) return false;
+            if (key.equals("prayerIconRow2BackgroundEnabled")) return true;
+            if (!config.prayerIconRow2BackgroundEnabled()) return false;
+            if (key.equals("prayerIconRow2Shape")) return true;
+            if (config.prayerIconRow2Shape() == OverheadsIconShape.ORIGINAL) return false;
+            if (key.equals("prayerIconRow2TracksPoints") || key.equals("prayerIconRow2EmptyBackground"))
+                return scope != OverheadsProfiles.Scope.NPCS && scope != OverheadsProfiles.Scope.PLAYERS
+                    && (!key.equals("prayerIconRow2EmptyBackground") || config.prayerIconRow2TracksPoints());
+            return true;
         }
         if (key.equals("prayerIconBackgroundTracksPoints") || key.equals("prayerIconEmptyBackground"))
         {
