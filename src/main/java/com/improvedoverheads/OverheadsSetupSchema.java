@@ -273,6 +273,24 @@ final class OverheadsSetupSchema
             OverheadsSetupSchema::fontJson, OverheadsSetupSchema::fontValue);
         add("healthTextColor", "Health: HP number color", config::healthTextColor,
             OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerTextPosition", "Prayer number position", config::prayerTextPosition,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
+        add("runTextPosition", "Run energy number position", config::runTextPosition,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
+        add("specialTextPosition", "Special attack number position", config::specialTextPosition,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
+        add("prayerIconRow", "Protection row", config::prayerIconRow,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPrayerRow.values()));
+        add("prayerIconCombatRow", "Combat/misc row", config::prayerIconCombatRow,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPrayerRow.values()));
+        add("prayerIconCombatPosition", "Combat/misc position", config::prayerIconCombatPosition,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPosition.values()));
+        add("prayerIconCombatScalePercent", "Combat/misc size", config::prayerIconCombatScalePercent,
+            value -> new JsonPrimitive(value), value -> integerValue(value, 25, 300));
+        add("prayerIconCombatXOffset", "Combat/misc X offset", config::prayerIconCombatXOffset,
+            value -> new JsonPrimitive(value), value -> integerValue(value, -300, 300));
+        add("prayerIconCombatYOffset", "Combat/misc Y offset", config::prayerIconCombatYOffset,
+            value -> new JsonPrimitive(value), value -> integerValue(value, -300, 300));
         add("healthTextPosition", "Health: HP number position", config::healthTextPosition,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
         add("prayerVisibility", "Health: Prayer display", config::prayerVisibility,

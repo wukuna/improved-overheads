@@ -11,6 +11,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 * Give prayer its own style, fill direction, background, border, and corner radius.
 * Customize fonts, colors, opacity, gradients, borders, damage trails, and HP segments.
 * Set health-number fonts, sizes, colors and On bar, Above bar or Below bar placement independently for each actor group. NPC current HP is estimated from its visible health bar when a maximum is known; otherwise it uses a percentage.
+* Choose On bar, Above bar or Below bar separately for Prayer, Run energy and Special attack numbers, including shared party resources.
 * Each actor group's Health section separates Display, Styling, Position and size, Damage trail, Segments, and applicable restoration settings.
 * Resize prayer icons and add round or square backgrounds with separate background and border colors.
 * Optionally drain and refill the prayer icon background with your prayer points or available shared party prayer. Choose a separate empty-background color; unknown or expired values keep the static background.
@@ -27,7 +28,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 * Add local run-energy and special-attack meters, each with numbers, a bar, both, or hidden; independent styling, position, orientation, opacity, and zoom scaling.
 * Show names independently for yourself, other players, and NPCs, with always, current-target, in-combat, and hidden choices.
 * Restrict NPC and other-player HP to your target or combat, and exclude ordinary NPC HP by ID.
-* Place prayer icons independently of skulls and other head icons.
+* Enable Icons → Display → Separate prayer groups to give protection and combat/misc prayers independent positions, offsets and sizes. Choose Row 1 or Row 2 for each group. Groups with the same position and offsets share a centered layout: Row 1 is above Row 2, and icons sharing a row appear side by side. Empty rows leave no gap.
 * Show local poison (P), venom (V), and disease (D) badges, or a target (+) badge on the NPC you are currently interacting with.
 * Avoid overlaps on every side of an actor, including text beside vertical bars. Continuously visible components retain their spacing as chat and hitsplats appear or expire. Adjust the gap or use More → Spacing → Reflow spacing to compact the layout again.
 * Save up to 12 named setups per RuneLite profile in the Setups window. Export and copy JSON, paste it into Setups on another profile, preview the changes, then apply them immediately.
@@ -36,7 +37,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 
 * Reset individual position offsets with the reset button. More → Spacing provides local alignment outlines and optional viewport containment.
 * Use separate name colors for yourself, friends, clan/friends-chat members, RuneLite party members, other players, shops and followers.
-* Show your active offensive prayers with the same configurable prayer frames and positioning. Other players retain only their visible overhead icons.
+* Show your active combat and miscellaneous prayers, including defence, regeneration, Preserve and Protect Item. Other players retain only their visible overhead icons.
 * Add estimated HP regeneration and poison/venom timers as numbers, bars, or both. HP timing requires RuneLite's Regen Meter to be enabled; independent HP-cape and Rejuvenation timing stays hidden. Poison timing begins after a visible poison/venom hit and stops at cure or when an expected hit is overdue.
 * Opt into Party → More → Timers and party to share your name, HP, prayer, run and special energy through your existing RuneLite party. Customize received resources under Party → Bars, independently for each resource. Values marked `~` are last received; RuneLite rounds run energy. Old values expire after the configured lifetime; Refresh party data requests a fresh snapshot. Setup imports never enable or disable this sharing option.
 * Preserve complete original overheads for additional NPCs using Native NPC UI IDs, including transformed IDs. This is separate from hiding ordinary HP.

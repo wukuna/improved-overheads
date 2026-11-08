@@ -61,6 +61,7 @@ final class OverheadsHeadIconRenderer
 	private final OverheadsActorUiSpriteCache sprites;
 	private final List<OverheadsSprite> iconBuffer = new ArrayList<>(4);
 	private final List<OverheadsSprite> prayerBuffer = new ArrayList<>(4);
+    private final List<OverheadsSprite> combatBuffer = new ArrayList<>(4);
 	private final float[] projectionBuffer = new float[3];
 	private Actor preparedActor;
 	private final Map<Integer, OverheadsSprite> styledSources = new HashMap<>();
@@ -101,7 +102,7 @@ final class OverheadsHeadIconRenderer
 		}
 
 		addHintArrow(iconBuffer, actor);
-		if (iconBuffer.isEmpty() && prayerBuffer.isEmpty())
+		if (iconBuffer.isEmpty() && prayerBuffer.isEmpty() && combatBuffer.isEmpty())
 		{
 			return false;
 		}
@@ -131,8 +132,18 @@ final class OverheadsHeadIconRenderer
 		{
 			int top = renderGroup(graphics, actor, projectionHeight, anchor, iconAnchor, stackAnchorY,
 				layout == null ? occupiedTopY : Integer.MAX_VALUE, iconBuffer, config.iconsPosition(), config.headIconXOffset(), config.headIconYOffset(), layout, "icons");
-			return renderGroup(graphics, actor, projectionHeight, anchor, anchor, stackAnchorY,
-				layout == null ? top : Integer.MAX_VALUE, prayerBuffer, config.prayerIconPosition(), config.prayerIconXOffset(), config.prayerIconYOffset(), layout, "prayerIcon");
+            int start = layout == null ? top : Integer.MAX_VALUE;
+            boolean together = config.prayerIconPosition() == config.prayerIconCombatPosition()
+                && config.prayerIconXOffset() == config.prayerIconCombatXOffset()
+                && config.prayerIconYOffset() == config.prayerIconCombatYOffset();
+            if (together)
+                return renderRows(graphics, actor, projectionHeight, anchor, stackAnchorY, start, prayerBuffer, combatBuffer,
+                    config.prayerIconPosition(), config.prayerIconXOffset(), config.prayerIconYOffset(), layout, "prayerIcon");
+            top = renderRows(graphics, actor, projectionHeight, anchor, stackAnchorY, start, prayerBuffer, java.util.Collections.emptyList(),
+                config.prayerIconPosition(), config.prayerIconXOffset(), config.prayerIconYOffset(), layout, "protectionIcon");
+            return renderRows(graphics, actor, projectionHeight, anchor, stackAnchorY, layout == null ? top : Integer.MAX_VALUE,
+                java.util.Collections.emptyList(), combatBuffer, config.prayerIconCombatPosition(), config.prayerIconCombatXOffset(),
+                config.prayerIconCombatYOffset(), layout, "combatIcon");
 		}
 		finally
 		{
@@ -222,6 +233,53 @@ final class OverheadsHeadIconRenderer
 		return occupiedTop;
 	}
 
+    private int renderRows(Graphics2D graphics, Actor actor, int projectionHeight, Point anchor, int stackAnchorY,
+        int occupiedTop, List<OverheadsSprite> protection, List<OverheadsSprite> combat, OverheadsPosition position,
+        int xOffset, int yOffset, OverheadsCollisionLayout layout, String key)
+    {
+        if (protection.isEmpty() && combat.isEmpty()) return occupiedTop;
+        boolean zoom = config.headIconScaleWithZoom();
+        int percent = effectiveScalePercent(config.headIconScalePercent(), zoom, client.getScale(),
+            zoom ? projectionDepth(actor, projectionHeight) : Float.NaN);
+        OverheadsPrayerIconLayout rows = new OverheadsPrayerIconLayout(protection, config.prayerIconRow(), combat,
+            config.prayerIconCombatRow(), percent, config.headIconSpacing());
+        java.awt.Rectangle bounds;
+        if (position == OverheadsPosition.ABOVE)
+        {
+            int bottom = stackBottomY(stackAnchorY, occupiedTop, yOffset, config.headIconSpacing());
+            bounds = new java.awt.Rectangle(anchor.getX() - rows.width / 2 + xOffset, bottom - rows.height, rows.width, rows.height);
+        }
+        else bounds = OverheadsPlacement.bounds(actor, anchor, position, rows.width, rows.height, xOffset, yOffset);
+        if (bounds == null) return occupiedTop;
+        OverheadsSpriteScalingMode mode = config.spriteScalingMode();
+        List<IconDraw> draws = new ArrayList<>();
+        for (OverheadsPrayerIconLayout.Icon icon : rows.icons)
+        {
+            java.awt.Rectangle target = new java.awt.Rectangle(icon.bounds);
+            target.translate(bounds.x, bounds.y);
+            draws.add(new IconDraw(icon.sprite.getImageForScaling(mode, target.width, target.height), target));
+        }
+        OverheadsCollisionLayout.draw(layout, graphics, key, position, bounds, target ->
+        {
+            Graphics2D g = (Graphics2D) target.create();
+            try
+            {
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    (mode == null ? OverheadsSpriteScalingMode.NEAREST : mode).getInterpolationHint());
+                for (IconDraw draw : draws) g.drawImage(draw.image, draw.bounds.x, draw.bounds.y, draw.bounds.width, draw.bounds.height, null);
+            }
+            finally { g.dispose(); }
+        });
+        return position == OverheadsPosition.ABOVE ? Math.min(occupiedTop, bounds.y) : occupiedTop;
+    }
+
+    private List<OverheadsSprite> prayerGroup(List<OverheadsSprite> shared, int index)
+    {
+        return !config.separatePrayerPosition() ? shared : protection(index) ? prayerBuffer : combatBuffer;
+    }
+
+    static boolean protection(int index) { return index >= 0 && (index < 3 || index > 5); }
+
 	private static final class IconDraw
 	{
 		private final BufferedImage image;
@@ -235,6 +293,13 @@ final class OverheadsHeadIconRenderer
 	}
 
     private static final Map<Prayer, Integer> BOOST_PRAYERS = new ImmutableMap.Builder<Prayer, Integer>()
+        .put(Prayer.THICK_SKIN, SpriteID.Prayeron.THICK_SKIN)
+        .put(Prayer.ROCK_SKIN, SpriteID.Prayeron.ROCK_SKIN)
+        .put(Prayer.STEEL_SKIN, SpriteID.Prayeron.STEEL_SKIN)
+        .put(Prayer.RAPID_RESTORE, SpriteID.Prayeron.RAPID_RESTORE)
+        .put(Prayer.RAPID_HEAL, SpriteID.Prayeron.RAPID_HEAL)
+        .put(Prayer.PROTECT_ITEM, SpriteID.Prayeron.PROTECT_ITEM)
+        .put(Prayer.PRESERVE, SpriteID.Prayeron.PRESERVE)
         .put(Prayer.BURST_OF_STRENGTH, SpriteID.Prayeron.BURST_OF_STRENGTH)
         .put(Prayer.CLARITY_OF_THOUGHT, SpriteID.Prayeron.CLARITY_OF_THOUGHT)
         .put(Prayer.SHARP_EYE, SpriteID.Prayeron.SHARP_EYE)
@@ -281,7 +346,7 @@ final class OverheadsHeadIconRenderer
 			HeadIcon prayer = player.getOverheadIcon();
 			if (prayer != null)
 			{
-				add(config.separatePrayerPosition() ? prayerBuffer : icons, getPrayerIcon(prayer.ordinal()));
+				add(prayerGroup(icons, prayer.ordinal()), getPrayerIcon(prayer.ordinal()));
 			}
 		}
 	}
@@ -295,7 +360,7 @@ final class OverheadsHeadIconRenderer
             {
                 OverheadsSprite source = sprites.getResourcePackOverride(entry.getValue());
                 if (source == null) { source = sprites.get(entry.getValue(), 0); }
-                add(config.separatePrayerPosition() ? prayerBuffer : icons, stylePrayerIcon(-entry.getKey().ordinal() - 1, source));
+                add(prayerGroup(icons, -1), stylePrayerIcon(-entry.getKey().ordinal() - 1, source));
             }
         }
     }
@@ -320,7 +385,7 @@ final class OverheadsHeadIconRenderer
 			int spriteId = spriteIds[i];
 			if (archiveIds[i] >= 0 && spriteId >= 0)
 			{
-				add(config.separatePrayerPosition() && archiveIds[i] == SpriteID.HEADICONS_PRAYER ? prayerBuffer : icons, archiveIds[i] == SpriteID.HEADICONS_PRAYER
+				add(archiveIds[i] == SpriteID.HEADICONS_PRAYER ? prayerGroup(icons, spriteId) : icons, archiveIds[i] == SpriteID.HEADICONS_PRAYER
 					? getPrayerIcon(spriteId)
 					: sprites.get(archiveIds[i], spriteId));
 			}
@@ -349,7 +414,7 @@ final class OverheadsHeadIconRenderer
         if (cached != null) return cached;
 		OverheadsSprite styled = OverheadsPrayerIconStyle.create(source,
 			config.showPrayerIconBackground() ? config.prayerIconShape() : OverheadsIconShape.ORIGINAL,
-			config.prayerIconBackground(), config.prayerIconBorder(), config.prayerIconScalePercent(),
+			config.prayerIconBackground(), config.prayerIconBorder(), protection(prayerIndex) ? config.prayerIconScalePercent() : config.prayerIconCombatScalePercent(),
             prayerLevel < 0 ? 1 : prayerLevel / 100.0, config.prayerIconEmptyBackground());
 		styledSources.put(prayerIndex, source);
 		styledIcons.put(key, styled);
@@ -536,5 +601,6 @@ final class OverheadsHeadIconRenderer
 		preparedActor = null;
 		iconBuffer.clear();
 		prayerBuffer.clear();
+        combatBuffer.clear();
 	}
 }

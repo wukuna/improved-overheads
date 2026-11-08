@@ -87,6 +87,7 @@ public final class OverheadsProfiles
             OverheadsSetupSchema source = new OverheadsSetupSchema(config(scope == Scope.PARTY ? Scope.PLAYERS : Scope.SELF));
             for (OverheadsSetupSchema.Entry<?> entry : source.entries.values())
             {
+                if (entry.key.startsWith("prayerIconCombat")) continue;
                 if (entry.key.equals("partyDisplay") || manager.getConfiguration(scope.group, entry.key) != null) continue;
                 Object value = entry.getter.get();
                 if (scope == Scope.PLAYERS && (entry.key.equals("prayerDisplay") || entry.key.equals("runDisplay") || entry.key.equals("specialDisplay")))
@@ -96,6 +97,23 @@ public final class OverheadsProfiles
                 manager.setConfiguration(scope.group, entry.key, value);
             }
             manager.setConfiguration(scope.group, "actorSettingsVersion", "1");
+        }
+        initializePrayerGroups();
+    }
+
+    private void initializePrayerGroups()
+    {
+        String[][] keys = {{"prayerIconCombatScalePercent", "prayerIconScalePercent"}, {"prayerIconCombatPosition", "prayerIconPosition"},
+            {"prayerIconCombatXOffset", "prayerIconXOffset"}, {"prayerIconCombatYOffset", "prayerIconYOffset"}};
+        for (Scope scope : Scope.values())
+        {
+            if ("1".equals(manager.getConfiguration(scope.group, "prayerIconGroupsVersion"))) continue;
+            OverheadsSetupSchema schema = new OverheadsSetupSchema(config(scope));
+            for (String[] pair : keys)
+                if (manager.getConfiguration(scope.group, pair[0]) == null)
+                    manager.setConfiguration(scope.group, pair[0], schema.entries.get(pair[1]).getter.get());
+            manager.setConfiguration(scope.group, "prayerIconGroupsVersion", "1");
+            invalidate(scope.group);
         }
     }
 

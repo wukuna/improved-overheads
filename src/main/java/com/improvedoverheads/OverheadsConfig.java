@@ -2819,4 +2819,44 @@ public interface OverheadsConfig extends Config
         description = "Hide your special-attack numbers and bar while energy is completely full.", section = SPECIAL_SECTION, position = 711)
     default boolean specialHideWhenFull() { return false; }
 
+
+    @ConfigItem(hidden = true, keyName = "prayerTextPosition", name = "Prayer number position",
+        description = "Place numbers on, above or below this bar.", section = PRAYER_SECTION, position = 500)
+    default OverheadsBarTextPosition prayerTextPosition() { return OverheadsBarTextPosition.ON_BAR; }
+
+    @ConfigItem(hidden = true, keyName = "runTextPosition", name = "Run energy number position",
+        description = "Place numbers on, above or below this bar.", section = RUN_SECTION, position = 501)
+    default OverheadsBarTextPosition runTextPosition() { return OverheadsBarTextPosition.ON_BAR; }
+
+    @ConfigItem(hidden = true, keyName = "specialTextPosition", name = "Special attack number position",
+        description = "Place numbers on, above or below this bar.", section = SPECIAL_SECTION, position = 502)
+    default OverheadsBarTextPosition specialTextPosition() { return OverheadsBarTextPosition.ON_BAR; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconRow", name = "Protection row",
+        description = "Row 1 is above Row 2 when prayer groups share a position.", section = HEAD_ICONS_SECTION, position = 503)
+    default OverheadsPrayerRow prayerIconRow() { return OverheadsPrayerRow.ROW_1; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconCombatRow", name = "Combat/misc row",
+        description = "Icons on the same row are arranged horizontally.", section = HEAD_ICONS_SECTION, position = 504)
+    default OverheadsPrayerRow prayerIconCombatRow() { return OverheadsPrayerRow.ROW_2; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconCombatPosition", name = "Combat/misc position",
+        description = "Position of combat and miscellaneous prayer icons.", section = HEAD_ICONS_SECTION, position = 505)
+    default OverheadsPosition prayerIconCombatPosition() { return OverheadsPosition.RIGHT; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconCombatScalePercent", name = "Combat/misc size",
+        description = "Size of combat and miscellaneous prayer icons in percent.", section = HEAD_ICONS_SECTION, position = 506)
+    @Range(min = 25, max = 300)
+    default int prayerIconCombatScalePercent() { return 100; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconCombatXOffset", name = "Combat/misc X offset",
+        description = "Horizontal offset in pixels.", section = HEAD_ICONS_SECTION, position = 507)
+    @Range(min = -300, max = 300)
+    default int prayerIconCombatXOffset() { return 0; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconCombatYOffset", name = "Combat/misc Y offset",
+        description = "Vertical offset in pixels. Positive moves upward.", section = HEAD_ICONS_SECTION, position = 508)
+    @Range(min = -300, max = 300)
+    default int prayerIconCombatYOffset() { return 0; }
+
 }

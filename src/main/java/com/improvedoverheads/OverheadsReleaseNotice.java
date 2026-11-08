@@ -23,11 +23,11 @@ public final class OverheadsReleaseNotice
     private static final String[] UPDATES = {
         "Customize overhead chat, HP, hitsplats and prayer icons separately for your player, party, other players and NPCs.",
         "Choose numbers, bars or both in separate Health, Prayer, Run and Special sections.",
-        "Health text supports independent actor styling and on-bar, above-bar or below-bar placement.",
+        "Health, Prayer, Run and Special numbers each support on-bar, above-bar or below-bar placement.",
         "Share named setups and hitsplat themes with JSON; Undo restores the last applied changes.",
         "Optional run and special-energy displays can hide while full.",
         "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
-        "Round and square prayer icon backgrounds can drain and refill with prayer points.",
+        "Protection and combat/misc prayers have separate sizes, positions and two-row layouts; icon backgrounds can follow prayer points.",
         "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
     };
 

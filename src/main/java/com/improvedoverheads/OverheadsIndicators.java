@@ -156,8 +156,10 @@ final class OverheadsIndicators
             xOffset + (vertical ? slot * step * (position == OverheadsPosition.LEFT ? -1 : 1) : 0),
             yOffset + (vertical ? 0 : slot * step * (position == OverheadsPosition.ABOVE ? 1 : -1)));
         if (bounds == null) { return; }
+        OverheadsBarTextPosition textPosition = resource == 0 ? config.healthTextPosition() : resource == 1 ? config.prayerTextPosition()
+            : resource == 2 ? config.runTextPosition() : resource == 3 ? config.specialTextPosition() : OverheadsBarTextPosition.ON_BAR;
         Rectangle painted = OverheadsCollisionLayout.barBounds(graphics, bounds, vertical, display, position, text,
-            textFont, zoom, borderThickness, opacity, textColor.getAlpha(), resource == 0 ? config.healthTextPosition() : OverheadsBarTextPosition.ON_BAR);
+            textFont, zoom, borderThickness, opacity, textColor.getAlpha(), textPosition);
         if (resource == 0)
         {
             double trail = healthTrail(actor, fraction, maximum, System.nanoTime() / 1_000_000L);
@@ -199,12 +201,9 @@ final class OverheadsIndicators
                 {
                     g.setComposite(AlphaComposite.SrcOver);
                     g.setFont(font);
-                    int x = bounds.x + (bounds.width - metrics.stringWidth(text)) / 2;
-                    if (vertical && display == OverheadsBarDisplay.BOTH)
-                    {
-                        x = position == OverheadsPosition.RIGHT ? bounds.x + bounds.width + 4 : bounds.x - metrics.stringWidth(text) - 4;
-                    }
-                    int y = bounds.y + (bounds.height - metrics.getHeight()) / 2 + metrics.getAscent();
+                    java.awt.Point baseline = textPosition.baseline(bounds, metrics, text, vertical, display, position, borderThickness);
+                    int x = baseline.x;
+                    int y = baseline.y;
                     g.setColor(new Color(0, 0, 0, textColor.getAlpha()));
                     g.drawString(text, x + 1, y + 1);
                     g.setColor(textColor);
