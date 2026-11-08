@@ -94,6 +94,27 @@ public class OverheadsPrayerRowBackgroundTest
         assertNotNull(pixels(drained, Color.CYAN));
     }
 
+    @Test public void everyNativeOverheadUsesTheOverheadGroupsBackgroundAndDrain()
+    {
+        OverheadsRenderPipelineTest.Fixture f = fixture();
+        net.runelite.api.SpritePixels sprite = f.client.getSprites(null, SpriteID.HEADICONS_PRAYER, 0)[0];
+        when(f.client.getSprites(any(), eq(SpriteID.HEADICONS_PRAYER), eq(0)))
+            .thenReturn(new net.runelite.api.SpritePixels[]{sprite, sprite, sprite, sprite, sprite, sprite});
+        when(f.config.prayerIconBackgroundTracksPoints()).thenReturn(true);
+        when(f.client.getBoostedSkillLevel(Skill.PRAYER)).thenReturn(0);
+        BufferedImage expected = render(f);
+        assertNotNull(pixels(expected, Color.GREEN));
+        assertNull(pixels(expected, Color.RED));
+        for (HeadIcon icon : new HeadIcon[]{HeadIcon.RANGED, HeadIcon.MAGIC, HeadIcon.REDEMPTION,
+            HeadIcon.SMITE, HeadIcon.RETRIBUTION})
+        {
+            when(f.player.getOverheadIcon()).thenReturn(icon);
+            BufferedImage actual = render(f);
+            assertArrayEquals(icon.name(), expected.getRGB(0, 0, 600, 440, null, 0, 600),
+                actual.getRGB(0, 0, 600, 440, null, 0, 600));
+        }
+    }
+
     @Test public void rowAssignmentMovesStylingWithTheRowAndBackgroundTogglesAreSeparate()
     {
         OverheadsRenderPipelineTest.Fixture f = fixture();

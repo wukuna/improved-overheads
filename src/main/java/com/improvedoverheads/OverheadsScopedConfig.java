@@ -324,4 +324,12 @@ final class OverheadsScopedConfig implements OverheadsConfig
     @Override public Color prayerIconRow2Border() { return read("prayerIconRow2Border", Color.class, DEFAULTS::prayerIconRow2Border); }
     @Override public boolean prayerIconRow2TracksPoints() { return read("prayerIconRow2TracksPoints", Boolean.class, DEFAULTS::prayerIconRow2TracksPoints); }
     @Override public Color prayerIconRow2EmptyBackground() { return read("prayerIconRow2EmptyBackground", Color.class, DEFAULTS::prayerIconRow2EmptyBackground); }
+
+    @Override public OverheadsPrayerLayout prayerIconLayout() { return read("prayerIconLayout", OverheadsPrayerLayout.class, DEFAULTS::prayerIconLayout); }
+    @Override public int prayerIconBadgeProtectionSize() { return read("prayerIconBadgeProtectionSize", Integer.class, DEFAULTS::prayerIconBadgeProtectionSize); }
+    @Override public int prayerIconBadgeSize() { return read("prayerIconBadgeSize", Integer.class, DEFAULTS::prayerIconBadgeSize); }
+    @Override public int prayerIconBadgeSpacing() { return read("prayerIconBadgeSpacing", Integer.class, DEFAULTS::prayerIconBadgeSpacing); }
+    @Override public boolean prayerIconBadgeBackground() { return read("prayerIconBadgeBackground", Boolean.class, DEFAULTS::prayerIconBadgeBackground); }
+    @Override public Color prayerIconBadgeBackgroundColor() { return read("prayerIconBadgeBackgroundColor", Color.class, DEFAULTS::prayerIconBadgeBackgroundColor); }
+    @Override public Color prayerIconBadgeBorderColor() { return read("prayerIconBadgeBorderColor", Color.class, DEFAULTS::prayerIconBadgeBorderColor); }
 }

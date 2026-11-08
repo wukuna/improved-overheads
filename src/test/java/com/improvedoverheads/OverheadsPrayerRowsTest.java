@@ -88,12 +88,10 @@ public class OverheadsPrayerRowsTest
     }
 
     @Test
-    public void miscellaneousOverheadIconsUseCombatGroupAndMigrationCopiesOnlyUnsetSettings()
+    public void allNativeOverheadIconsUseOverheadGroupAndMigrationCopiesOnlyUnsetSettings()
     {
-        assertTrue(OverheadsHeadIconRenderer.protection(0));
-        assertTrue(OverheadsHeadIconRenderer.protection(2));
-        assertTrue(OverheadsHeadIconRenderer.protection(6));
-        for (int index : new int[]{-1, 3, 4, 5}) assertFalse(OverheadsHeadIconRenderer.protection(index));
+        for (int index = 0; index <= 6; index++) assertTrue(OverheadsHeadIconRenderer.overheadPrayer(index));
+        assertFalse(OverheadsHeadIconRenderer.overheadPrayer(-1));
         OverheadsProfilesTest.Fixture f = new OverheadsProfilesTest.Fixture();
         f.put(OverheadsProfiles.Scope.NPCS, "prayerIconScalePercent", 175);
         f.put(OverheadsProfiles.Scope.NPCS, "prayerIconPosition", OverheadsPosition.LEFT);
@@ -106,6 +104,31 @@ public class OverheadsPrayerRowsTest
         f.put(OverheadsProfiles.Scope.NPCS, "prayerIconCombatScalePercent", 70);
         f.profiles.initialize();
         assertEquals(70, npc.prayerIconCombatScalePercent());
+    }
+
+    @Test public void redemptionSmiteAndRetributionRespectOverheadRowPositionAndSize()
+    {
+        OverheadsRenderPipelineTest.Fixture f = OverheadsPrayerBadgesTest.fixture();
+        when(f.config.prayerIconLayout()).thenReturn(OverheadsPrayerLayout.ROWS);
+        when(f.config.prayerIconScalePercent()).thenReturn(150);
+        when(f.config.prayerIconCombatScalePercent()).thenReturn(50);
+        when(f.config.prayerIconCombatPosition()).thenReturn(OverheadsPosition.ABOVE);
+        for (HeadIcon icon : new HeadIcon[]{HeadIcon.MELEE, HeadIcon.RANGED, HeadIcon.MAGIC,
+            HeadIcon.REDEMPTION, HeadIcon.SMITE, HeadIcon.RETRIBUTION})
+        {
+            when(f.player.getOverheadIcon()).thenReturn(icon);
+            when(f.config.prayerIconRow()).thenReturn(OverheadsPrayerRow.ROW_1);
+            when(f.config.prayerIconCombatRow()).thenReturn(OverheadsPrayerRow.ROW_2);
+            BufferedImage first = render(f, f.icons);
+            Rectangle overhead = pixels(first, Color.RED), secondary = pixels(first, Color.BLUE);
+            assertEquals(icon.name(), 30, overhead.width);
+            assertEquals(icon.name(), 10, secondary.height);
+            assertTrue(icon.name(), overhead.getMaxY() < secondary.y);
+            when(f.config.prayerIconRow()).thenReturn(OverheadsPrayerRow.ROW_2);
+            when(f.config.prayerIconCombatRow()).thenReturn(OverheadsPrayerRow.ROW_1);
+            BufferedImage swapped = render(f, f.icons);
+            assertTrue(icon.name(), pixels(swapped, Color.BLUE).getMaxY() < pixels(swapped, Color.RED).y);
+        }
     }
 
     private static BufferedImage render(OverheadsRenderPipelineTest.Fixture f, OverheadsHeadIconRenderer renderer)

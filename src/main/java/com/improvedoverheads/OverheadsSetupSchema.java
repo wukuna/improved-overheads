@@ -301,7 +301,21 @@ final class OverheadsSetupSchema
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
         add("specialTextPosition", "Special attack number position", config::specialTextPosition,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
-        add("prayerIconRow", "Protection row", config::prayerIconRow,
+        add("prayerIconLayout", "Icons: Prayer layout", config::prayerIconLayout,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPrayerLayout.values()));
+        add("prayerIconBadgeProtectionSize", "Icons: Attached overhead size", config::prayerIconBadgeProtectionSize,
+            value -> new JsonPrimitive(value), value -> integerValue(value, 24, 64));
+        add("prayerIconBadgeSize", "Icons: Small badge size", config::prayerIconBadgeSize,
+            value -> new JsonPrimitive(value), value -> integerValue(value, 12, 28));
+        add("prayerIconBadgeSpacing", "Icons: Badge spacing", config::prayerIconBadgeSpacing,
+            value -> new JsonPrimitive(value), value -> integerValue(value, 0, 8));
+        add("prayerIconBadgeBackground", "Icons: Badge backgrounds", config::prayerIconBadgeBackground,
+            value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
+        add("prayerIconBadgeBackgroundColor", "Icons: Badge background color", config::prayerIconBadgeBackgroundColor,
+            OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerIconBadgeBorderColor", "Icons: Badge border color", config::prayerIconBadgeBorderColor,
+            OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerIconRow", "Overhead row", config::prayerIconRow,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPrayerRow.values()));
         add("prayerIconCombatRow", "Combat/misc row", config::prayerIconCombatRow,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPrayerRow.values()));

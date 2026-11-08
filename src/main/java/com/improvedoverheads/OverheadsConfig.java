@@ -2932,7 +2932,7 @@ public interface OverheadsConfig extends Config
         description = "Place numbers on, above or below this bar.", section = SPECIAL_SECTION, position = 502)
     default OverheadsBarTextPosition specialTextPosition() { return OverheadsBarTextPosition.ON_BAR; }
 
-    @ConfigItem(hidden = true, keyName = "prayerIconRow", name = "Protection row",
+    @ConfigItem(hidden = true, keyName = "prayerIconRow", name = "Overhead row",
         description = "Row 1 is above Row 2 when prayer groups share a position.", section = HEAD_ICONS_SECTION, position = 503)
     default OverheadsPrayerRow prayerIconRow() { return OverheadsPrayerRow.ROW_1; }
 
@@ -2987,4 +2987,37 @@ public interface OverheadsConfig extends Config
         description = "Empty background color and opacity for Row 2.", section = HEAD_ICONS_SECTION, position = 525)
     default Color prayerIconRow2EmptyBackground() { return new Color(12, 15, 18, 150); }
 
+
+    @ConfigItem(hidden = true, keyName = "prayerIconLayout", name = "Prayer layout",
+        description = "Attach small secondary prayers to a visible overhead prayer; otherwise use the configured regular row.", section = HEAD_ICONS_SECTION, position = 980)
+    default OverheadsPrayerLayout prayerIconLayout() { return OverheadsPrayerLayout.ROWS; }
+
+    @Range(min = 24, max = 64)
+    @ConfigItem(hidden = true, keyName = "prayerIconBadgeProtectionSize", name = "Attached overhead size",
+        description = "Overhead prayer icon size in pixels in the attached layout, before overall icon and zoom scaling.", section = HEAD_ICONS_SECTION, position = 981)
+    default int prayerIconBadgeProtectionSize() { return 34; }
+
+    @Range(min = 12, max = 28)
+    @ConfigItem(hidden = true, keyName = "prayerIconBadgeSize", name = "Small badge size",
+        description = "Secondary icon size in pixels in the attached layout, before overall icon and zoom scaling.", section = HEAD_ICONS_SECTION, position = 982)
+    default int prayerIconBadgeSize() { return 18; }
+
+    @Range(min = 0, max = 8)
+    @ConfigItem(hidden = true, keyName = "prayerIconBadgeSpacing", name = "Badge spacing",
+        description = "Extra spacing between the overhead prayer icon and corner badges.", section = HEAD_ICONS_SECTION, position = 983)
+    default int prayerIconBadgeSpacing() { return 0; }
+
+    @ConfigItem(hidden = true, keyName = "prayerIconBadgeBackground", name = "Badge backgrounds",
+        description = "Show a round background and border behind each small badge. Regular rows and overhead prayer backgrounds are unchanged.", section = HEAD_ICONS_SECTION, position = 984)
+    default boolean prayerIconBadgeBackground() { return false; }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "prayerIconBadgeBackgroundColor", name = "Badge background color",
+        description = "Background color and opacity of attached secondary badges.", section = HEAD_ICONS_SECTION, position = 985)
+    default Color prayerIconBadgeBackgroundColor() { return new Color(35, 40, 46, 210); }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "prayerIconBadgeBorderColor", name = "Badge border color",
+        description = "Border color and opacity of attached secondary badges.", section = HEAD_ICONS_SECTION, position = 986)
+    default Color prayerIconBadgeBorderColor() { return new Color(170, 180, 190); }
 }

@@ -710,11 +710,18 @@ final class OverheadsPanel extends PluginPanel
             color(advanced, "prayerIconRow2Border", "Border color", "Border color and opacity for Row 2.", config::prayerIconRow2Border);
             toggle(advanced, "prayerIconRow2TracksPoints", "Follow prayer points", "Drain and refill Row 2 backgrounds with your prayer points or available shared party prayer.", config::prayerIconRow2TracksPoints);
             color(advanced, "prayerIconRow2EmptyBackground", "Empty background", "Empty background color and opacity for Row 2.", config::prayerIconRow2EmptyBackground);
-            number(advanced, "prayerIconScalePercent", "Protection size",
+            choice(advanced, "prayerIconLayout", "Prayer layout", "Attach small secondary prayers to a visible overhead prayer; otherwise use the configured regular row.", config::prayerIconLayout, OverheadsPrayerLayout.values());
+            number(advanced, "prayerIconBadgeProtectionSize", "Attached overhead size", "Overhead prayer icon size in pixels in the attached layout, before overall icon and zoom scaling.", config::prayerIconBadgeProtectionSize, 24, 64);
+            number(advanced, "prayerIconBadgeSize", "Small badge size", "Secondary icon size in pixels in the attached layout, before overall icon and zoom scaling.", config::prayerIconBadgeSize, 12, 28);
+            number(advanced, "prayerIconBadgeSpacing", "Badge spacing", "Extra spacing between the overhead prayer icon and corner badges.", config::prayerIconBadgeSpacing, 0, 8);
+            toggle(advanced, "prayerIconBadgeBackground", "Badge backgrounds", "Show a round background and border behind each small badge. Regular rows and overhead prayer backgrounds are unchanged.", config::prayerIconBadgeBackground);
+            color(advanced, "prayerIconBadgeBackgroundColor", "Badge background color", "Background color and opacity of attached secondary badges.", config::prayerIconBadgeBackgroundColor);
+            color(advanced, "prayerIconBadgeBorderColor", "Badge border color", "Border color and opacity of attached secondary badges.", config::prayerIconBadgeBorderColor);
+            number(advanced, "prayerIconScalePercent", "Overhead size",
                 "Prayer icon size.",
                 config::prayerIconScalePercent, 25, 300);
                 toggle(advanced, "localBoostPrayerIcons", "My combat/misc prayers", "Your active combat and miscellaneous prayers.", config::localBoostPrayerIcons);
-                choice(advanced, "prayerIconRow", "Protection row", "Row 1 is above Row 2 when prayer groups share a position.", config::prayerIconRow, OverheadsPrayerRow.values());
+                choice(advanced, "prayerIconRow", "Overhead row", "Row 1 is above Row 2 when prayer groups share a position.", config::prayerIconRow, OverheadsPrayerRow.values());
                 choice(advanced, "prayerIconCombatRow", "Combat/misc row", "Icons on the same row are arranged horizontally.", config::prayerIconCombatRow, OverheadsPrayerRow.values());
                 choice(advanced, "prayerIconCombatPosition", "Combat/misc position", "Position of combat and miscellaneous prayer icons.", config::prayerIconCombatPosition, OverheadsPosition.values());
                 number(advanced, "prayerIconCombatScalePercent", "Combat/misc size", "Size of combat and miscellaneous prayer icons in percent.", config::prayerIconCombatScalePercent, 25, 300);
@@ -722,11 +729,11 @@ final class OverheadsPanel extends PluginPanel
                 number(advanced, "prayerIconCombatYOffset", "Combat/misc Y offset", "Vertical offset in pixels. Positive moves upward.", config::prayerIconCombatYOffset, -300, 300);
                 toggle(advanced, "separatePrayerPosition", "Separate prayer groups",
                     "Position prayer icons independently of skulls and other head icons.", config::separatePrayerPosition);
-                choice(advanced, "prayerIconPosition", "Protection position",
+                choice(advanced, "prayerIconPosition", "Overhead position",
                     "Position of independently placed prayer icons.", config::prayerIconPosition, OverheadsPosition.values());
-                number(advanced, "prayerIconXOffset", "Protection X offset",
+                number(advanced, "prayerIconXOffset", "Overhead X offset",
                     "Offset in pixels. Positive Y moves upward.", config::prayerIconXOffset, -300, 300);
-                number(advanced, "prayerIconYOffset", "Protection Y offset",
+                number(advanced, "prayerIconYOffset", "Overhead Y offset",
                     "Offset in pixels. Positive Y moves upward.", config::prayerIconYOffset, -300, 300);
         });
         JPanel content = (JPanel) tabs.getComponentAt(tabs.getTabCount() - 1);
@@ -851,7 +858,7 @@ final class OverheadsPanel extends PluginPanel
                 if (OverheadsComponent.forKey(key) != component) { return; }
                 if (row.getParent() != null) { row.getParent().remove(row); }
             });
-            for (String section : new String[]{"Display", "Party sharing", "Styling", "Position and size", "Protection prayers", "Combat / misc prayers", "Row 1 background", "Row 2 background", "Effects", "Animation", "Large targets", "Damage trail", "Segments", "Restore and warnings", "Status icons"})
+            for (String section : new String[]{"Display", "Party sharing", "Styling", "Position and size", "Overhead prayers", "Combat / misc prayers", "Corner badges", "Row 1 background", "Row 2 background", "Effects", "Animation", "Large targets", "Damage trail", "Segments", "Restore and warnings", "Status icons"})
             {
                 if (settingRows.keySet().stream().noneMatch(key -> OverheadsComponent.forKey(key) == component && sectionName(component, key).equals(section))) continue;
                 section(basic, section, content -> settingRows.forEach((key, row) ->
@@ -935,13 +942,14 @@ final class OverheadsPanel extends PluginPanel
             return "Styling";
         }
         if (component == OverheadsComponent.HEALTH) return healthSection(key);
+        if (key.equals("prayerIconLayout") || key.startsWith("prayerIconBadge")) return "Corner badges";
         if (key.startsWith("prayerIconRow2")) return "Row 2 background";
         if (key.equals("showPrayerIconBackground") || key.equals("prayerIconShape") || key.equals("prayerIconBackground")
             || key.equals("prayerIconBorder") || key.equals("prayerIconBackgroundTracksPoints") || key.equals("prayerIconEmptyBackground")) return "Row 1 background";
         if (key.equals("separatePrayerPosition")) return "Display";
         if (key.startsWith("prayerIconCombat") || key.equals("localBoostPrayerIcons")) return "Combat / misc prayers";
         if (key.equals("prayerIconRow") || key.equals("prayerIconPosition") || key.equals("prayerIconXOffset")
-            || key.equals("prayerIconYOffset") || key.equals("prayerIconScalePercent")) return "Protection prayers";
+            || key.equals("prayerIconYOffset") || key.equals("prayerIconScalePercent")) return "Overhead prayers";
         if (component == OverheadsComponent.LAYOUT) return "Display";
         if (component == OverheadsComponent.TIMERS && key.startsWith("party")) return "Party sharing";
         if (key.startsWith("largeTarget")) return "Large targets";
@@ -1323,6 +1331,13 @@ final class OverheadsPanel extends PluginPanel
             OverheadsRestoreDisplay display = prayer ? config.prayerSplatDisplay() : config.healingSplatDisplay();
             return !(key.endsWith("Color") || key.endsWith("Font")) || display != OverheadsRestoreDisplay.ICON_ONLY;
         }
+        if (key.equals("prayerIconLayout")) return self;
+        if (key.equals("prayerIconScalePercent") && self && config.prayerIconLayout() == OverheadsPrayerLayout.CORNER_BADGES) return false;
+        if (key.startsWith("prayerIconBadge"))
+        {
+            return self && config.prayerIconLayout() == OverheadsPrayerLayout.CORNER_BADGES
+                && (!key.endsWith("Color") || config.prayerIconBadgeBackground());
+        }
         boolean npc = scope == OverheadsProfiles.Scope.NPCS;
         boolean players = scope == OverheadsProfiles.Scope.PLAYERS || scope == OverheadsProfiles.Scope.PARTY;
         if (key.startsWith("indicator") && scope == OverheadsProfiles.Scope.PARTY) { return false; }
@@ -1352,11 +1367,11 @@ final class OverheadsPanel extends PluginPanel
         if (key.equals("prayerIconPosition") || key.equals("prayerIconXOffset") || key.equals("prayerIconYOffset")
             || key.equals("prayerIconRow") || key.startsWith("prayerIconCombat") && !key.endsWith("ScalePercent"))
         {
-            return config.separatePrayerPosition();
+            return config.separatePrayerPosition() || self && config.prayerIconLayout() == OverheadsPrayerLayout.CORNER_BADGES;
         }
         if (key.startsWith("prayerIconRow2"))
         {
-            if (!config.separatePrayerPosition()) return false;
+            if (!config.separatePrayerPosition() && !(self && config.prayerIconLayout() == OverheadsPrayerLayout.CORNER_BADGES)) return false;
             if (key.equals("prayerIconRow2BackgroundEnabled")) return true;
             if (!config.prayerIconRow2BackgroundEnabled()) return false;
             if (key.equals("prayerIconRow2Shape")) return true;
