@@ -273,6 +273,8 @@ final class OverheadsSetupSchema
             OverheadsSetupSchema::fontJson, OverheadsSetupSchema::fontValue);
         add("healthTextColor", "Health: HP number color", config::healthTextColor,
             OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("healthTextPosition", "Health: HP number position", config::healthTextPosition,
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarTextPosition.values()));
         add("prayerVisibility", "Health: Prayer display", config::prayerVisibility,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPrayerVisibility.values()));
         add("prayerDisplay", "Health: Prayer numbers / bar", config::prayerDisplay,

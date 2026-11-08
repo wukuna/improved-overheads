@@ -1588,6 +1588,11 @@ public interface OverheadsConfig extends Config
         return FontType.SMALL;
     }
 
+    @ConfigItem(hidden = true, keyName = "healthTextPosition", name = "HP number position",
+        description = "Place HP numbers on, above or below the health bar. Numbers-only displays keep their anchor.",
+        section = DISPLAY_SECTION, position = 112)
+    default OverheadsBarTextPosition healthTextPosition() { return OverheadsBarTextPosition.ON_BAR; }
+
     @ConfigItem(
 		hidden = true,
         keyName = "healthTextColor",

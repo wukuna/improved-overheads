@@ -157,7 +157,7 @@ final class OverheadsIndicators
             yOffset + (vertical ? 0 : slot * step * (position == OverheadsPosition.ABOVE ? 1 : -1)));
         if (bounds == null) { return; }
         Rectangle painted = OverheadsCollisionLayout.barBounds(graphics, bounds, vertical, display, position, text,
-            textFont, zoom, borderThickness, opacity, textColor.getAlpha());
+            textFont, zoom, borderThickness, opacity, textColor.getAlpha(), resource == 0 ? config.healthTextPosition() : OverheadsBarTextPosition.ON_BAR);
         if (resource == 0)
         {
             double trail = healthTrail(actor, fraction, maximum, System.nanoTime() / 1_000_000L);

@@ -1,6 +1,6 @@
 # Improved Overheads
 
-Customize overhead chat, HP, prayer points, hitsplats, and head icons from the Chat, Bars, Icons, Hits and More sidebar tabs. Select My player, Party, Other players or NPCs before editing. Each actor group keeps its own appearance settings; Universal applies only the selected component when you click Apply to all.
+Customize overhead chat, HP, prayer points, hitsplats, and head icons from the Chat, Bars, Icons, Hits and More sidebar tabs. Select My player, Party, Other players or NPCs before editing. Each actor group keeps its own appearance settings.
 
 The regular settings menu contains four quick visibility toggles for your own player: overhead chat, health, head icons and hitsplats. Use the side panel for colors, fonts, sizes, placement, animations, resource displays, party sharing and all other settings. Each component separates its display controls from styling and placement; applicable sections provide effects, damage trails, segments and restoration options.
 
@@ -10,6 +10,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 * Use horizontal or vertical HP and prayer bars, with OSRS artwork or a modern appearance.
 * Give prayer its own style, fill direction, background, border, and corner radius.
 * Customize fonts, colors, opacity, gradients, borders, damage trails, and HP segments.
+* Set health-number fonts, sizes, colors and On bar, Above bar or Below bar placement independently for each actor group. NPC current HP is estimated from its visible health bar when a maximum is known; otherwise it uses a percentage.
 * Each actor group's Health section separates Display, Styling, Position and size, Damage trail, Segments, and applicable restoration settings.
 * Resize prayer icons and add round or square backgrounds with separate background and border colors.
 * Optionally drain and refill the prayer icon background with your prayer points or available shared party prayer. Choose a separate empty-background color; unknown or expired values keep the static background.

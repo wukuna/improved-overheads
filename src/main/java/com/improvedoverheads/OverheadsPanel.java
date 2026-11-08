@@ -29,7 +29,7 @@ final class OverheadsPanel extends PluginPanel
     private OverheadsConfig config;
     private OverheadsProfiles profiles;
     private OverheadsProfiles.Scope scope = OverheadsProfiles.Scope.SELF;
-    private final JComboBox<OverheadsProfiles.Scope> actors = new JComboBox<>(new OverheadsProfiles.Scope[]{OverheadsProfiles.Scope.SELF, OverheadsProfiles.Scope.PARTY, OverheadsProfiles.Scope.PLAYERS, OverheadsProfiles.Scope.NPCS, OverheadsProfiles.Scope.UNIVERSAL});
+    private final JComboBox<OverheadsProfiles.Scope> actors = new JComboBox<>(new OverheadsProfiles.Scope[]{OverheadsProfiles.Scope.SELF, OverheadsProfiles.Scope.PARTY, OverheadsProfiles.Scope.PLAYERS, OverheadsProfiles.Scope.NPCS});
     @Inject void configureProfiles(OverheadsProfiles profiles) { this.profiles = profiles; }
     private final ConfigManager manager;
     private final ColorPickerManager colorPickers;
@@ -242,7 +242,9 @@ final class OverheadsPanel extends PluginPanel
                     "Opacity of the bar and border; numbers have their own color.",
                     config::healthBarOpacity, 0, 100);
                 font(group, "healthTextFont", "HP number font", "HP number font.", config::healthTextFont);
-                choice(group, "healthNumberFormat", "My HP number format", "Current, current / maximum, or percentage.",
+                choice(group, "healthTextPosition", "HP number position", "Place numbers on, above or below the health bar.",
+                    config::healthTextPosition, OverheadsBarTextPosition.values());
+                choice(group, "healthNumberFormat", "HP number format", "Current, current / maximum, or percentage. NPC HP is estimated from its visible health bar; unknown maximums use percentages.",
                     config::healthNumberFormat, OverheadsNumberFormat.values());
                 color(group, "healthTextColor", "HP number color", "HP number color.", config::healthTextColor);
                 color(group, OverheadsConfig.HEALTH_BAR_FRONT_COLOR_KEY, "Front color",
@@ -841,13 +843,6 @@ final class OverheadsPanel extends PluginPanel
                 OverheadsPanelStyle.control(sync);
                 basic.add(sync);
             }
-            if (scope == OverheadsProfiles.Scope.UNIVERSAL && profiles != null)
-            {
-                JButton apply = new JButton("Apply " + component.toString().toLowerCase(java.util.Locale.ROOT) + " to all");
-                apply.addActionListener(event -> { profiles.applyUniversal(component); refresh(); });
-                OverheadsPanelStyle.control(apply);
-                basic.add(apply);
-            }
             cards.add(OverheadsPanelStyle.scroll(basic), component.name());
         }
         if (available.size() > 1)
@@ -1171,7 +1166,7 @@ final class OverheadsPanel extends PluginPanel
     private void font(JPanel panel, String key, String name, String tip, Supplier<FontType> getter)
     {
         JButton button = new JButton();
-        bindings.add(() -> button.setText(getter.get().getFamily() + " " + getter.get().getSize()));
+        bindings.add(() -> button.setText(getter.get().getFamily()));
         button.addActionListener(event ->
         {
             Long profile = profileId();
@@ -1210,8 +1205,22 @@ final class OverheadsPanel extends PluginPanel
             editors.add(dialog);
             dialog.setVisible(true);
         });
-        button.putClientProperty("settingKey", key);
-        row(panel, name, tip, button);
+        JPanel controls = new JPanel(new BorderLayout(4, 0));
+        controls.setOpaque(false);
+        JSpinner size = new JSpinner(new SpinnerNumberModel(Math.max(8, Math.min(48, getter.get().getSize())), 8, 48, 1));
+        size.setToolTipText("Font size");
+        size.addChangeListener(event ->
+        {
+            FontType current = getter.get();
+            write(key, new FontType().withFamily(current.getFamily()).withSize((Integer) size.getValue())
+                .withBold(current.isBold()).withItalic(current.isItalic()));
+        });
+        bindings.add(() -> size.setValue(Math.max(8, Math.min(48, getter.get().getSize()))));
+        controls.add(button, BorderLayout.CENTER);
+        controls.add(size, BorderLayout.EAST);
+        controls.putClientProperty("settingKey", key);
+        row(panel, name, tip, controls);
+        size.setPreferredSize(new Dimension(55, 26));
     }
 
     private void text(JPanel panel, String key, String name, String tip, Supplier<String> getter)
@@ -1243,11 +1252,11 @@ final class OverheadsPanel extends PluginPanel
 
     private boolean settingVisible(String key)
     {
-        boolean self = scope == OverheadsProfiles.Scope.SELF || scope == OverheadsProfiles.Scope.UNIVERSAL;
+        boolean self = scope == OverheadsProfiles.Scope.SELF;
         boolean npc = scope == OverheadsProfiles.Scope.NPCS;
         boolean players = scope == OverheadsProfiles.Scope.PLAYERS || scope == OverheadsProfiles.Scope.PARTY;
         if (key.startsWith("indicator") && scope == OverheadsProfiles.Scope.PARTY) { return false; }
-        if (key.startsWith("partyShow") && scope != OverheadsProfiles.Scope.PARTY && scope != OverheadsProfiles.Scope.UNIVERSAL) { return false; }
+        if (key.startsWith("partyShow") && scope != OverheadsProfiles.Scope.PARTY) { return false; }
         if (players && (key.equals("prayerVisibility") || key.equals("prayerTickIndicator") || key.equals("prayerTickColor") || key.startsWith("prayerRestore") || key.equals("prayerLowColor") || key.equals("lowPrayerThreshold"))) { return false; }
         if ((key.equals("partyDisplay") || key.equals("partyDataLifetime")) && scope != OverheadsProfiles.Scope.PARTY) { return false; }
         if ((key.equals("alwaysShowSelfHealth") || key.equals("restorePreview") || key.equals("restorePreviewColor")
@@ -1335,14 +1344,13 @@ final class OverheadsPanel extends PluginPanel
                 return config.prayerDisplay() != OverheadsBarDisplay.NUMBERS_ONLY && config.prayerBarStyle() == OverheadsHealthBarStyle.SOLID;
             }
         }
-        if (key.equals("healthTextFont") || key.equals("healthTextColor"))
+        if (key.equals("healthTextFont") || key.equals("healthTextColor") || key.equals("healthTextPosition"))
         {
             return numbers(npc ? config.npcHealthDisplay() : players ? config.otherHealthDisplay() : config.selfHealthDisplay());
         }
         if (key.equals("healthNumberFormat"))
         {
-            if (npc) { return false; }
-            return players ? numbers(config.otherHealthDisplay()) : numbers(config.selfHealthDisplay());
+            return numbers(npc ? config.npcHealthDisplay() : players ? config.otherHealthDisplay() : config.selfHealthDisplay());
         }
         if (key.equals("healthBarFrontSecondaryColor") || key.equals("healthBarFrontGradientCoordinates"))
         {

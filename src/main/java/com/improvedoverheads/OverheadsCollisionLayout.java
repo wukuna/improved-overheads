@@ -205,6 +205,12 @@ final class OverheadsCollisionLayout implements AutoCloseable
     static Rectangle barBounds(Graphics2D graphics, Rectangle bar, boolean vertical, OverheadsBarDisplay display,
         OverheadsPosition side, String text, FontType fontType, double zoom, double border, int opacity, int textAlpha)
     {
+        return barBounds(graphics, bar, vertical, display, side, text, fontType, zoom, border, opacity, textAlpha, OverheadsBarTextPosition.ON_BAR);
+    }
+
+    static Rectangle barBounds(Graphics2D graphics, Rectangle bar, boolean vertical, OverheadsBarDisplay display,
+        OverheadsPosition side, String text, FontType fontType, double zoom, double border, int opacity, int textAlpha, OverheadsBarTextPosition textPosition)
+    {
         Rectangle bounds = null;
         if (display != OverheadsBarDisplay.NUMBERS_ONLY && display != OverheadsBarDisplay.HIDDEN && opacity > 0)
         {
@@ -218,15 +224,12 @@ final class OverheadsCollisionLayout implements AutoCloseable
             Font scaled = font.deriveFont((float) Math.max(6, Math.min(96, font.getSize2D() * zoom)));
             FontMetrics metrics = graphics.getFontMetrics(scaled);
             int width = metrics.stringWidth(text);
-            int x = bar.x + (bar.width - width) / 2;
-            if (vertical && display == OverheadsBarDisplay.BOTH)
-            {
-                x = side == OverheadsPosition.RIGHT ? bar.x + bar.width + 4 : bar.x - width - 4;
-            }
-            Rectangle numbers = new Rectangle(x - 1, bar.y + (bar.height - metrics.getHeight()) / 2 - 1,
+            Point baseline = textPosition.baseline(bar, metrics, text, vertical, display, side, border);
+            int x = baseline.x;
+            Rectangle numbers = new Rectangle(x - 1, baseline.y - metrics.getAscent() - 1,
                 width + 3, metrics.getHeight() + 5);
             Rectangle ink = scaled.createGlyphVector(graphics.getFontRenderContext(), text).getPixelBounds(
-                graphics.getFontRenderContext(), x, bar.y + (bar.height - metrics.getHeight()) / 2 + metrics.getAscent());
+                graphics.getFontRenderContext(), x, baseline.y);
             ink.grow(2, 2);
             numbers = numbers.union(ink);
             bounds = bounds == null ? numbers : bounds.union(numbers);

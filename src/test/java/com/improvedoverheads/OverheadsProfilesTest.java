@@ -122,6 +122,7 @@ public class OverheadsProfilesTest
         assertNull(OverheadsRenderPipelineTest.pixelBounds(render.render()));
         f.put(OverheadsProfiles.Scope.PLAYERS, "overheadChatEnabled", true);
         f.put(OverheadsProfiles.Scope.PLAYERS, "overheadChatColor", Color.RED);
+        profiles.invalidate(OverheadsProfiles.Scope.PLAYERS.group);
         BufferedImage image = render.render();
         assertNotNull(OverheadsRenderPipelineTest.pixelBounds(image));
         boolean red = false;
@@ -155,29 +156,6 @@ public class OverheadsProfilesTest
     }
 
     @Test
-    public void universalIsExplicitAndOnlyAppliesTheChosenComponent()
-    {
-        Fixture f = new Fixture();
-        f.profiles.initialize();
-        f.put(OverheadsProfiles.Scope.UNIVERSAL, "healthBarOpacity", 12);
-        f.put(OverheadsProfiles.Scope.UNIVERSAL, "selfHealthDisplay", OverheadsBarDisplay.NUMBERS_ONLY);
-        f.put(OverheadsProfiles.Scope.UNIVERSAL, "overheadChatColor", Color.RED);
-        f.put(OverheadsProfiles.Scope.UNIVERSAL, "prayerOpacity", 7);
-        assertNotEquals(12, f.self.healthBarOpacity());
-        f.profiles.applyUniversal(OverheadsComponent.HEALTH);
-        for (OverheadsProfiles.Scope scope : new OverheadsProfiles.Scope[]{OverheadsProfiles.Scope.SELF, OverheadsProfiles.Scope.PLAYERS, OverheadsProfiles.Scope.NPCS, OverheadsProfiles.Scope.PARTY})
-        {
-            assertEquals(12, f.profiles.config(scope).healthBarOpacity());
-            assertNotEquals(Color.RED, f.profiles.config(scope).overheadChatColor());
-            assertNotEquals(7, f.profiles.config(scope).prayerOpacity());
-        }
-        assertEquals(OverheadsBarDisplay.NUMBERS_ONLY, f.profiles.config(OverheadsProfiles.Scope.NPCS).npcHealthDisplay());
-        assertEquals(OverheadsBarDisplay.NUMBERS_ONLY, f.profiles.config(OverheadsProfiles.Scope.PLAYERS).otherHealthDisplay());
-        f.put(OverheadsProfiles.Scope.SELF, "healthBarOpacity", 90);
-        assertEquals(12, f.profiles.config(OverheadsProfiles.Scope.PLAYERS).healthBarOpacity());
-    }
-
-    @Test
     public void setupRoundTripUndoAndLegacyImportsKeepActorScopesAndConsent()
     {
         Fixture from = new Fixture();
@@ -186,7 +164,6 @@ public class OverheadsProfilesTest
         from.put(OverheadsProfiles.Scope.PLAYERS, "healthBarOpacity", 41);
         from.put(OverheadsProfiles.Scope.NPCS, "healthBarOpacity", 61);
         from.put(OverheadsProfiles.Scope.PARTY, "healthBarOpacity", 81);
-        from.put(OverheadsProfiles.Scope.UNIVERSAL, "overheadChatColor", Color.BLUE);
         from.put(OverheadsProfiles.Scope.SELF, "partyDisplay", OverheadsBarDisplay.BOTH);
         OverheadsSetups exporter = from.setups();
         String json = exporter.exportCurrent("Independent", exporter.session());
@@ -211,6 +188,20 @@ public class OverheadsProfilesTest
         for (OverheadsProfiles.Scope scope : OverheadsProfiles.Scope.values())
         { assertEquals(29, to.profiles.config(scope).healthBarOpacity()); }
         assertEquals(OverheadsBarDisplay.HIDDEN, to.self.partyDisplay());
+    }
+
+    @Test
+    public void removedUniversalSettingsAreIgnoredInOldSetupFiles()
+    {
+        Fixture f = new Fixture();
+        f.profiles.initialize();
+        OverheadsSetups setups = f.setups();
+        JsonObject root = new Gson().fromJson(setups.exportCurrent("Old setup", setups.session()), JsonObject.class);
+        root.getAsJsonObject("settings").addProperty("universal.healthBarOpacity", 0);
+        OverheadsSetups.Preview preview = setups.preview(root.toString(), setups.session());
+        setups.apply(preview);
+        for (OverheadsProfiles.Scope scope : OverheadsProfiles.Scope.values()) assertEquals(100, f.profiles.config(scope).healthBarOpacity());
+        assertFalse(setups.exportCurrent("New setup", setups.session()).contains("universal."));
     }
 
     @Test
@@ -273,18 +264,15 @@ public class OverheadsProfilesTest
         Fixture()
         {
             when(client.getLocalPlayer()).thenReturn(player);
-            when(manager.getConfig(OverheadsProfiles.PlayersConfig.class)).thenReturn(config(OverheadsProfiles.PlayersConfig.class, OverheadsProfiles.Scope.PLAYERS));
-            when(manager.getConfig(OverheadsProfiles.PartyConfig.class)).thenReturn(config(OverheadsProfiles.PartyConfig.class, OverheadsProfiles.Scope.PARTY));
-            when(manager.getConfig(OverheadsProfiles.NpcsConfig.class)).thenReturn(config(OverheadsProfiles.NpcsConfig.class, OverheadsProfiles.Scope.NPCS));
-            when(manager.getConfig(OverheadsProfiles.UniversalConfig.class)).thenReturn(config(OverheadsProfiles.UniversalConfig.class, OverheadsProfiles.Scope.UNIVERSAL));
+            when(manager.getConfiguration(anyString(), anyString(), any(Class.class))).thenAnswer(call -> values.get(call.getArgument(0) + "." + call.getArgument(1)));
             when(manager.getConfiguration(anyString(), anyString())).thenAnswer(call ->
             {
                 Object value = values.get(call.getArgument(0) + "." + call.getArgument(1));
                 return value == null ? null : value.toString();
             });
-            doAnswer(call -> { values.put(call.getArgument(0) + "." + call.getArgument(1), call.getArgument(2)); return null; })
+            doAnswer(call -> { values.put(call.getArgument(0) + "." + call.getArgument(1), call.getArgument(2)); invalidate(call.getArgument(0)); return null; })
                 .when(manager).setConfiguration(anyString(), anyString(), any(Object.class));
-            doAnswer(call -> { values.put(call.getArgument(0) + "." + call.getArgument(1), call.getArgument(2)); return null; })
+            doAnswer(call -> { values.put(call.getArgument(0) + "." + call.getArgument(1), call.getArgument(2)); invalidate(call.getArgument(0)); return null; })
                 .when(manager).setConfiguration(anyString(), anyString(), anyString());
             profiles = new OverheadsProfiles(client, manager, self);
         }
@@ -299,7 +287,8 @@ public class OverheadsProfilesTest
             });
         }
 
-        void put(OverheadsProfiles.Scope scope, String key, Object value) { values.put(scope.group + "." + key, value); }
+        void invalidate(String group) { if (profiles != null) profiles.invalidate(group); }
+        void put(OverheadsProfiles.Scope scope, String key, Object value) { values.put(scope.group + "." + key, value); invalidate(scope.group); }
         Object get(OverheadsProfiles.Scope scope, String key) { return values.get(scope.group + "." + key); }
         OverheadsSetups setups()
         {

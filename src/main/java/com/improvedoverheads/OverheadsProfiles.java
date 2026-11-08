@@ -7,7 +7,6 @@ import javax.inject.Singleton;
 import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.NPC;
-import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigManager;
 
 @Singleton
@@ -18,8 +17,7 @@ public final class OverheadsProfiles
         SELF("My player", OverheadsConfig.GROUP),
         PLAYERS("Other players", "improvedoverheadsplayers"),
         NPCS("NPCs", "improvedoverheadsnpcs"),
-        PARTY("Party", "improvedoverheadsparty"),
-        UNIVERSAL("Universal", "improvedoverheadsuniversal");
+        PARTY("Party", "improvedoverheadsparty");
 
         final String label;
         final String group;
@@ -27,14 +25,6 @@ public final class OverheadsProfiles
         @Override public String toString() { return label; }
     }
 
-    @ConfigGroup("improvedoverheadsplayers")
-    public interface PlayersConfig extends OverheadsConfig {}
-    @ConfigGroup("improvedoverheadsnpcs")
-    public interface NpcsConfig extends OverheadsConfig {}
-    @ConfigGroup("improvedoverheadsparty")
-    public interface PartyConfig extends OverheadsConfig {}
-    @ConfigGroup("improvedoverheadsuniversal")
-    public interface UniversalConfig extends OverheadsConfig {}
 
     @Inject private OverheadsPartyState party;
     private final Client client;
@@ -48,10 +38,9 @@ public final class OverheadsProfiles
         this.client = client;
         this.manager = manager;
         configs.put(Scope.SELF, self);
-        configs.put(Scope.PLAYERS, manager.getConfig(PlayersConfig.class));
-        configs.put(Scope.NPCS, manager.getConfig(NpcsConfig.class));
-        configs.put(Scope.PARTY, manager.getConfig(PartyConfig.class));
-        configs.put(Scope.UNIVERSAL, manager.getConfig(UniversalConfig.class));
+        configs.put(Scope.PLAYERS, new OverheadsScopedConfig(manager, Scope.PLAYERS.group));
+        configs.put(Scope.NPCS, new OverheadsScopedConfig(manager, Scope.NPCS.group));
+        configs.put(Scope.PARTY, new OverheadsScopedConfig(manager, Scope.PARTY.group));
         configs.forEach((scope, config) -> settings.put(scope, new OverheadsSettings(config)));
     }
 
@@ -65,6 +54,13 @@ public final class OverheadsProfiles
     OverheadsConfig config(Actor actor) { return config(scope(actor)); }
     OverheadsSettings settings(Actor actor) { return settings.get(scope(actor)); }
 
+    void invalidate(String group)
+    {
+        for (Scope scope : Scope.values())
+            if (scope.group.equals(group) && configs.get(scope) instanceof OverheadsScopedConfig)
+                ((OverheadsScopedConfig) configs.get(scope)).invalidate();
+    }
+
     static boolean containsGroup(String group)
     {
         for (Scope scope : Scope.values()) if (scope.group.equals(group)) return true;
@@ -73,6 +69,7 @@ public final class OverheadsProfiles
 
     void initialize()
     {
+        configs.values().forEach(value -> { if (value instanceof OverheadsScopedConfig) ((OverheadsScopedConfig) value).invalidate(); });
         if (!"1".equals(manager.getConfiguration(Scope.SELF.group, "prayerSettingsVersion")))
         {
             String[][] keys = {{"prayerRestorePreview", "restorePreview"}, {"prayerRestorePreviewColor", "restorePreviewColor"}, {"prayerLowColor", "lowResourceColor"}};
@@ -102,23 +99,6 @@ public final class OverheadsProfiles
         }
     }
 
-    void applyUniversal(OverheadsComponent component)
-    {
-        OverheadsSetupSchema source = new OverheadsSetupSchema(config(Scope.UNIVERSAL));
-        for (Scope scope : new Scope[]{Scope.SELF, Scope.PLAYERS, Scope.NPCS, Scope.PARTY})
-        {
-            for (OverheadsSetupSchema.Entry<?> entry : source.entries.values())
-            {
-                if (entry.key.equals("partyDisplay") || OverheadsComponent.forKey(entry.key) != component) continue;
-                String sourceKey = universalKey(entry.key);
-                Object value = source.entries.get(sourceKey).getter.get();
-                if (entry.key.equals("healthBarSolidWidth")) { value = (double) config(Scope.UNIVERSAL).playerHealthWidth(); }
-                if (entry.key.equals("healthBarHeight")) { value = (double) Math.min(20, config(Scope.UNIVERSAL).playerHealthHeight()); }
-                manager.setConfiguration(scope.group, entry.key, value);
-            }
-        }
-    }
-
     static String actorKey(String key, Scope scope)
     {
         switch (key)
@@ -134,15 +114,4 @@ public final class OverheadsProfiles
         }
     }
 
-    private static String universalKey(String key)
-    {
-        switch (key)
-        {
-            case "otherHealthDisplay": case "npcHealthDisplay": return "selfHealthDisplay";
-            case "showNpcOverheadChat": return "overheadChatEnabled";
-            case "playerNameVisibility": case "npcNameVisibility": return "selfNameVisibility";
-            case "disableAllyHitsplats": case "disableEnemyHitsplats": return "disableMyHitsplats";
-            default: return key;
-        }
-    }
 }
