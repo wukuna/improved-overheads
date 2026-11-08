@@ -63,6 +63,7 @@ public class OverheadsCompletionTest
         assertEquals(0, f.state.restore(true));
         assertEquals(-1, f.state.tickProgress(), 0);
         when(f.config.restorePreview()).thenReturn(false);
+        when(f.config.prayerRestorePreview()).thenReturn(false);
         f.state.clientTick();
         verify(f.effect, times(2)).calculate(f.client);
     }

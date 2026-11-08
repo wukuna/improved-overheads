@@ -25,6 +25,13 @@ import net.runelite.api.gameval.SpriteID;
 
 final class OverheadsHeadIconRenderer
 {
+    private OverheadsActorRenderers<OverheadsHeadIconRenderer> scoped;
+    @javax.inject.Inject
+    void configureProfiles(OverheadsProfiles profiles)
+    {
+        scoped = new OverheadsActorRenderers<>(this, profiles, selected -> new OverheadsHeadIconRenderer(client, selected, sprites));
+    }
+
 	private static final int NPC_HINT_SPRITE_INDEX = 0;
 	private static final int PLAYER_HINT_SPRITE_INDEX = 1;
 	private static final float MIN_PROJECTION_DEPTH = 50.0f;
@@ -64,6 +71,9 @@ final class OverheadsHeadIconRenderer
 
 	boolean prepare(Actor actor)
 	{
+        OverheadsHeadIconRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.prepare(actor); }
+
 		clearPrepared();
 		if (!config.headIconsEnabled() || actor == null)
 		{
@@ -98,6 +108,9 @@ final class OverheadsHeadIconRenderer
 	int renderPrepared(Graphics2D graphics, Actor actor, int projectionHeight, Point anchor,
 		Point iconAnchor, int stackAnchorY, int occupiedTopY, OverheadsCollisionLayout layout)
 	{
+        OverheadsHeadIconRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.renderPrepared(graphics, actor, projectionHeight, anchor, iconAnchor, stackAnchorY, occupiedTopY, layout); }
+
 		if (actor != preparedActor || anchor == null || iconAnchor == null)
 		{
 			clearPrepared();
@@ -474,6 +487,8 @@ final class OverheadsHeadIconRenderer
 
 	void clearCache()
 	{
+        if (scoped != null) scoped.forEach(child -> child.clearCache());
+
 		clearPrepared();
 		sprites.clear();
         styledSources.clear();

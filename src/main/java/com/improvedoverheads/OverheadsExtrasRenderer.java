@@ -22,6 +22,13 @@ import net.runelite.client.util.Text;
 
 final class OverheadsExtrasRenderer
 {
+    private OverheadsActorRenderers<OverheadsExtrasRenderer> scoped;
+    @javax.inject.Inject
+    void configureProfiles(OverheadsProfiles profiles)
+    {
+        scoped = new OverheadsActorRenderers<>(this, profiles, selected -> childRenderer(selected));
+    }
+
     private final Client client;
     private final OverheadsConfig config;
     private final OverheadsActorUiSpriteCache sprites;
@@ -36,15 +43,27 @@ final class OverheadsExtrasRenderer
         sprites = new OverheadsActorUiSpriteCache(client);
     }
 
+    private OverheadsExtrasRenderer childRenderer(OverheadsConfig selected)
+    {
+        OverheadsExtrasRenderer child = new OverheadsExtrasRenderer(client, selected);
+        child.setPartyMember(partyMember);
+        return child;
+    }
+
     private Predicate<String> partyMember = name -> false;
 
     void setPartyMember(Predicate<String> membership)
     {
+        if (scoped != null) scoped.forEach(child -> child.setPartyMember(membership));
+
         partyMember = membership;
     }
 
     Color nameColor(Actor actor)
     {
+        OverheadsExtrasRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.nameColor(actor); }
+
         if (!config.relationshipNames()) { return config.nameColor(); }
         if (actor == client.getLocalPlayer()) { return config.selfNameColor(); }
         if (actor instanceof Player)
@@ -87,6 +106,9 @@ final class OverheadsExtrasRenderer
 
     boolean hasContent(Actor actor)
     {
+        OverheadsExtrasRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.hasContent(actor); }
+
         return showName(actor) || statusMask(actor) != 0 || actor == client.getLocalPlayer()
             && (resourceVisible(false) || resourceVisible(true));
     }
@@ -98,6 +120,9 @@ final class OverheadsExtrasRenderer
 
     int render(Graphics2D graphics, Actor actor, Point anchor, int occupied, OverheadsCollisionLayout layout)
     {
+        OverheadsExtrasRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.render(graphics, actor, anchor, occupied, layout); }
+
         if (actor == client.getLocalPlayer())
         {
             occupied = renderResource(graphics, actor, anchor, layout == null ? occupied : Integer.MAX_VALUE, false, layout);
@@ -117,6 +142,9 @@ final class OverheadsExtrasRenderer
 
     int statusMask(Actor actor)
     {
+        OverheadsExtrasRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.statusMask(actor); }
+
         int mask = 0;
         if (config.showStatusIcons() && actor == client.getLocalPlayer())
         {
@@ -353,6 +381,8 @@ final class OverheadsExtrasRenderer
 
     void clear()
     {
+        if (scoped != null) scoped.forEach(child -> child.clear());
+
         sprites.clear();
         java.util.Arrays.fill(sources, null);
         java.util.Arrays.fill(tinted, null);

@@ -27,7 +27,11 @@ import net.runelite.client.ui.components.colorpicker.RuneliteColorPicker;
 @Singleton
 final class OverheadsPanel extends PluginPanel
 {
-    private final OverheadsConfig config;
+    private OverheadsConfig config;
+    private OverheadsProfiles profiles;
+    private OverheadsProfiles.Scope scope = OverheadsProfiles.Scope.SELF;
+    private final JComboBox<OverheadsProfiles.Scope> actors = new JComboBox<>(OverheadsProfiles.Scope.values());
+    @Inject void configureProfiles(OverheadsProfiles profiles) { this.profiles = profiles; }
     private final ConfigManager manager;
     private final ColorPickerManager colorPickers;
     @Inject private OverheadsSetups setups;
@@ -42,7 +46,7 @@ final class OverheadsPanel extends PluginPanel
     private Runnable refreshParty = () -> {};
 
     void setPartyRefresh(Runnable refresh) { refreshParty = refresh; }
-    private final java.util.Map<String, JComponent> settingRows = new java.util.HashMap<>();
+    private final java.util.Map<String, JComponent> settingRows = new java.util.LinkedHashMap<>();
 
     @Inject
     OverheadsPanel(OverheadsConfig config, ConfigManager manager, ColorPickerManager colorPickers)
@@ -68,7 +72,18 @@ final class OverheadsPanel extends PluginPanel
             }
             setupWindow.setVisible(true);
         });
-        body.add(sharing, BorderLayout.NORTH);
+        JPanel header = new JPanel(new BorderLayout(0, 6));
+        header.add(actors, BorderLayout.NORTH);
+        header.add(sharing, BorderLayout.SOUTH);
+        actors.addActionListener(event ->
+        {
+            if (profiles == null || refreshing) { return; }
+            closeEditors();
+            scope = (OverheadsProfiles.Scope) actors.getSelectedItem();
+            this.config = profiles.config(scope);
+            rebuild();
+        });
+        body.add(header, BorderLayout.NORTH);
         body.add(tabs, BorderLayout.CENTER);
         add(body, BorderLayout.NORTH);
     }
@@ -175,10 +190,10 @@ final class OverheadsPanel extends PluginPanel
                 sync.addActionListener(event -> refreshParty.run());
                 group.add(sync);
                 number(group, "partyDataLifetime", "Data lifetime (seconds)", "Hide values after this long without an update. Run energy arrives rounded.", config::partyDataLifetime, 5, 300);
-                toggle(group, "partyShowHealth", "HP", "Show received party data.", config::partyShowHealth);
-                toggle(group, "partyShowPrayer", "Prayer", "Show received party data.", config::partyShowPrayer);
-                toggle(group, "partyShowRun", "Run energy", "Show received party data.", config::partyShowRun);
-                toggle(group, "partyShowSpecial", "Special energy", "Show received party data.", config::partyShowSpecial);
+                toggle(group, "partyShowHealth", "Show shared party HP", "Show received party data.", config::partyShowHealth);
+                toggle(group, "partyShowPrayer", "Show shared party prayer", "Show received party data.", config::partyShowPrayer);
+                toggle(group, "partyShowRun", "Show shared party run energy", "Show received party data.", config::partyShowRun);
+                toggle(group, "partyShowSpecial", "Show shared party special energy", "Show received party data.", config::partyShowSpecial);
             });
             section(content, "Timer / party appearance", group ->
             {
@@ -319,6 +334,9 @@ final class OverheadsPanel extends PluginPanel
             });
             section(content, "Prayer", group ->
             {
+                toggle(group, "prayerRestorePreview", "Prayer restore preview", "Preview prayer restored by the inventory item under the pointer.", config::prayerRestorePreview);
+                color(group, "prayerRestorePreviewColor", "Prayer restore color", "Color of the projected prayer restore.", config::prayerRestorePreviewColor);
+                color(group, "prayerLowColor", "Low prayer color", "Warning color for low prayer.", config::prayerLowColor);
                 choice(group, "prayerVisibility", "Prayer display",
                     "Prayer display.",
                     config::prayerVisibility, OverheadsPrayerVisibility.values());
@@ -357,8 +375,8 @@ final class OverheadsPanel extends PluginPanel
                 color(group, "prayerTextColor", "Prayer number color", "Prayer number color.", config::prayerTextColor);
                 font(group, "prayerTextFont", "Prayer number font", "Prayer number font.", config::prayerTextFont);
             });
-                toggle(content, "restorePreview", "Food and restore preview",
-                    "Preview the actual HP and prayer restored by the inventory item under the pointer.", config::restorePreview);
+                toggle(content, "restorePreview", "Health restore preview",
+                    "Preview the actual HP restored by the inventory item under the pointer.", config::restorePreview);
             section(content, "Restore previews and warnings", group ->
             {
                 color(group, "restorePreviewColor", "Restore preview color",
@@ -367,8 +385,8 @@ final class OverheadsPanel extends PluginPanel
                     "Use the warning color below this percentage of your HP. Zero disables it.", config::lowHealthThreshold, 0, 100);
                 number(group, "lowPrayerThreshold", "Low prayer threshold",
                     "Use the warning color below this percentage of your prayer. Zero disables it.", config::lowPrayerThreshold, 0, 100);
-                color(group, "lowResourceColor", "Low resource color",
-                    "Warning color for your low HP or prayer.", config::lowResourceColor);
+                color(group, "lowResourceColor", "Low health color",
+                    "Warning color for your low HP.", config::lowResourceColor);
                 toggle(group, "prayerTickIndicator", "Prayer tick indicator",
                     "Sweep once per observed game tick and flash when your prayer points decrease. This does not predict the next drain.", config::prayerTickIndicator);
                 color(group, "prayerTickColor", "Prayer tick color",
@@ -469,6 +487,7 @@ final class OverheadsPanel extends PluginPanel
                 if (themeWindow == null || !themeWindow.isDisplayable())
                 {
                     editors.removeIf(window -> !window.isDisplayable());
+                    setups.setThemeScope(scope);
                     themeWindow = new OverheadsSetupWindow(this, setups, true);
                     editors.add(themeWindow);
                 }
@@ -721,6 +740,7 @@ final class OverheadsPanel extends PluginPanel
                 number(group, "statusIconSize", "Status icon size",
                     "Status badge size in pixels.", config::statusIconSize, 10, 40);
             });
+        organizeComponents();
         if (selected >= 0 && selected < tabs.getTabCount())
         {
             tabs.setSelectedIndex(selected);
@@ -728,6 +748,94 @@ final class OverheadsPanel extends PluginPanel
         refresh();
         revalidate();
         repaint();
+    }
+
+
+    private void organizeComponents()
+    {
+        tabs.removeAll();
+        componentTab("Chat", OverheadsComponent.CHAT);
+        componentTab("Bars", OverheadsComponent.HEALTH, OverheadsComponent.PRAYER, OverheadsComponent.RUN, OverheadsComponent.SPECIAL);
+        componentTab("Icons", OverheadsComponent.ICONS);
+        componentTab("Hits", OverheadsComponent.HITS);
+        componentTab("More", OverheadsComponent.NAMES, OverheadsComponent.TIMERS, OverheadsComponent.LAYOUT);
+    }
+
+    private void componentTab(String title, OverheadsComponent... components)
+    {
+        JPanel container = new JPanel(new BorderLayout(0, 5));
+        JPanel cards = new JPanel(new java.awt.CardLayout());
+        List<OverheadsComponent> available = new ArrayList<>();
+        for (OverheadsComponent component : components)
+        {
+            if (scope == OverheadsProfiles.Scope.NPCS && (component == OverheadsComponent.PRAYER || component == OverheadsComponent.RUN || component == OverheadsComponent.SPECIAL || component == OverheadsComponent.TIMERS)) { continue; }
+            available.add(component);
+            JPanel basic = column();
+            JPanel advanced = column();
+            settingRows.forEach((key, row) ->
+            {
+                if (OverheadsComponent.forKey(key) != component) { return; }
+                if (row.getParent() != null) { row.getParent().remove(row); }
+                (basicSetting(key) ? basic : advanced).add(row);
+            });
+            JToggleButton expand = new JToggleButton("More settings");
+            advanced.setVisible(false);
+            expand.addActionListener(event -> { advanced.setVisible(expand.isSelected()); revalidate(); });
+            basic.add(expand);
+            basic.add(advanced);
+            if (component == OverheadsComponent.HITS)
+            {
+                JButton themes = new JButton("Hitsplat themes");
+                themes.addActionListener(event ->
+                {
+                    if (setups == null) { return; }
+                    if (themeWindow == null || !themeWindow.isDisplayable())
+                    {
+                        setups.setThemeScope(scope);
+                    themeWindow = new OverheadsSetupWindow(this, setups, true);
+                        editors.add(themeWindow);
+                    }
+                    themeWindow.setVisible(true);
+                });
+                basic.add(themes);
+            }
+            if (component == OverheadsComponent.LAYOUT)
+            {
+                JButton reset = new JButton("Reflow spacing");
+                reset.addActionListener(event -> reflow.run());
+                basic.add(reset);
+            }
+            if (component == OverheadsComponent.TIMERS && scope != OverheadsProfiles.Scope.UNIVERSAL)
+            {
+                JButton sync = new JButton("Refresh party data");
+                sync.addActionListener(event -> refreshParty.run());
+                basic.add(sync);
+            }
+            if (scope == OverheadsProfiles.Scope.UNIVERSAL && profiles != null)
+            {
+                JButton apply = new JButton("Apply " + component.toString().toLowerCase(java.util.Locale.ROOT) + " to all");
+                apply.addActionListener(event -> { profiles.applyUniversal(component); refresh(); });
+                basic.add(apply);
+            }
+            cards.add(basic, component.name());
+        }
+        if (available.size() > 1)
+        {
+            JComboBox<OverheadsComponent> select = new JComboBox<>(available.toArray(new OverheadsComponent[0]));
+            select.addActionListener(event -> ((java.awt.CardLayout) cards.getLayout()).show(cards, ((OverheadsComponent) select.getSelectedItem()).name()));
+            container.add(select, BorderLayout.NORTH);
+        }
+        container.add(cards, BorderLayout.CENTER);
+        tabs.addTab(title, container);
+    }
+
+    private static boolean basicSetting(String key)
+    {
+        return key.startsWith("partyShow") || key.endsWith("Display") || key.equals("healthBarsEnabled")
+            || key.equals("overheadChatEnabled") || key.equals("headIconsEnabled") || key.endsWith("Visibility") || key.endsWith("Style")
+            || key.equals("alwaysShowSelfHealth") || key.equals("showNpcOverheadChat") || key.equals("showPrayerIcons")
+            || key.equals("showSkullIcons") || key.equals("showNpcIcons") || key.startsWith("disable")
+            || key.equals("overheadChatFont") || key.equals("overheadChatColor") || key.equals("hitsplatMotion");
     }
 
     void refresh()
@@ -849,7 +957,7 @@ final class OverheadsPanel extends PluginPanel
     {
         if (!refreshing)
         {
-            manager.setConfiguration(OverheadsConfig.GROUP, key, value);
+            manager.setConfiguration(key.equals("partyDisplay") ? OverheadsConfig.GROUP : scope.group, key, value);
         }
     }
 
@@ -880,7 +988,7 @@ final class OverheadsPanel extends PluginPanel
             reset.setToolTipText("Reset " + name.toLowerCase(java.util.Locale.ROOT));
             reset.addActionListener(event ->
             {
-                manager.unsetConfiguration(OverheadsConfig.GROUP, key);
+                manager.unsetConfiguration(scope.group, key);
                 refresh();
             });
             controls.add(reset, java.awt.BorderLayout.EAST);
@@ -1012,10 +1120,27 @@ final class OverheadsPanel extends PluginPanel
 
     private boolean settingVisible(String key)
     {
+        boolean self = scope == OverheadsProfiles.Scope.SELF || scope == OverheadsProfiles.Scope.UNIVERSAL;
+        boolean npc = scope == OverheadsProfiles.Scope.NPCS;
+        if (key.startsWith("partyShow") && scope != OverheadsProfiles.Scope.PLAYERS && scope != OverheadsProfiles.Scope.UNIVERSAL) { return false; }
+        if (scope == OverheadsProfiles.Scope.PLAYERS && (key.equals("prayerVisibility") || key.equals("prayerTickIndicator") || key.equals("prayerTickColor") || key.startsWith("prayerRestore") || key.equals("prayerLowColor") || key.equals("lowPrayerThreshold"))) { return false; }
+        if ((key.equals("partyDisplay") || key.equals("partyDataLifetime")) && scope != OverheadsProfiles.Scope.SELF) { return false; }
+        if ((key.equals("alwaysShowSelfHealth") || key.equals("restorePreview") || key.equals("restorePreviewColor")
+            || key.equals("lowHealthThreshold") || key.equals("lowResourceColor")
+            || key.equals("localBoostPrayerIcons") || key.equals("showStatusIcons") || key.equals("regenDisplay") || key.equals("poisonTimerDisplay")) && !self) { return false; }
+        if (key.equals("selfHealthDisplay") || key.equals("selfNameVisibility") || key.equals("disableMyHitsplats")) { return self; }
+        if (key.equals("otherHealthDisplay") || key.equals("otherHealthVisibility") || key.equals("playerNameVisibility") || key.equals("disableAllyHitsplats")) { return scope == OverheadsProfiles.Scope.PLAYERS; }
+        if (key.equals("npcHealthDisplay") || key.equals("npcHealthVisibility") || key.equals("npcNameVisibility") || key.equals("disableEnemyHitsplats")
+            || key.equals("hiddenNpcHealthIds") || key.equals("nativeNpcUiIds") || key.equals("showNpcOverheadChat") || key.equals("showNpcIcons")) { return npc; }
+        if (key.equals("overheadChatEnabled") && npc) { return false; }
+        if ((key.equals("playerHealthWidth") || key.equals("playerHealthHeight")) && npc) { return false; }
+        if ((key.equals("healthBarSolidWidth") || key.equals("healthBarHeight")) && !npc) { return false; }
+
         if (key.equals("restorePreviewColor"))
         {
             return config.restorePreview();
         }
+        if (key.equals("prayerRestorePreviewColor")) { return config.prayerRestorePreview(); }
         if (key.equals("prayerTickColor"))
         {
             return config.prayerTickIndicator();
@@ -1058,7 +1183,7 @@ final class OverheadsPanel extends PluginPanel
         }
         if (key.startsWith("prayer") && !key.startsWith("prayerIcon") && !key.equals("prayerVisibility"))
         {
-            if (config.prayerVisibility() == OverheadsPrayerVisibility.NEVER)
+            if (scope != OverheadsProfiles.Scope.PLAYERS && config.prayerVisibility() == OverheadsPrayerVisibility.NEVER)
             {
                 return false;
             }
@@ -1085,7 +1210,8 @@ final class OverheadsPanel extends PluginPanel
         }
         if (key.equals("healthNumberFormat"))
         {
-            return numbers(config.selfHealthDisplay());
+            if (npc) { return false; }
+            return scope == OverheadsProfiles.Scope.PLAYERS ? numbers(config.otherHealthDisplay()) : numbers(config.selfHealthDisplay());
         }
         if (key.equals("healthBarFrontSecondaryColor") || key.equals("healthBarFrontGradientCoordinates"))
         {

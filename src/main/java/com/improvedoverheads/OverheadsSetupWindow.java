@@ -60,7 +60,7 @@ final class OverheadsSetupWindow extends JDialog
 
     OverheadsSetupWindow(JComponent owner, OverheadsSetups setups, boolean themes)
     {
-        super(SwingUtilities.getWindowAncestor(owner), themes ? "Improved Overheads — Hitsplat themes" : "Improved Overheads — Setups",
+        super(SwingUtilities.getWindowAncestor(owner), themes ? "Improved Overheads — " + setups.themeActor() + " hitsplat themes" : "Improved Overheads — Setups",
             Dialog.ModalityType.MODELESS);
         this.setups = setups;
         this.themes = themes;
@@ -121,7 +121,7 @@ final class OverheadsSetupWindow extends JDialog
             JComboBox<String> from = new JComboBox<>(groups);
             JComboBox<String> to = new JComboBox<>(groups);
             to.setSelectedIndex(1);
-            controls.add(row(new JLabel("Copy visibility"), from, new JLabel("to"), to, button("Preview copy", () ->
+            controls.add(row(new JLabel("Copy settings"), from, new JLabel("to"), to, button("Preview copy", () ->
             {
                 json.setText(setups.copyGroup(from.getSelectedIndex(), to.getSelectedIndex(), session));
                 preview();

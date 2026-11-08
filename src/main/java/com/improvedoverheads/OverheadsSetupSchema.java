@@ -16,6 +16,8 @@ final class OverheadsSetupSchema
     {
         final String key;
         final String label;
+        String group = OverheadsConfig.GROUP;
+        String storageKey;
         final Supplier<T> getter;
         final Function<T, JsonElement> encode;
         final Function<JsonElement, T> decode;
@@ -23,6 +25,7 @@ final class OverheadsSetupSchema
         Entry(String key, String label, Supplier<T> getter, Function<T, JsonElement> encode, Function<JsonElement, T> decode)
         {
             this.key = key;
+            this.storageKey = key;
             this.label = label;
             this.getter = getter;
             this.encode = encode;
@@ -39,6 +42,9 @@ final class OverheadsSetupSchema
 
     OverheadsSetupSchema(OverheadsConfig config)
     {
+        add("prayerRestorePreview", "Prayer restore preview", config::prayerRestorePreview, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
+        add("prayerRestorePreviewColor", "Prayer restore color", config::prayerRestorePreviewColor, OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerLowColor", "Low prayer color", config::prayerLowColor, OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
         add("runHideWhenFull", "Hide full run energy", config::runHideWhenFull, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
         add("specialHideWhenFull", "Hide full special energy", config::specialHideWhenFull, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
         add("nativeNpcUiIds", "Native NPC UI IDs", config::nativeNpcUiIds, value -> new JsonPrimitive(value), value -> stringValue(value, 4096));
@@ -497,6 +503,32 @@ final class OverheadsSetupSchema
     private <T> void add(String key, String label, Supplier<T> getter, Function<T, JsonElement> encode, Function<JsonElement, T> decode)
     {
         entries.put(key, new Entry<>(key, label, getter, encode, decode));
+    }
+
+
+    void addProfiles(OverheadsProfiles profiles)
+    {
+        for (OverheadsProfiles.Scope scope : OverheadsProfiles.Scope.values())
+        {
+            if (scope == OverheadsProfiles.Scope.SELF) { continue; }
+            OverheadsSetupSchema source = new OverheadsSetupSchema(profiles.config(scope));
+            source.entries.values().forEach(entry -> addScoped(scope, entry));
+        }
+    }
+
+    static String prefix(OverheadsProfiles.Scope scope)
+    {
+        return scope == OverheadsProfiles.Scope.SELF ? "" : scope.name().toLowerCase(java.util.Locale.ROOT) + ".";
+    }
+
+    private <T> void addScoped(OverheadsProfiles.Scope scope, Entry<T> entry)
+    {
+        if (entry.key.equals("partyDisplay")) { return; }
+        String key = prefix(scope) + entry.key;
+        Entry<T> scoped = new Entry<>(key, scope.label + ": " + entry.label, entry.getter, entry.encode, entry.decode);
+        scoped.group = scope.group;
+        scoped.storageKey = entry.key;
+        entries.put(key, scoped);
     }
 
     JsonObject snapshot()

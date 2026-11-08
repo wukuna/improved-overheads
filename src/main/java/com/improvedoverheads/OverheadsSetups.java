@@ -27,9 +27,9 @@ final class OverheadsSetups
 {
     static final String STORAGE_KEY = "savedSetups";
     static final String THEMES_KEY = "savedHitsplatThemes";
-    static final int MAX_JSON = 131072;
+    static final int MAX_JSON = 524288;
     private static final int MAX_SAVED = 12;
-    private static final int MAX_STORAGE = 524288;
+    private static final int MAX_STORAGE = 4194304;
     private final ConfigManager manager;
     private final Gson gson;
     final OverheadsSetupSchema schema;
@@ -89,6 +89,16 @@ final class OverheadsSetups
         schema = new OverheadsSetupSchema(config);
     }
 
+    private OverheadsProfiles profiles;
+    private OverheadsProfiles.Scope themeScope = OverheadsProfiles.Scope.SELF;
+    void setThemeScope(OverheadsProfiles.Scope scope) { themeScope = scope; }
+    String themeActor() { return themeScope.label; }
+    @Inject void configureProfiles(OverheadsProfiles profiles)
+    {
+        this.profiles = profiles;
+        schema.addProfiles(profiles);
+    }
+
     Session session()
     {
         return new Session(profileId(), generation.get());
@@ -122,6 +132,10 @@ final class OverheadsSetups
     {
         check(session);
         JsonObject values = schema.snapshot();
+        if (themes && profiles != null)
+        {
+            values = new OverheadsSetupSchema(profiles.config(themeScope)).snapshot();
+        }
         String result = gson.toJson(document(validName(name), themes ? OverheadsHitsplatThemes.select(values) : values));
         check(session);
         return result;
@@ -146,7 +160,7 @@ final class OverheadsSetups
     {
         JsonObject root = new JsonObject();
         root.addProperty("format", "improved-overheads");
-        root.addProperty("version", 1);
+        root.addProperty("version", 2);
         root.addProperty("name", name);
         root.add("settings", settings);
         return root;
@@ -165,7 +179,8 @@ final class OverheadsSetups
         {
             throw new IllegalArgumentException("This is not an Improved Overheads setup.");
         }
-        if (OverheadsSetupSchema.integerValue(root.get("version"), 1, Integer.MAX_VALUE) != 1)
+        int version = OverheadsSetupSchema.integerValue(root.get("version"), 1, Integer.MAX_VALUE);
+        if (version > 2)
         {
             throw new IllegalArgumentException("This setup version is not supported.");
         }
@@ -175,11 +190,36 @@ final class OverheadsSetups
         {
             throw new IllegalArgumentException("The setup has no settings object.");
         }
+        if (version == 1 && profiles != null && !themes)
+        {
+            JsonObject legacy = settingsValue.getAsJsonObject().deepCopy();
+            String[][] aliases = {{"prayerRestorePreview", "restorePreview"}, {"prayerRestorePreviewColor", "restorePreviewColor"}, {"prayerLowColor", "lowResourceColor"}};
+            for (String[] pair : aliases)
+            {
+                if (!legacy.has(pair[0]) && legacy.has(pair[1]))
+                {
+                    legacy.add(pair[0], legacy.get(pair[1]));
+                    settingsValue.getAsJsonObject().add(pair[0], legacy.get(pair[1]));
+                }
+            }
+            for (OverheadsProfiles.Scope scope : OverheadsProfiles.Scope.values())
+            {
+                if (scope == OverheadsProfiles.Scope.SELF) { continue; }
+                legacy.entrySet().forEach(entry ->
+                {
+                    String key = OverheadsSetupSchema.prefix(scope) + entry.getKey();
+                    if (schema.entries.containsKey(key) && !settingsValue.getAsJsonObject().has(key))
+                    { settingsValue.getAsJsonObject().add(key, entry.getValue()); }
+                });
+            }
+        }
         List<Change> changes = new ArrayList<>();
         int ignored = 0;
         for (Map.Entry<String, JsonElement> setting : settingsValue.getAsJsonObject().entrySet())
         {
-            OverheadsSetupSchema.Entry<?> entry = schema.entries.get(setting.getKey());
+            String key = themes && profiles != null && setting.getKey().indexOf('.') < 0
+                ? OverheadsSetupSchema.prefix(themeScope) + setting.getKey() : setting.getKey();
+            OverheadsSetupSchema.Entry<?> entry = schema.entries.get(key);
             if (entry == null || setting.getKey().equals("partyDisplay") || themes && !OverheadsHitsplatThemes.includes(setting.getKey()))
             {
                 ignored++;
@@ -239,7 +279,8 @@ final class OverheadsSetups
         for (Change change : preview.changes)
         {
             check(preview.session);
-            manager.setConfiguration(OverheadsConfig.GROUP, change.key, change.value);
+            OverheadsSetupSchema.Entry<?> entry = schema.entries.get(change.key);
+            manager.setConfiguration(entry.group, entry.storageKey, change.value);
             applied++;
         }
         return applied;
@@ -251,6 +292,20 @@ final class OverheadsSetups
         if (source < 0 || source > 2 || destination < 0 || destination > 2 || source == destination)
         {
             throw new IllegalArgumentException("Choose two different actor groups.");
+        }
+        if (profiles != null)
+        {
+            OverheadsProfiles.Scope from = OverheadsProfiles.Scope.values()[source];
+            OverheadsProfiles.Scope to = OverheadsProfiles.Scope.values()[destination];
+            JsonObject copied = new JsonObject();
+            OverheadsSetupSchema fromSchema = new OverheadsSetupSchema(profiles.config(from));
+            for (OverheadsSetupSchema.Entry<?> entry : fromSchema.entries.values())
+            {
+                if (entry.key.equals("partyDisplay")) { continue; }
+                String sourceKey = OverheadsProfiles.actorKey(entry.key, from);
+                copied.add(OverheadsSetupSchema.prefix(to) + entry.key, fromSchema.entries.get(sourceKey).current());
+            }
+            return gson.toJson(document("Copied actor settings", copied));
         }
         String[][] keys = {
             {"selfHealthDisplay", "otherHealthDisplay", "npcHealthDisplay"},
@@ -394,7 +449,7 @@ final class OverheadsSetups
                 while (reader.hasNext())
                 {
                     String key = reader.nextName();
-                    if (key.length() > 128 || object.has(key) || object.size() >= 512)
+                    if (key.length() > 128 || object.has(key) || object.size() >= 2048)
                     {
                         throw new IllegalArgumentException("Invalid or duplicate setup key.");
                     }

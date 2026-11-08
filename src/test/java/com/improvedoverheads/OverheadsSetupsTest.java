@@ -162,7 +162,7 @@ public class OverheadsSetupsTest
                 () -> f.setups.preview(json, f.session));
         }
         JsonObject document = f.document();
-        document.addProperty("version", 2);
+        document.addProperty("version", 3);
         assertThrows(IllegalArgumentException.class, () -> f.setups.preview(document.toString(), f.session));
         assertTrue(f.raw.isEmpty());
     }

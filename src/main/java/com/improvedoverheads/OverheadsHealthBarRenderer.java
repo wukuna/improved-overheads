@@ -32,6 +32,13 @@ import net.runelite.client.game.NPCManager;
 
 final class OverheadsHealthBarRenderer
 {
+    private OverheadsActorRenderers<OverheadsHealthBarRenderer> scoped;
+    @javax.inject.Inject
+    void configureProfiles(OverheadsProfiles profiles)
+    {
+        scoped = new OverheadsActorRenderers<>(this, profiles, selected -> new OverheadsHealthBarRenderer(client, selected, npcManager, vitals));
+    }
+
 	static final int NO_OCCUPIED_TOP = Integer.MAX_VALUE;
 
 	private static final Color DEFAULT_FRONT_COLOR = new Color(45, 190, 88);
@@ -128,6 +135,9 @@ final class OverheadsHealthBarRenderer
 
 	int render(Graphics2D graphics, Actor actor, Point anchor, int stackAnchorY, OverheadsCollisionLayout layout)
 	{
+        OverheadsHealthBarRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.render(graphics, actor, anchor, stackAnchorY, layout); }
+
 		if (actor == null || anchor == null)
 		{
 			return NO_OCCUPIED_TOP;
@@ -201,11 +211,11 @@ final class OverheadsHealthBarRenderer
 				int current = Math.max(0, client.getBoostedSkillLevel(Skill.PRAYER));
 				double fraction = healthFraction(current, client.getRealSkillLevel(Skill.PRAYER));
 				boolean low = config.lowPrayerThreshold() > 0 && fraction * 100 < config.lowPrayerThreshold();
-				Color fill = low ? config.lowResourceColor() : config.prayerColor();
+				Color fill = low ? config.prayerLowColor() : config.prayerColor();
 				renderBar(graphics, bounds, vertical, config.prayerDisplay(), config.prayerPosition(),
 					fraction, fraction, fill, fill, config.prayerOpacity(),
 					config.prayerNumberFormat().format(current, client.getRealSkillLevel(Skill.PRAYER)), config.prayerTextFont(),
-					low ? config.lowResourceColor() : config.prayerTextColor(), zoom, 0, true,
+					low ? config.prayerLowColor() : config.prayerTextColor(), zoom, 0, true,
 					vitals.restore(true), client.getRealSkillLevel(Skill.PRAYER), layout);
 				if (config.prayerPosition() == OverheadsPosition.ABOVE)
 				{
@@ -271,13 +281,13 @@ final class OverheadsHealthBarRenderer
 				if (restore > 0 && maximum > 0)
 				{
 					drawRestorePreview(g, bounds, direction, fraction,
-						Math.min(1, fraction + restore / (double) maximum), config.restorePreviewColor(),
+						Math.min(1, fraction + restore / (double) maximum), prayer ? config.prayerRestorePreviewColor() : config.restorePreviewColor(),
 						style == OverheadsHealthBarStyle.SOLID ? (prayer ? config.prayerCornerRadius() : config.healthBarCornerRadius()) : 0);
 				}
 				if (prayer && config.prayerTickIndicator() && vitals.tickProgress() >= 0)
 				{
 					drawTick(g, bounds, vertical, vitals.tickProgress(), vitals.prayerJustDrained()
-						? config.lowResourceColor() : config.prayerTickColor());
+						? config.prayerLowColor() : config.prayerTickColor());
 				}
 			}
 			if (display != OverheadsBarDisplay.BAR_ONLY)
@@ -309,7 +319,7 @@ final class OverheadsHealthBarRenderer
 					&& vitals.tickProgress() >= 0)
 				{
 					drawTick(g, new Rectangle(x, y + 2, Math.max(4, metrics.stringWidth(text)), 2), false,
-						vitals.tickProgress(), vitals.prayerJustDrained() ? config.lowResourceColor() : config.prayerTickColor());
+						vitals.tickProgress(), vitals.prayerJustDrained() ? config.prayerLowColor() : config.prayerTickColor());
 				}
 			}
 		}
@@ -526,6 +536,9 @@ final class OverheadsHealthBarRenderer
 
 	boolean hasRenderableHealthBar(Actor actor)
 	{
+        OverheadsHealthBarRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { return selected.hasRenderableHealthBar(actor); }
+
 		return actor != null && (showHealth(actor) || actor == client.getLocalPlayer() && showPrayer());
 	}
 
@@ -537,6 +550,9 @@ final class OverheadsHealthBarRenderer
 
 	void recordDamage(Actor actor, int hitsplatType, int amount)
 	{
+        OverheadsHealthBarRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { selected.recordDamage(actor, hitsplatType, amount); return; }
+
 		if (actor == null
 			|| amount <= 0
 			|| !isHealthDamageHitsplat(hitsplatType)
@@ -1464,6 +1480,9 @@ final class OverheadsHealthBarRenderer
 
 	void remove(Actor actor)
 	{
+        OverheadsHealthBarRenderer selected = scoped == null ? this : scoped.forActor(actor);
+        if (selected != this) { selected.remove(actor); return; }
+
 		damageTrails.remove(actor);
 	}
 
@@ -1512,6 +1531,8 @@ final class OverheadsHealthBarRenderer
 
 	void clearCache()
 	{
+        if (scoped != null) scoped.forEach(child -> child.clearCache());
+
 		sprites.clear();
 		prayerSpriteSource = null;
 		prayerSprite = null;

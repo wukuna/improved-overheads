@@ -20,7 +20,7 @@ final class OverheadsHitsplatThemes
 
     static boolean includes(String key)
     {
-        return KEYS.contains(key);
+        return KEYS.contains(key.substring(key.indexOf('.') + 1));
     }
 
     static JsonObject select(JsonObject settings)
