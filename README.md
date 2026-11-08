@@ -1,8 +1,8 @@
 # Improved Overheads
 
-Customize overhead chat, HP, prayer points, hitsplats, and head icons from four sidebar tabs: Chat, Health, Hits, and Icons.
+Customize overhead chat, HP, prayer points, hitsplats, and head icons from the Chat, Bars, Icons, Hits and More sidebar tabs. Select My player, Other players or NPCs before editing. Each actor group keeps its own appearance settings; Universal applies only the selected component when you click Apply to all.
 
-* Choose numbers, a bar, or both for HP and your own prayer points.
+* Health, Prayer, Run energy and Special energy have separate sections. Choose Numbers only, Bar only or Both for each supported resource.
 * Hide HP independently for yourself, NPCs, or other players. Choose current, current / maximum, or percentage readouts for your own HP and prayer.
 * Place overheads above, below, left, or right of the actor, with adjustable offsets and optional camera zoom scaling.
 * Use horizontal or vertical HP and prayer bars, with OSRS artwork or a modern appearance.
@@ -32,7 +32,7 @@ Customize overhead chat, HP, prayer points, hitsplats, and head icons from four 
 * Use separate name colors for yourself, friends, clan/friends-chat members, RuneLite party members, other players, shops and followers.
 * Show your active offensive prayers with the same configurable prayer frames and positioning. Other players retain only their visible overhead icons.
 * Add estimated HP regeneration and poison/venom timers as numbers, bars, or both. HP timing requires RuneLite's Regen Meter to be enabled; independent HP-cape and Rejuvenation timing stays hidden. Poison timing begins after a visible poison/venom hit and stops at cure or when an expected hit is overdue.
-* Opt into Health → Party resources to share your name, HP, prayer, run and special energy through your existing RuneLite party. Received resources can use numbers, bars, or both. Values marked `~` are last received; RuneLite rounds run energy. Old values expire after the configured lifetime; Refresh party data requests a fresh snapshot. Setup imports never enable or disable this sharing option.
+* Opt into My player → More → Timers and party to share your name, HP, prayer, run and special energy through your existing RuneLite party. Customize received resources under Other players → Bars, independently for each resource. Values marked `~` are last received; RuneLite rounds run energy. Old values expire after the configured lifetime; Refresh party data requests a fresh snapshot. Setup imports never enable or disable this sharing option.
 * Preserve complete original overheads for additional NPCs using Native NPC UI IDs, including transformed IDs. This is separate from hiding ordinary HP.
 
 HP numbers are exact for your own player. Ordinary NPC and other-player numbers show visible health percentages; opted-in party displays show received member values. Special encounter shields and charge bars retain their native display.

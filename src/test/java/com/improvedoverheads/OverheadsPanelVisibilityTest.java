@@ -13,6 +13,55 @@ import static org.mockito.Mockito.*;
 public class OverheadsPanelVisibilityTest
 {
     @Test
+    public void actorSelectionWritesOnlyThatActorAndNumbersAreAvailableForEachResource() throws Exception
+    {
+        OverheadsProfilesTest.Fixture f = new OverheadsProfilesTest.Fixture();
+        f.profiles.initialize();
+        SwingUtilities.invokeAndWait(() ->
+        {
+            OverheadsPanel panel = new OverheadsPanel(f.self, f.manager, mock(ColorPickerManager.class));
+            panel.configureProfiles(f.profiles);
+            panel.rebuild();
+            for (String key : new String[]{"selfHealthDisplay", "prayerDisplay", "runDisplay", "specialDisplay"})
+            {
+                javax.swing.JComboBox<?> display = (javax.swing.JComboBox<?>) find(panel, key);
+                assertNotNull(key, display);
+                display.setSelectedItem(OverheadsBarDisplay.NUMBERS_ONLY);
+                assertEquals(OverheadsBarDisplay.NUMBERS_ONLY, f.get(OverheadsProfiles.Scope.SELF, key));
+            }
+            javax.swing.JComboBox<?> actors = actorPicker(panel);
+            assertNotNull(actors);
+            actors.setSelectedItem(OverheadsProfiles.Scope.PLAYERS);
+            assertFalse(row(panel, "selfHealthDisplay").isVisible());
+            assertTrue(row(panel, "otherHealthDisplay").isVisible());
+            ((javax.swing.JSpinner) find(panel, "healthBarOpacity")).setValue(22);
+            assertEquals(22, f.get(OverheadsProfiles.Scope.PLAYERS, "healthBarOpacity"));
+            assertNotEquals(22, f.self.healthBarOpacity());
+            actors.setSelectedItem(OverheadsProfiles.Scope.NPCS);
+            assertTrue(row(panel, "npcHealthDisplay").isVisible());
+            assertNull(find(panel, "runDisplay"));
+        });
+    }
+
+    private static javax.swing.JComboBox<?> actorPicker(Container parent)
+    {
+        for (Component component : parent.getComponents())
+        {
+            if (component instanceof javax.swing.JComboBox)
+            {
+                javax.swing.JComboBox<?> box = (javax.swing.JComboBox<?>) component;
+                if (box.getItemCount() > 0 && box.getItemAt(0) instanceof OverheadsProfiles.Scope) { return box; }
+            }
+            if (component instanceof Container)
+            {
+                javax.swing.JComboBox<?> found = actorPicker((Container) component);
+                if (found != null) { return found; }
+            }
+        }
+        return null;
+    }
+
+    @Test
     public void hitsplatControlsFollowStyleAndMotionWithoutConfigWrites() throws Exception
     {
         OverheadsConfig config = mock(OverheadsConfig.class, CALLS_REAL_METHODS);

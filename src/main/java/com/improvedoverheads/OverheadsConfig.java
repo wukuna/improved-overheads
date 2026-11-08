@@ -28,6 +28,22 @@ public interface OverheadsConfig extends Config
         return 4;
     }
 
+    @ConfigSection(name = "Prayer bar", description = "Your prayer points display.", position = 4, closedByDefault = true)
+    String PRAYER_SECTION = "prayerBar";
+    @ConfigSection(name = "Run energy", description = "Your run energy display.", position = 5, closedByDefault = true)
+    String RUN_SECTION = "runBar";
+    @ConfigSection(name = "Special energy", description = "Your special energy display.", position = 6, closedByDefault = true)
+    String SPECIAL_SECTION = "specialBar";
+
+    @ConfigItem(keyName = "prayerRestorePreview", name = "Prayer restore preview", description = "Preview prayer restored by the inventory item under the pointer.", section = PRAYER_SECTION, position = 230)
+    default boolean prayerRestorePreview() { return true; }
+    @Alpha
+    @ConfigItem(keyName = "prayerRestorePreviewColor", name = "Prayer restore color", description = "Color of the projected prayer restore.", section = PRAYER_SECTION, position = 231)
+    default Color prayerRestorePreviewColor() { return new Color(115, 235, 170, 190); }
+    @Alpha
+    @ConfigItem(keyName = "prayerLowColor", name = "Low prayer color", description = "Warning color for low prayer.", section = PRAYER_SECTION, position = 232)
+    default Color prayerLowColor() { return new Color(255, 106, 87); }
+
 	String GROUP = "improvedoverheads";
 	String DISABLE_ENEMY_HITSPLATS_KEY = "disableEnemyHitsplats";
 	String DISABLE_ALLY_HITSPLATS_KEY = "disableAllyHitsplats";
@@ -1524,7 +1540,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerVisibility",
         name = "Prayer display",
         description = "Prayer display.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 112
     )
     default OverheadsPrayerVisibility prayerVisibility()
@@ -1536,7 +1552,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerDisplay",
         name = "Prayer numbers / bar",
         description = "Prayer numbers / bar.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 113
     )
     default OverheadsBarDisplay prayerDisplay()
@@ -1548,7 +1564,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerPosition",
         name = "Prayer position",
         description = "Prayer position.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 114
     )
     default OverheadsPosition prayerPosition()
@@ -1560,7 +1576,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerOrientation",
         name = "Prayer orientation",
         description = "Prayer orientation.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 115
     )
     default OverheadsOrientation prayerOrientation()
@@ -1572,7 +1588,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerScaleWithZoom",
         name = "Scale prayer with zoom",
         description = "Scale prayer with zoom.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 116
     )
     default boolean prayerScaleWithZoom()
@@ -1584,7 +1600,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerWidth",
         name = "Prayer bar length",
         description = "Prayer bar length.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 117
     )
     @Range(min = 10, max = 200)
@@ -1597,7 +1613,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerHeight",
         name = "Prayer bar thickness",
         description = "Prayer bar thickness.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 118
     )
     @Range(min = 2, max = 30)
@@ -1610,7 +1626,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerXOffset",
         name = "Prayer X offset",
         description = "Prayer X offset.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 119
     )
     @Range(min = -300, max = 300)
@@ -1623,7 +1639,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerYOffset",
         name = "Prayer Y offset",
         description = "Prayer Y offset.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 120
     )
     @Range(min = -300, max = 300)
@@ -1636,7 +1652,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerOpacity",
         name = "Prayer bar opacity",
         description = "Opacity of the prayer bar and border; numbers have their own color.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 121
     )
     @Range(min = 0, max = 100)
@@ -1649,7 +1665,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerColor",
         name = "Prayer fill",
         description = "Prayer fill.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 122
     )
     @Alpha
@@ -1662,7 +1678,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerTextColor",
         name = "Prayer number color",
         description = "Prayer number color.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 123
     )
     @Alpha
@@ -1675,7 +1691,7 @@ public interface OverheadsConfig extends Config
         keyName = "prayerTextFont",
         name = "Prayer number font",
         description = "Prayer number font.",
-        section = HEALTH_BARS_SECTION,
+        section = PRAYER_SECTION,
         position = 124
     )
     default FontType prayerTextFont()
@@ -1802,28 +1818,28 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "prayerNumberFormat", name = "Prayer number format",
-        description = "Format for your prayer points.", section = HEALTH_BARS_SECTION, position = 201)
+        description = "Format for your prayer points.", section = PRAYER_SECTION, position = 201)
     default OverheadsNumberFormat prayerNumberFormat()
     {
         return OverheadsNumberFormat.CURRENT;
     }
 
     @ConfigItem(keyName = "prayerBarStyle", name = "Prayer style",
-        description = "OSRS artwork or modern prayer bar.", section = HEALTH_BARS_SECTION, position = 202)
+        description = "OSRS artwork or modern prayer bar.", section = PRAYER_SECTION, position = 202)
     default OverheadsHealthBarStyle prayerBarStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
     @ConfigItem(keyName = "prayerFillDirection", name = "Prayer fill direction",
-        description = "Direction the filled prayer bar grows.", section = HEALTH_BARS_SECTION, position = 203)
+        description = "Direction the filled prayer bar grows.", section = PRAYER_SECTION, position = 203)
     default OverheadsHealthBarFillDirection prayerFillDirection()
     {
         return OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
     }
 
     @ConfigItem(keyName = "prayerBackColor", name = "Prayer background",
-        description = "Color for missing prayer points in the Modern style.", section = HEALTH_BARS_SECTION, position = 204)
+        description = "Color for missing prayer points in the Modern style.", section = PRAYER_SECTION, position = 204)
     @Alpha
     default Color prayerBackColor()
     {
@@ -1831,7 +1847,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "prayerBorderColor", name = "Prayer border",
-        description = "Modern prayer bar border color.", section = HEALTH_BARS_SECTION, position = 205)
+        description = "Modern prayer bar border color.", section = PRAYER_SECTION, position = 205)
     @Alpha
     default Color prayerBorderColor()
     {
@@ -1839,7 +1855,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "prayerBorderThickness", name = "Prayer border thickness",
-        description = "Modern prayer bar border thickness.", section = HEALTH_BARS_SECTION, position = 206)
+        description = "Modern prayer bar border thickness.", section = PRAYER_SECTION, position = 206)
     @Range(min = 0, max = 10)
     default int prayerBorderThickness()
     {
@@ -1847,7 +1863,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "prayerCornerRadius", name = "Prayer corner radius",
-        description = "Modern prayer bar corner radius.", section = HEALTH_BARS_SECTION, position = 207)
+        description = "Modern prayer bar corner radius.", section = PRAYER_SECTION, position = 207)
     @Range(min = 0, max = 30)
     default int prayerCornerRadius()
     {
@@ -1884,8 +1900,8 @@ public interface OverheadsConfig extends Config
     {
         return Color.WHITE;
     }
-    @ConfigItem(keyName = "restorePreview", name = "Food and restore preview",
-        description = "Preview the actual HP and prayer restored by the inventory item under the pointer.", section = HEALTH_BARS_SECTION, position = 220)
+    @ConfigItem(keyName = "restorePreview", name = "Health restore preview",
+        description = "Preview the actual HP restored by the inventory item under the pointer.", section = HEALTH_BARS_SECTION, position = 220)
     default boolean restorePreview()
     {
         return true;
@@ -1900,14 +1916,14 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "prayerTickIndicator", name = "Prayer tick indicator",
-        description = "Sweep once per observed game tick and flash when your prayer points decrease. This does not predict the next drain.", section = HEALTH_BARS_SECTION, position = 222)
+        description = "Sweep once per observed game tick and flash when your prayer points decrease. This does not predict the next drain.", section = PRAYER_SECTION, position = 222)
     default boolean prayerTickIndicator()
     {
         return false;
     }
 
     @ConfigItem(keyName = "prayerTickColor", name = "Prayer tick color",
-        description = "Color of the tick marker.", section = HEALTH_BARS_SECTION, position = 223)
+        description = "Color of the tick marker.", section = PRAYER_SECTION, position = 223)
     @Alpha
     default Color prayerTickColor()
     {
@@ -1923,15 +1939,15 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "lowPrayerThreshold", name = "Low prayer threshold",
-        description = "Use the warning color below this percentage of your prayer. Zero disables it.", section = HEALTH_BARS_SECTION, position = 225)
+        description = "Use the warning color below this percentage of your prayer. Zero disables it.", section = PRAYER_SECTION, position = 225)
     @Range(min = 0, max = 100)
     default int lowPrayerThreshold()
     {
         return 0;
     }
 
-    @ConfigItem(keyName = "lowResourceColor", name = "Low resource color",
-        description = "Warning color for your low HP or prayer.", section = HEALTH_BARS_SECTION, position = 226)
+    @ConfigItem(keyName = "lowResourceColor", name = "Low health color",
+        description = "Warning color for your low HP.", section = HEALTH_BARS_SECTION, position = 226)
     @Alpha
     default Color lowResourceColor()
     {
@@ -2116,35 +2132,35 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runDisplay", name = "Run energy display",
-        description = "Show your own resource as a bar, numbers, both, or hide it.", section = HEALTH_BARS_SECTION, position = 251)
+        description = "Show your own resource as a bar, numbers, both, or hide it.", section = RUN_SECTION, position = 251)
     default OverheadsBarDisplay runDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
     @ConfigItem(keyName = "runStyle", name = "Run energy style",
-        description = "OSRS artwork or Modern appearance.", section = HEALTH_BARS_SECTION, position = 252)
+        description = "OSRS artwork or Modern appearance.", section = RUN_SECTION, position = 252)
     default OverheadsHealthBarStyle runStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
     @ConfigItem(keyName = "runPosition", name = "Run energy position",
-        description = "Placement relative to your player.", section = HEALTH_BARS_SECTION, position = 253)
+        description = "Placement relative to your player.", section = RUN_SECTION, position = 253)
     default OverheadsPosition runPosition()
     {
         return OverheadsPosition.BELOW;
     }
 
     @ConfigItem(keyName = "runOrientation", name = "Run energy orientation",
-        description = "Horizontal or vertical bar.", section = HEALTH_BARS_SECTION, position = 254)
+        description = "Horizontal or vertical bar.", section = RUN_SECTION, position = 254)
     default OverheadsOrientation runOrientation()
     {
         return OverheadsOrientation.HORIZONTAL;
     }
 
     @ConfigItem(keyName = "runWidth", name = "Run energy bar length",
-        description = "Bar length in pixels.", section = HEALTH_BARS_SECTION, position = 255)
+        description = "Bar length in pixels.", section = RUN_SECTION, position = 255)
     @Range(min = 10, max = 200)
     default int runWidth()
     {
@@ -2152,7 +2168,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runHeight", name = "Run energy bar thickness",
-        description = "Bar thickness in pixels.", section = HEALTH_BARS_SECTION, position = 256)
+        description = "Bar thickness in pixels.", section = RUN_SECTION, position = 256)
     @Range(min = 2, max = 30)
     default int runHeight()
     {
@@ -2160,7 +2176,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runXOffset", name = "Run energy X offset",
-        description = "Horizontal offset in pixels.", section = HEALTH_BARS_SECTION, position = 257)
+        description = "Horizontal offset in pixels.", section = RUN_SECTION, position = 257)
     @Range(min = -300, max = 300)
     default int runXOffset()
     {
@@ -2168,7 +2184,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runYOffset", name = "Run energy Y offset",
-        description = "Vertical offset. Positive moves upward.", section = HEALTH_BARS_SECTION, position = 258)
+        description = "Vertical offset. Positive moves upward.", section = RUN_SECTION, position = 258)
     @Range(min = -300, max = 300)
     default int runYOffset()
     {
@@ -2176,7 +2192,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runColor", name = "Run energy fill",
-        description = "Filled bar color.", section = HEALTH_BARS_SECTION, position = 259)
+        description = "Filled bar color.", section = RUN_SECTION, position = 259)
     @Alpha
     default Color runColor()
     {
@@ -2184,7 +2200,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runBackColor", name = "Run energy background",
-        description = "Modern missing-resource color.", section = HEALTH_BARS_SECTION, position = 260)
+        description = "Modern missing-resource color.", section = RUN_SECTION, position = 260)
     @Alpha
     default Color runBackColor()
     {
@@ -2192,7 +2208,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runBorderColor", name = "Run energy border",
-        description = "Modern bar border color.", section = HEALTH_BARS_SECTION, position = 261)
+        description = "Modern bar border color.", section = RUN_SECTION, position = 261)
     @Alpha
     default Color runBorderColor()
     {
@@ -2200,7 +2216,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runCornerRadius", name = "Run energy corner radius",
-        description = "Modern bar corner radius.", section = HEALTH_BARS_SECTION, position = 262)
+        description = "Modern bar corner radius.", section = RUN_SECTION, position = 262)
     @Range(min = 0, max = 30)
     default int runCornerRadius()
     {
@@ -2208,7 +2224,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runOpacity", name = "Run energy bar opacity",
-        description = "Opacity of the bar and border; numbers have their own color.", section = HEALTH_BARS_SECTION, position = 263)
+        description = "Opacity of the bar and border; numbers have their own color.", section = RUN_SECTION, position = 263)
     @Range(min = 0, max = 100)
     default int runOpacity()
     {
@@ -2216,7 +2232,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runTextColor", name = "Run energy number color",
-        description = "Resource number color.", section = HEALTH_BARS_SECTION, position = 264)
+        description = "Resource number color.", section = RUN_SECTION, position = 264)
     @Alpha
     default Color runTextColor()
     {
@@ -2224,63 +2240,63 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "runFont", name = "Run energy font",
-        description = "Resource number font.", section = HEALTH_BARS_SECTION, position = 265)
+        description = "Resource number font.", section = RUN_SECTION, position = 265)
     default FontType runFont()
     {
         return FontType.SMALL;
     }
 
     @ConfigItem(keyName = "runNumberFormat", name = "Run energy number format",
-        description = "Current, current / maximum, or percentage.", section = HEALTH_BARS_SECTION, position = 266)
+        description = "Current, current / maximum, or percentage.", section = RUN_SECTION, position = 266)
     default OverheadsNumberFormat runNumberFormat()
     {
         return OverheadsNumberFormat.PERCENTAGE;
     }
 
     @ConfigItem(keyName = "runScaleWithZoom", name = "Scale run energy with zoom",
-        description = "Scale with camera zoom.", section = HEALTH_BARS_SECTION, position = 267)
+        description = "Scale with camera zoom.", section = RUN_SECTION, position = 267)
     default boolean runScaleWithZoom()
     {
         return false;
     }
 
     @ConfigItem(keyName = "runFillDirection", name = "Run energy fill direction",
-        description = "Direction the resource bar grows.", section = HEALTH_BARS_SECTION, position = 268)
+        description = "Direction the resource bar grows.", section = RUN_SECTION, position = 268)
     default OverheadsHealthBarFillDirection runFillDirection()
     {
         return OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
     }
 
     @ConfigItem(keyName = "specialDisplay", name = "Special attack display",
-        description = "Show your own resource as a bar, numbers, both, or hide it.", section = HEALTH_BARS_SECTION, position = 269)
+        description = "Show your own resource as a bar, numbers, both, or hide it.", section = SPECIAL_SECTION, position = 269)
     default OverheadsBarDisplay specialDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
     @ConfigItem(keyName = "specialStyle", name = "Special attack style",
-        description = "OSRS artwork or Modern appearance.", section = HEALTH_BARS_SECTION, position = 270)
+        description = "OSRS artwork or Modern appearance.", section = SPECIAL_SECTION, position = 270)
     default OverheadsHealthBarStyle specialStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
     @ConfigItem(keyName = "specialPosition", name = "Special attack position",
-        description = "Placement relative to your player.", section = HEALTH_BARS_SECTION, position = 271)
+        description = "Placement relative to your player.", section = SPECIAL_SECTION, position = 271)
     default OverheadsPosition specialPosition()
     {
         return OverheadsPosition.BELOW;
     }
 
     @ConfigItem(keyName = "specialOrientation", name = "Special attack orientation",
-        description = "Horizontal or vertical bar.", section = HEALTH_BARS_SECTION, position = 272)
+        description = "Horizontal or vertical bar.", section = SPECIAL_SECTION, position = 272)
     default OverheadsOrientation specialOrientation()
     {
         return OverheadsOrientation.HORIZONTAL;
     }
 
     @ConfigItem(keyName = "specialWidth", name = "Special attack bar length",
-        description = "Bar length in pixels.", section = HEALTH_BARS_SECTION, position = 273)
+        description = "Bar length in pixels.", section = SPECIAL_SECTION, position = 273)
     @Range(min = 10, max = 200)
     default int specialWidth()
     {
@@ -2288,7 +2304,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialHeight", name = "Special attack bar thickness",
-        description = "Bar thickness in pixels.", section = HEALTH_BARS_SECTION, position = 274)
+        description = "Bar thickness in pixels.", section = SPECIAL_SECTION, position = 274)
     @Range(min = 2, max = 30)
     default int specialHeight()
     {
@@ -2296,7 +2312,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialXOffset", name = "Special attack X offset",
-        description = "Horizontal offset in pixels.", section = HEALTH_BARS_SECTION, position = 275)
+        description = "Horizontal offset in pixels.", section = SPECIAL_SECTION, position = 275)
     @Range(min = -300, max = 300)
     default int specialXOffset()
     {
@@ -2304,7 +2320,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialYOffset", name = "Special attack Y offset",
-        description = "Vertical offset. Positive moves upward.", section = HEALTH_BARS_SECTION, position = 276)
+        description = "Vertical offset. Positive moves upward.", section = SPECIAL_SECTION, position = 276)
     @Range(min = -300, max = 300)
     default int specialYOffset()
     {
@@ -2312,7 +2328,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialColor", name = "Special attack fill",
-        description = "Filled bar color.", section = HEALTH_BARS_SECTION, position = 277)
+        description = "Filled bar color.", section = SPECIAL_SECTION, position = 277)
     @Alpha
     default Color specialColor()
     {
@@ -2320,7 +2336,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialBackColor", name = "Special attack background",
-        description = "Modern missing-resource color.", section = HEALTH_BARS_SECTION, position = 278)
+        description = "Modern missing-resource color.", section = SPECIAL_SECTION, position = 278)
     @Alpha
     default Color specialBackColor()
     {
@@ -2328,7 +2344,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialBorderColor", name = "Special attack border",
-        description = "Modern bar border color.", section = HEALTH_BARS_SECTION, position = 279)
+        description = "Modern bar border color.", section = SPECIAL_SECTION, position = 279)
     @Alpha
     default Color specialBorderColor()
     {
@@ -2336,7 +2352,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialCornerRadius", name = "Special attack corner radius",
-        description = "Modern bar corner radius.", section = HEALTH_BARS_SECTION, position = 280)
+        description = "Modern bar corner radius.", section = SPECIAL_SECTION, position = 280)
     @Range(min = 0, max = 30)
     default int specialCornerRadius()
     {
@@ -2344,7 +2360,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialOpacity", name = "Special attack bar opacity",
-        description = "Opacity of the bar and border; numbers have their own color.", section = HEALTH_BARS_SECTION, position = 281)
+        description = "Opacity of the bar and border; numbers have their own color.", section = SPECIAL_SECTION, position = 281)
     @Range(min = 0, max = 100)
     default int specialOpacity()
     {
@@ -2352,7 +2368,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialTextColor", name = "Special attack number color",
-        description = "Resource number color.", section = HEALTH_BARS_SECTION, position = 282)
+        description = "Resource number color.", section = SPECIAL_SECTION, position = 282)
     @Alpha
     default Color specialTextColor()
     {
@@ -2360,28 +2376,28 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(keyName = "specialFont", name = "Special attack font",
-        description = "Resource number font.", section = HEALTH_BARS_SECTION, position = 283)
+        description = "Resource number font.", section = SPECIAL_SECTION, position = 283)
     default FontType specialFont()
     {
         return FontType.SMALL;
     }
 
     @ConfigItem(keyName = "specialNumberFormat", name = "Special attack number format",
-        description = "Current, current / maximum, or percentage.", section = HEALTH_BARS_SECTION, position = 284)
+        description = "Current, current / maximum, or percentage.", section = SPECIAL_SECTION, position = 284)
     default OverheadsNumberFormat specialNumberFormat()
     {
         return OverheadsNumberFormat.PERCENTAGE;
     }
 
     @ConfigItem(keyName = "specialScaleWithZoom", name = "Scale special attack with zoom",
-        description = "Scale with camera zoom.", section = HEALTH_BARS_SECTION, position = 285)
+        description = "Scale with camera zoom.", section = SPECIAL_SECTION, position = 285)
     default boolean specialScaleWithZoom()
     {
         return false;
     }
 
     @ConfigItem(keyName = "specialFillDirection", name = "Special attack fill direction",
-        description = "Direction the resource bar grows.", section = HEALTH_BARS_SECTION, position = 286)
+        description = "Direction the resource bar grows.", section = SPECIAL_SECTION, position = 286)
     default OverheadsHealthBarFillDirection specialFillDirection()
     {
         return OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
@@ -2692,11 +2708,11 @@ public interface OverheadsConfig extends Config
         return 100;
     }
     @ConfigItem(keyName = "runHideWhenFull", name = "Hide full run energy",
-        description = "Hide your run-energy numbers and bar while energy is completely full.", section = HEALTH_BARS_SECTION, position = 710)
+        description = "Hide your run-energy numbers and bar while energy is completely full.", section = RUN_SECTION, position = 710)
     default boolean runHideWhenFull() { return false; }
 
     @ConfigItem(keyName = "specialHideWhenFull", name = "Hide full special energy",
-        description = "Hide your special-attack numbers and bar while energy is completely full.", section = HEALTH_BARS_SECTION, position = 711)
+        description = "Hide your special-attack numbers and bar while energy is completely full.", section = SPECIAL_SECTION, position = 711)
     default boolean specialHideWhenFull() { return false; }
 
 }

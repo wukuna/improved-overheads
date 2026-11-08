@@ -58,7 +58,7 @@ final class OverheadsVitalsState
     void clientTick()
     {
         int item = hoveredInventoryItem();
-        if (item < 0 || itemStats == null || !config.restorePreview())
+        if (item < 0 || itemStats == null || (!config.restorePreview() && !config.prayerRestorePreview()))
         {
             healthRestore = 0;
             prayerRestore = 0;
@@ -118,7 +118,7 @@ final class OverheadsVitalsState
 
     int restore(boolean prayer)
     {
-        return config.restorePreview() ? prayer ? prayerRestore : healthRestore : 0;
+        return prayer ? config.prayerRestorePreview() ? prayerRestore : 0 : config.restorePreview() ? healthRestore : 0;
     }
 
     double tickProgress()

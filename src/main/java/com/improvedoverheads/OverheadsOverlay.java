@@ -60,11 +60,23 @@ public class OverheadsOverlay extends Overlay
 	private final OverheadsLocalChatEffectTracker localChatEffectTracker;
 	private final OverheadsExtrasRenderer extras;
     private OverheadsIndicators indicators;
+    private OverheadsProfiles profiles;
+    @Inject
+    void configureProfiles(OverheadsProfiles profiles)
+    {
+        this.profiles = profiles;
+        extras.configureProfiles(profiles);
+        if (indicators != null) { indicators.configureProfiles(profiles); }
+    }
+    private OverheadsConfig configFor(Actor actor) { return profiles == null ? config : profiles.config(actor); }
+    private OverheadsSettings settingsFor(Actor actor) { return profiles == null ? settings : profiles.settings(actor); }
+
 
     @Inject
     void configureIndicators(OverheadsPartyState party, OverheadsLocalTimers timers)
     {
         indicators = new OverheadsIndicators(client, config, party, timers);
+        if (profiles != null) { indicators.configureProfiles(profiles); }
         extras.setPartyMember(party::contains);
     }
 	private final OverheadsRetryCache<Integer, OverheadsHitmarkDefinition> hitmarkDefinitions =
@@ -128,19 +140,7 @@ public class OverheadsOverlay extends Overlay
 		Graphics2D overlayGraphics = (Graphics2D) graphics.create();
 		try
 		{
-			FontType hitsplatFontType = settings.hitsplatFont();
-			Font hitsplatFont = hitsplatFontType == null
-				? FontManager.getRunescapeSmallFont()
-				: hitsplatFontType.getFont();
-			int hitsplatScalePercent = OverheadsRenderLayout.clampScalePercent(
-				settings.hitsplatScalePercent());
-			overlayGraphics.setFont(scaleFont(hitsplatFont, hitsplatScalePercent));
-			OverheadsOverheadChatRenderer.Style chatStyle =
-				OverheadsOverheadChatRenderer.captureStyle(config);
-			ClanSettings groupIronSettings = chatStyle.shouldRender(false)
-				&& chatStyle.usesRelationshipColors()
-				? client.getClanSettings(ClanID.GROUP_IRONMAN)
-				: null;
+            ClanSettings groupIronSettings = client.getClanSettings(ClanID.GROUP_IRONMAN);
 			Player localPlayer = client.getLocalPlayer();
 			overlayGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
 			overlayGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -148,8 +148,21 @@ public class OverheadsOverlay extends Overlay
 			actorSlotSizes.keySet().removeIf(actor -> !plugin.getHitsplats().containsKey(actor));
             scrollingHits.keySet().removeIf(actor -> !plugin.getHitsplats().containsKey(actor));
 			List<Rectangle> occupiedChatBounds = new ArrayList<>();
+            Map<OverheadsConfig, OverheadsOverheadChatRenderer.Style> chatStyles = new java.util.IdentityHashMap<>();
+            Map<OverheadsConfig, Font> hitFonts = new java.util.IdentityHashMap<>();
 			for (Actor actor : actors)
 			{
+                OverheadsConfig config = configFor(actor);
+                OverheadsSettings settings = settingsFor(actor);
+                int hitsplatScalePercent = OverheadsRenderLayout.clampScalePercent(settings.hitsplatScalePercent());
+                Font hitsplatFont = hitFonts.computeIfAbsent(config, selected ->
+                {
+                    FontType type = settings.hitsplatFont();
+                    return scaleFont(type == null ? FontManager.getRunescapeSmallFont() : type.getFont(), hitsplatScalePercent);
+                });
+                overlayGraphics.setFont(hitsplatFont);
+                OverheadsOverheadChatRenderer.Style chatStyle = chatStyles.computeIfAbsent(config, OverheadsOverheadChatRenderer::captureStyle);
+
 				if (!hasRenderableState(actor))
 				{
 					continue;
@@ -474,7 +487,9 @@ public class OverheadsOverlay extends Overlay
 		int gameCycle,
 		int scalePercent, OverheadsCollisionLayout collision)
 	{
-		if (plugin.shouldDisableHitsplatsForActor(actor) || opacityMultiplier() <= 0)
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
+		if (plugin.shouldDisableHitsplatsForActor(actor) || opacityMultiplier(config) <= 0)
 		{
 			return false;
 		}
@@ -510,10 +525,10 @@ public class OverheadsOverlay extends Overlay
 		int slotWidth = OverheadsRenderLayout.scaleDimension(SLOT_WIDTH, scalePercent);
 		int slotHeight = OverheadsRenderLayout.scaleDimension(SLOT_HEIGHT, scalePercent);
 		int maxHitsplats = config.maxHitsplats();
-		OverheadsSpriteScalingMode scalingMode = spriteScalingMode();
+		OverheadsSpriteScalingMode scalingMode = spriteScalingMode(config);
 		boolean bossLike = plugin.isBossLikeTarget(actor);
-		int minRadius = plugin.minRadiusFor(bossLike);
-		int maxRadius = plugin.maxRadiusFor(bossLike);
+		int minRadius = plugin.minRadiusFor(actor, bossLike);
+		int maxRadius = plugin.maxRadiusFor(actor, bossLike);
 		for (OverheadsHitsplat hitsplat : visibleHitsplats)
 		{
 			if (maxHitsplats > 0 && hitsplat.getPosition() >= maxHitsplats)
@@ -530,7 +545,7 @@ public class OverheadsOverlay extends Overlay
 				continue;
 			}
 
-			PreparedHitsplat preparedHitsplat = prepareHitsplat(
+			PreparedHitsplat preparedHitsplat = prepareHitsplat(config,
 				graphics,
 				hitsplat,
 				scalePercent,
@@ -600,7 +615,7 @@ public class OverheadsOverlay extends Overlay
         Point anchor = scrolling ? new Point(group.x + group.width / 2, group.y + group.height / 2)
             : new Point(group.x - layoutBounds.x, group.y - layoutBounds.y);
         Rectangle painted = new Rectangle(layoutBounds);
-        painted.translate(anchor.getX() + xOffsetFor(bossLike), anchor.getY() - yOffsetFor(bossLike));
+        painted.translate(anchor.getX() + xOffsetFor(config, bossLike), anchor.getY() - yOffsetFor(config, bossLike));
         painted.grow(2, 2);
 		OverheadsCollisionLayout.draw(collision, graphics, "hits", config.hitsplatPosition(), painted, target ->
 		{
@@ -608,11 +623,11 @@ public class OverheadsOverlay extends Overlay
 		{
 			PreparedHitsplat preparedHitsplat = preparedHitsplats.get(i);
 			OverheadsOffset offset = offsets.get(i);
-			drawHitsplat(
+			drawHitsplat(config,
 				target,
 				preparedHitsplat,
-				anchor.getX() + offset.getX() + xOffsetFor(bossLike),
-				anchor.getY() + offset.getY() - yOffsetFor(bossLike),
+				anchor.getX() + offset.getX() + xOffsetFor(config, bossLike),
+				anchor.getY() + offset.getY() - yOffsetFor(config, bossLike),
 				gameCycle);
 		}
 
@@ -621,7 +636,7 @@ public class OverheadsOverlay extends Overlay
 		return true;
 	}
 
-	private PreparedHitsplat prepareHitsplat(
+	private PreparedHitsplat prepareHitsplat(OverheadsConfig config,
 		Graphics2D graphics,
 		OverheadsHitsplat hitsplat,
 		int scalePercent,
@@ -672,10 +687,10 @@ public class OverheadsOverlay extends Overlay
 			style);
 	}
 
-	private void drawHitsplat(Graphics2D graphics, PreparedHitsplat prepared, int centerX, int centerY, int gameCycle)
+	private void drawHitsplat(OverheadsConfig config, Graphics2D graphics, PreparedHitsplat prepared, int centerX, int centerY, int gameCycle)
 	{
 		Graphics2D hitsplatGraphics = (Graphics2D) graphics.create();
-		float alpha = prepared.hitsplat.getAlpha(gameCycle) * opacityMultiplier();
+		float alpha = prepared.hitsplat.getAlpha(gameCycle) * opacityMultiplier(config);
 		try
 		{
 			hitsplatGraphics.setComposite(AlphaComposite.SrcOver.derive(alpha));
@@ -909,23 +924,23 @@ public class OverheadsOverlay extends Overlay
 		return font.deriveFont(Math.max(1.0f, scaledSize));
 	}
 
-	private OverheadsSpriteScalingMode spriteScalingMode()
+	private OverheadsSpriteScalingMode spriteScalingMode(OverheadsConfig config)
 	{
 		OverheadsSpriteScalingMode scalingMode = config.spriteScalingMode();
 		return scalingMode == null ? OverheadsSpriteScalingMode.XBR : scalingMode;
 	}
 
-	private float opacityMultiplier()
+	private float opacityMultiplier(OverheadsConfig config)
 	{
 		return Math.max(0, Math.min(100, config.opacityPercent())) / 100.0f;
 	}
 
-	private int xOffsetFor(boolean bossLike)
+	private int xOffsetFor(OverheadsConfig config, boolean bossLike)
 	{
 		return config.hitsplatXOffset() + (bossLike ? config.largeTargetXOffset() : 0);
 	}
 
-	private int yOffsetFor(boolean bossLike)
+	private int yOffsetFor(OverheadsConfig config, boolean bossLike)
 	{
 		return config.hitsplatYOffset() + (bossLike ? config.largeTargetYOffset() : 0);
 	}

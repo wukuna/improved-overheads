@@ -55,6 +55,7 @@ public class OverheadsPlugin extends Plugin
     @Inject private OverheadsReleaseNotice releaseNotice;
     @Inject private OverheadsLocalTimers timers;
     @Inject private OverheadsConfig config;
+    @Inject private OverheadsProfiles profiles;
     @Inject private Client client;
     @Inject private ClientThread clientThread;
     @Inject private OverlayManager overlayManager;
@@ -72,6 +73,10 @@ public class OverheadsPlugin extends Plugin
     private volatile long lifecycle;
     private final java.util.concurrent.atomic.AtomicBoolean refreshQueued = new java.util.concurrent.atomic.AtomicBoolean();
 
+
+    OverheadsConfig configFor(Actor actor) { return profiles == null || actor == null ? config : profiles.config(actor); }
+    OverheadsSettings settingsFor(Actor actor) { return profiles == null || actor == null ? settings : profiles.settings(actor); }
+
     Map<Actor, CopyOnWriteArrayList<OverheadsHitsplat>> getHitsplats()
     {
         return hitsplats;
@@ -80,6 +85,7 @@ public class OverheadsPlugin extends Plugin
     @Override
     protected synchronized void startUp()
     {
+        if (profiles != null) { profiles.initialize(); }
         running = true;
         if (releaseNotice != null) { releaseNotice.startUp(); }
         long generation = ++lifecycle;
@@ -130,7 +136,7 @@ public class OverheadsPlugin extends Plugin
     {
         if (resetSession && party != null) { party.clear(); party.refresh(this, running); }
         if (timers != null) { timers.clear(); }
-        actorUiVisibilityTracker.setNativeExceptions(config.nativeNpcUiIds());
+        actorUiVisibilityTracker.setNativeExceptions((profiles == null ? config : profiles.config(OverheadsProfiles.Scope.NPCS)).nativeNpcUiIds());
         actorUiVisibilityTracker.clear();
         localChatEffectTracker.clear();
         overlay.clearCaches();
@@ -199,7 +205,7 @@ public class OverheadsPlugin extends Plugin
     @Subscribe
     public void onConfigChanged(ConfigChanged event)
     {
-        if (OverheadsConfig.GROUP.equals(event.getGroup()) && !OverheadsSetups.STORAGE_KEY.equals(event.getKey())
+        if (OverheadsProfiles.containsGroup(event.getGroup()) && !OverheadsSetups.STORAGE_KEY.equals(event.getKey())
             && !OverheadsSetups.THEMES_KEY.equals(event.getKey())
             && refreshQueued.compareAndSet(false, true))
         {
@@ -209,8 +215,9 @@ public class OverheadsPlugin extends Plugin
                 if (running)
                 {
                     if (party != null) { party.refresh(this, running); }
-                    actorUiVisibilityTracker.setNativeExceptions(config.nativeNpcUiIds());
+                    actorUiVisibilityTracker.setNativeExceptions((profiles == null ? config : profiles.config(OverheadsProfiles.Scope.NPCS)).nativeNpcUiIds());
                     overlay.clearCaches();
+                    targetClassifications.clear();
                     cleanupExpiredHitsplats();
                 }
             });
@@ -221,6 +228,7 @@ public class OverheadsPlugin extends Plugin
     @Subscribe
     public void onProfileChanged(ProfileChanged event)
     {
+        if (profiles != null) { profiles.initialize(); }
         panel.invalidateSetupSession();
         clientThread.invokeLater(() -> { if (running) { clearState(); } });
         SwingUtilities.invokeLater(() -> { if (running) { panel.closeEditors(); panel.rebuild(); } });
@@ -274,6 +282,7 @@ public class OverheadsPlugin extends Plugin
 	public void onHitsplatApplied(HitsplatApplied event)
 	{
 		Actor actor = event.getActor();
+        OverheadsSettings settings = settingsFor(actor);
 		Hitsplat hitsplat = event.getHitsplat();
 		if (actor == null || hitsplat == null)
 		{
@@ -318,9 +327,11 @@ public class OverheadsPlugin extends Plugin
 		int appearedOnGameCycle,
 		int gameCycle)
 	{
-		int fadeInCycles = fadeInCycles();
-		int fullOpacityCycles = fullOpacityCycles();
-		int fadeOutCycles = fadeOutCycles();
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
+		int fadeInCycles = fadeInCycles(actor);
+		int fullOpacityCycles = fullOpacityCycles(actor);
+		int fadeOutCycles = fadeOutCycles(actor);
 		int fullOpacityStartsOnGameCycle = appearedOnGameCycle + fadeInCycles;
 		int fadeOutStartsOnGameCycle = fullOpacityStartsOnGameCycle + fullOpacityCycles;
 		int expiresOnGameCycle = fadeOutStartsOnGameCycle + fadeOutCycles;
@@ -331,8 +342,8 @@ public class OverheadsPlugin extends Plugin
 
 		CopyOnWriteArrayList<OverheadsHitsplat> actorHitsplats = hitsplats.computeIfAbsent(actor, ignored -> new CopyOnWriteArrayList<>());
 		boolean bossLike = isBossLikeTarget(actor);
-		int minRadius = minRadiusFor(bossLike);
-		int maxRadius = maxRadiusFor(bossLike);
+		int minRadius = minRadiusFor(actor, bossLike);
+		int maxRadius = maxRadiusFor(actor, bossLike);
 		actorHitsplats.removeIf(activeHitsplat -> shouldRemoveFromTracking(
 			actor,
 			activeHitsplat,
@@ -341,7 +352,7 @@ public class OverheadsPlugin extends Plugin
 			maxRadius));
 		int maxHitsplats = config.maxHitsplats() <= 0 ? 128 : Math.min(128, config.maxHitsplats());
 		int position = config.reuseOldHitsplatSlots()
-			? evictForTimedReuse(actorHitsplats, gameCycle, mine)
+			? evictForTimedReuse(actor, actorHitsplats, gameCycle, mine)
 			: -1;
 		if (position < 0)
 		{
@@ -378,8 +389,8 @@ public class OverheadsPlugin extends Plugin
 		{
 			Actor actor = entry.getKey();
 			boolean bossLike = isBossLikeTarget(actor);
-			int minRadius = minRadiusFor(bossLike);
-			int maxRadius = maxRadiusFor(bossLike);
+			int minRadius = minRadiusFor(actor, bossLike);
+			int maxRadius = maxRadiusFor(actor, bossLike);
 			entry.getValue().removeIf(hitsplat -> shouldRemoveFromTracking(
 				actor,
 				hitsplat,
@@ -401,6 +412,8 @@ public class OverheadsPlugin extends Plugin
 		int maxHitsplats,
 		int gameCycle)
 	{
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
 		if (config.hitsplatMotion() == OverheadsHitsplatMotion.FIXED && settings.layoutBehavior() == OverheadsLayoutBehavior.RANDOM)
 		{
 			return getRandomAvailablePosition(actor, actorHitsplats, maxHitsplats, gameCycle);
@@ -416,7 +429,7 @@ public class OverheadsPlugin extends Plugin
 		int gameCycle)
 	{
 		boolean bossLike = isBossLikeTarget(actor);
-		int limit = positionLimit(actorHitsplats.size(), maxHitsplats, bossLike);
+		int limit = positionLimit(actor, actorHitsplats.size(), maxHitsplats, bossLike);
 		for (int position = 0; position < limit; position++)
 		{
 			if (!isPositionTaken(actorHitsplats, position, gameCycle))
@@ -434,9 +447,11 @@ public class OverheadsPlugin extends Plugin
 		int maxHitsplats,
 		int gameCycle)
 	{
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
 		boolean bossLike = isBossLikeTarget(actor);
-		int limit = hardPositionLimit(maxHitsplats, bossLike);
-		int minRadius = minRadiusFor(bossLike);
+		int limit = hardPositionLimit(actor, maxHitsplats, bossLike);
+		int minRadius = minRadiusFor(actor, bossLike);
 		for (int position = 0; position < limit; )
 		{
 			int radius = OverheadsLayout.radiusForPosition(position, minRadius, settings.layoutShape());
@@ -477,11 +492,13 @@ public class OverheadsPlugin extends Plugin
 		return hitsplat.isMine();
 	}
 
-	private int evictForTimedReuse(
+	private int evictForTimedReuse(Actor actor,
 		CopyOnWriteArrayList<OverheadsHitsplat> actorHitsplats,
 		int gameCycle,
 		boolean mine)
 	{
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
 		OverheadsHitsplat victim = findTimedReuseVictim(
 			actorHitsplats,
 			gameCycle,
@@ -589,8 +606,8 @@ public class OverheadsPlugin extends Plugin
 	{
 		OverheadsHitsplat oldest = null;
 		boolean bossLike = isBossLikeTarget(actor);
-		int minRadius = minRadiusFor(bossLike);
-		int maxRadius = maxRadiusFor(bossLike);
+		int minRadius = minRadiusFor(actor, bossLike);
+		int maxRadius = maxRadiusFor(actor, bossLike);
 		for (OverheadsHitsplat hitsplat : actorHitsplats)
 		{
 			if (shouldRemoveFromTracking(
@@ -621,6 +638,8 @@ public class OverheadsPlugin extends Plugin
 		int minRadius,
 		int maxRadius)
 	{
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
 		return hitsplat.isExpired(gameCycle)
 			|| hitsplat.isOutsidePositionLimit(config.maxHitsplats())
 			|| shouldDisableHitsplatsForActor(actor)
@@ -635,6 +654,7 @@ public class OverheadsPlugin extends Plugin
 
 	boolean shouldDisableHitsplatsForActor(Actor actor)
 	{
+        OverheadsConfig config = configFor(actor);
 		Player localPlayer = client.getLocalPlayer();
 		if (actor == localPlayer)
 		{
@@ -656,6 +676,7 @@ public class OverheadsPlugin extends Plugin
 
 	boolean isBossLikeTarget(Actor actor)
 	{
+        OverheadsConfig config = configFor(actor);
 		if (actor == null)
 		{
 			return false;
@@ -704,13 +725,20 @@ public class OverheadsPlugin extends Plugin
 			&& (publicHealthScale <= 0 || cachedPublicHealthScale == publicHealthScale);
 	}
 
-	int minRadiusFor(boolean bossLike)
+	int minRadiusFor(boolean bossLike) { return minRadiusFor(null, bossLike); }
+	int maxRadiusFor(boolean bossLike) { return maxRadiusFor(null, bossLike); }
+
+	int minRadiusFor(Actor actor, boolean bossLike)
 	{
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
 		return bossLike && config.hitsplatMotion() == OverheadsHitsplatMotion.FIXED ? settings.minRadius() : 0;
 	}
 
-	int maxRadiusFor(boolean bossLike)
+	int maxRadiusFor(Actor actor, boolean bossLike)
 	{
+        OverheadsConfig config = configFor(actor);
+        OverheadsSettings settings = settingsFor(actor);
 		return bossLike && config.hitsplatMotion() == OverheadsHitsplatMotion.FIXED ? settings.maxRadius() : 0;
 	}
 
@@ -738,12 +766,13 @@ public class OverheadsPlugin extends Plugin
 		}
 	}
 
-	private int positionLimit(int activeHitsplatCount, int maxHitsplats, boolean bossLike)
+	private int positionLimit(Actor actor, int activeHitsplatCount, int maxHitsplats, boolean bossLike)
 	{
+        OverheadsSettings settings = settingsFor(actor);
 		int limit = maxHitsplats <= 0 ? activeHitsplatCount + 1 : maxHitsplats;
 		int radiusLimit = OverheadsLayout.slotLimit(
-			minRadiusFor(bossLike),
-			maxRadiusFor(bossLike),
+			minRadiusFor(actor, bossLike),
+			maxRadiusFor(actor, bossLike),
 			settings.layoutShape());
 		if (radiusLimit != Integer.MAX_VALUE)
 		{
@@ -753,12 +782,13 @@ public class OverheadsPlugin extends Plugin
 		return Math.max(0, limit);
 	}
 
-	private int hardPositionLimit(int maxHitsplats, boolean bossLike)
+	private int hardPositionLimit(Actor actor, int maxHitsplats, boolean bossLike)
 	{
+        OverheadsSettings settings = settingsFor(actor);
 		int limit = maxHitsplats <= 0 ? 128 : Math.min(128, maxHitsplats);
 		int radiusLimit = OverheadsLayout.slotLimit(
-			minRadiusFor(bossLike),
-			maxRadiusFor(bossLike),
+			minRadiusFor(actor, bossLike),
+			maxRadiusFor(actor, bossLike),
 			settings.layoutShape());
 		if (radiusLimit != Integer.MAX_VALUE)
 		{
@@ -768,18 +798,21 @@ public class OverheadsPlugin extends Plugin
 		return Math.max(0, limit);
 	}
 
-	private int fadeInCycles()
+	private int fadeInCycles(Actor actor)
 	{
+        OverheadsSettings settings = settingsFor(actor);
 		return Math.max(0, settings.fadeInDuration() / GAME_CYCLE_MILLIS);
 	}
 
-	private int fullOpacityCycles()
+	private int fullOpacityCycles(Actor actor)
 	{
+        OverheadsSettings settings = settingsFor(actor);
 		return Math.max(0, settings.fullOpacityDuration() / GAME_CYCLE_MILLIS);
 	}
 
-	private int fadeOutCycles()
+	private int fadeOutCycles(Actor actor)
 	{
+        OverheadsSettings settings = settingsFor(actor);
 		return Math.max(0, settings.fadeOutDuration() / GAME_CYCLE_MILLIS);
 	}
 

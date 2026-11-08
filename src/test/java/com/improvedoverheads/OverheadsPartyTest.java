@@ -143,8 +143,14 @@ public class OverheadsPartyTest
         OverheadsRenderPipelineTest.Fixture render = new OverheadsRenderPipelineTest.Fixture();
         when(render.player.getName()).thenReturn("Friend");
         when(render.client.getLocalPlayer()).thenReturn(mock(Player.class));
-        when(f.config.indicatorPosition()).thenReturn(OverheadsPosition.RIGHT);
-        when(f.config.indicatorHeight()).thenReturn(14);
+        when(f.config.healthPosition()).thenReturn(OverheadsPosition.RIGHT);
+        when(f.config.prayerPosition()).thenReturn(OverheadsPosition.RIGHT);
+        when(f.config.runPosition()).thenReturn(OverheadsPosition.RIGHT);
+        when(f.config.specialPosition()).thenReturn(OverheadsPosition.RIGHT);
+        when(f.config.otherHealthDisplay()).thenReturn(OverheadsBarDisplay.BOTH);
+        when(f.config.prayerDisplay()).thenReturn(OverheadsBarDisplay.BOTH);
+        when(f.config.runDisplay()).thenReturn(OverheadsBarDisplay.BOTH);
+        when(f.config.specialDisplay()).thenReturn(OverheadsBarDisplay.BOTH);
         PartyData message = f.message();
         int[] base = new int[6], boost = new int[6];
         base[Skill.HITPOINTS.ordinal()] = 99; boost[Skill.HITPOINTS.ordinal()] = 73;
@@ -165,13 +171,19 @@ public class OverheadsPartyTest
             assertEquals(4, bounds.size());
             for (int i = 1; i < 4; i++)
             {
-                assertEquals(bounds.get("party0").x, bounds.get("party" + i).x);
+                assertTrue(bounds.get("party" + i).getMinX() > 300);
                 assertFalse(bounds.get("party" + (i - 1)).intersects(bounds.get("party" + i)));
             }
         }
         finally { graphics.dispose(); }
-        when(f.config.indicatorPosition()).thenReturn(OverheadsPosition.LEFT);
-        when(f.config.indicatorOrientation()).thenReturn(OverheadsOrientation.VERTICAL);
+        when(f.config.healthPosition()).thenReturn(OverheadsPosition.LEFT);
+        when(f.config.prayerPosition()).thenReturn(OverheadsPosition.LEFT);
+        when(f.config.runPosition()).thenReturn(OverheadsPosition.LEFT);
+        when(f.config.specialPosition()).thenReturn(OverheadsPosition.LEFT);
+        when(f.config.healthOrientation()).thenReturn(OverheadsOrientation.VERTICAL);
+        when(f.config.prayerOrientation()).thenReturn(OverheadsOrientation.VERTICAL);
+        when(f.config.runOrientation()).thenReturn(OverheadsOrientation.VERTICAL);
+        when(f.config.specialOrientation()).thenReturn(OverheadsOrientation.VERTICAL);
         graphics = image.createGraphics();
         try (OverheadsCollisionLayout layout = new OverheadsCollisionLayout(new OverheadsCollisionLayout.Memory(), f.config.componentGap()))
         {
