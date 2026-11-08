@@ -13,14 +13,17 @@ import net.runelite.client.config.Units;
 @ConfigGroup(OverheadsConfig.GROUP)
 public interface OverheadsConfig extends Config
 {
-    @ConfigItem(keyName = "avoidOverlap", name = "Avoid overlaps",
+    @ConfigSection(name = "My player", description = "Quick visibility controls for your player. Use the Improved Overheads side panel for all actor groups and detailed settings.", position = 0)
+    String QUICK_SECTION = "quickVisibility";
+
+    @ConfigItem(hidden = true, keyName = "avoidOverlap", name = "Avoid overlaps",
         description = "Space components outward on each side without moving continuously visible components back inward.", section = HEALTH_BARS_SECTION, position = 315)
     default boolean avoidOverlap()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "componentGap", name = "Component spacing",
+    @ConfigItem(hidden = true, keyName = "componentGap", name = "Component spacing",
         description = "Minimum spacing between visible overhead components.", section = HEALTH_BARS_SECTION, position = 316)
     @Range(min = 0, max = 20)
     default int componentGap()
@@ -28,20 +31,17 @@ public interface OverheadsConfig extends Config
         return 4;
     }
 
-    @ConfigSection(name = "Prayer bar", description = "Your prayer points display.", position = 4, closedByDefault = true)
     String PRAYER_SECTION = "prayerBar";
-    @ConfigSection(name = "Run energy", description = "Your run energy display.", position = 5, closedByDefault = true)
     String RUN_SECTION = "runBar";
-    @ConfigSection(name = "Special energy", description = "Your special energy display.", position = 6, closedByDefault = true)
     String SPECIAL_SECTION = "specialBar";
 
-    @ConfigItem(keyName = "prayerRestorePreview", name = "Prayer restore preview", description = "Preview prayer restored by the inventory item under the pointer.", section = PRAYER_SECTION, position = 230)
+    @ConfigItem(hidden = true, keyName = "prayerRestorePreview", name = "Prayer restore preview", description = "Preview prayer restored by the inventory item under the pointer.", section = PRAYER_SECTION, position = 230)
     default boolean prayerRestorePreview() { return true; }
     @Alpha
-    @ConfigItem(keyName = "prayerRestorePreviewColor", name = "Prayer restore color", description = "Color of the projected prayer restore.", section = PRAYER_SECTION, position = 231)
+    @ConfigItem(hidden = true, keyName = "prayerRestorePreviewColor", name = "Prayer restore color", description = "Color of the projected prayer restore.", section = PRAYER_SECTION, position = 231)
     default Color prayerRestorePreviewColor() { return new Color(115, 235, 170, 190); }
     @Alpha
-    @ConfigItem(keyName = "prayerLowColor", name = "Low prayer color", description = "Warning color for low prayer.", section = PRAYER_SECTION, position = 232)
+    @ConfigItem(hidden = true, keyName = "prayerLowColor", name = "Low prayer color", description = "Warning color for low prayer.", section = PRAYER_SECTION, position = 232)
     default Color prayerLowColor() { return new Color(255, 106, 87); }
 
 	String GROUP = "improvedoverheads";
@@ -132,46 +132,19 @@ public interface OverheadsConfig extends Config
 	String HEAD_ICON_SPACING_KEY = "headIconSpacing";
 	String SPRITE_SCALING_MODE_KEY = "spriteScalingMode";
 
-	@ConfigSection(
-		name = "General",
-		description = "Settings shared by more than one replacement renderer.",
-		position = 1
-	)
 	String GENERAL_SECTION = "general";
 
-	@ConfigSection(
-		name = "Hitsplats",
-		description = "Hitsplat appearance and visibility.",
-		position = 2
-	)
 	String DISPLAY_SECTION = "display";
 
-	@ConfigSection(
-		name = "Health bars",
-		description = "Health bars reconstructed from public ratio and scale. Special bars and native animations may differ.",
-		position = 3,
-		closedByDefault = true
-	)
 	String HEALTH_BARS_SECTION = "healthBars";
 
-	@ConfigSection(
-		name = "Overhead chat",
-		description = "Replacement overhead-chat visibility, font, RGBA colors, global effect, shadow, and positioning. Filtered actor text remains authoritative.",
-		position = 4,
-		closedByDefault = true
-	)
 	String OVERHEAD_CHAT_SECTION = "overheadChat";
 
-	@ConfigSection(
-		name = "Head icons",
-		description = "Current-state prayer, skull, NPC, and actor hint-arrow replacements. Native positioning may differ.",
-		position = 5,
-		closedByDefault = true
-	)
 	String HEAD_ICONS_SECTION = "headIcons";
 
 
 	@ConfigItem(
+		hidden = true,
 		keyName = DISABLE_ENEMY_HITSPLATS_KEY,
 		name = "Hide NPC hits",
 		description = "Do not draw replacement hitsplats for NPCs. ",
@@ -184,6 +157,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = DISABLE_ALLY_HITSPLATS_KEY,
 		name = "Hide other players' hits",
 		description = "Do not draw replacement hitsplats for other players. ",
@@ -197,10 +171,10 @@ public interface OverheadsConfig extends Config
 
 	@ConfigItem(
 		keyName = DISABLE_MY_HITSPLATS_KEY,
-		name = "Hide hits on my player",
-		description = "Do not draw replacement hitsplats on your player. ",
-		section = DISPLAY_SECTION,
-		position = 18
+		name = "Hide hitsplats",
+		description = "Hide hitsplats on your player.",
+		section = QUICK_SECTION,
+		position = 3
 	)
 	default boolean disableMyHitsplats()
 	{
@@ -208,6 +182,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = MAX_HITSPLATS_KEY,
 		name = "Max hitsplats",
 		description = "Maximum hitsplats kept per actor, up to 128.",
@@ -224,6 +199,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = REUSE_OLD_HITSPLAT_SLOTS_KEY,
 		name = "Reuse old slots",
 		description = "Allow each new hitsplat to replace the oldest hitsplat from an earlier reuse window, even when an empty slot exists. Hits in the same window still use separate slots.",
@@ -236,6 +212,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HITSPLAT_REUSE_INTERVAL_KEY,
 		name = "Reuse interval",
 		description = "Minimum age before a hitsplat slot can be reused. 550 ms is approximately one server tick with tolerance for timing differences.",
@@ -253,6 +230,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OPACITY_PERCENT_KEY,
 		name = "Opacity",
 		description = "Opacity of replacement hitsplats. 100 is fully opaque.",
@@ -270,6 +248,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = ONLY_DISPLAY_MINE_KEY,
 		name = "My hits only",
 		description = "Only draw hits marked as yours by the game. Ownership is never inferred from XP.",
@@ -282,6 +261,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = PRIORITIZE_MINE_KEY,
 		name = "Prioritize my hits",
 		description = "When replacement hitsplats are limited, a new hit marked as yours replaces the oldest hit not marked as yours first.",
@@ -294,6 +274,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HIDE_ZERO_HITSPLATS_KEY,
 		name = "Hide zero hits",
 		description = "Do not draw misses or other zero-amount replacement hitsplats.",
@@ -306,6 +287,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LAYOUT_SHAPE_KEY,
 		name = "Shape",
 		description = "Hexagonal uses six-sided rings. Diamond uses four-corner rings. Grid uses square rings. X uses diagonal arms.",
@@ -318,6 +300,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LAYOUT_DIRECTION_KEY,
 		name = "Direction",
 		description = "Clockwise starts at top and moves right. Counterclockwise starts at top and moves left.",
@@ -330,6 +313,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LAYOUT_BEHAVIOR_KEY,
 		name = "Behavior",
 		description = "Incremental fills slots in order. Symmetrical alternates opposite slots. Random chooses an open slot from the current radius.",
@@ -342,6 +326,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = MIN_RADIUS_KEY,
 		name = "Min radius",
 		description = "First layout radius for detected boss-like targets. Smaller targets always start at the center. 0 starts at the center; 1 starts on the first ring.",
@@ -358,6 +343,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = MAX_RADIUS_KEY,
 		name = "Max radius",
 		description = "Maximum layout radius for detected boss-like targets. Smaller targets are uncapped. 0 means no cap; 1 means center only; 2 means center plus the first ring.",
@@ -374,6 +360,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = X_SPACING_KEY,
 		name = "X spacing",
 		description = "Extra horizontal pixels between adjacent hitsplat slots. Negative values pull slots closer together.",
@@ -391,6 +378,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = Y_SPACING_KEY,
 		name = "Y spacing",
 		description = "Extra vertical pixels between adjacent hitsplat slots. Negative values pull slots closer together.",
@@ -408,6 +396,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HITSPLAT_FONT_KEY,
 		name = "Font",
 		description = "Font used for hitsplat amounts. The font picker includes RuneLite, custom, and system fonts.",
@@ -420,6 +409,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HITSPLAT_SCALE_PERCENT_KEY,
 		name = "Scale",
 		description = "Scale the complete replacement hitsplat, including sprites, text, spacing, and layout geometry.",
@@ -437,6 +427,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LARGE_TARGET_DETECTION_KEY,
 		name = "Boss-like detection",
 		description = "Decide which actors receive configured radius limits and target offsets. RuneLite does not expose a reliable boss flag, so Either combines footprint and public health scale.",
@@ -449,6 +440,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LARGE_TARGET_SIZE_KEY,
 		name = "Footprint threshold",
 		description = "Minimum actor footprint used by boss-like detection. 2 means targets at least 2x2 tiles.",
@@ -465,6 +457,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LARGE_TARGET_HEALTH_SCALE_KEY,
 		name = "Boss health-scale threshold",
 		description = "Minimum public actor health scale used by boss-like detection. This is not actual maximum HP; standard actors commonly use 30.",
@@ -481,6 +474,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LARGE_TARGET_X_OFFSET_KEY,
 		name = "Boss-like X offset",
 		description = "Extra horizontal hitsplat offset for detected boss-like targets.",
@@ -498,6 +492,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = LARGE_TARGET_Y_OFFSET_KEY,
 		name = "Boss-like Y offset",
 		description = "Extra vertical hitsplat offset for detected boss-like targets. Positive values move hitsplats upward.",
@@ -515,6 +510,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = FADE_IN_DURATION_KEY,
 		name = "Fade-in duration",
 		description = "How long replacement hitsplats take to appear. Total lifetime is fade-in + full opacity + fade-out.",
@@ -532,6 +528,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = FULL_OPACITY_DURATION_KEY,
 		name = "Full opacity duration",
 		description = "How long replacement hitsplats stay fully visible after fading in.",
@@ -549,6 +546,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = FADE_OUT_DURATION_KEY,
 		name = "Fade-out duration",
 		description = "How long replacement hitsplats take to disappear after the full-opacity duration.",
@@ -566,6 +564,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SPRITE_SCALING_MODE_KEY,
 		name = "Sprite scaling",
 		description = "Resize hitsplats, RuneScape health bars, and head icons with Nearest, Bilinear, Bicubic, or edge-directed xBR. xBR is used for enlarging sprites and smoothly reduced to fractional target sizes.",
@@ -579,10 +578,10 @@ public interface OverheadsConfig extends Config
 
 	@ConfigItem(
 		keyName = HEALTH_BARS_ENABLED_KEY,
-		name = "Show HP",
-		description = "Draw replacement health bars. Native health bars are hidden while the plugin is enabled.",
-		section = HEALTH_BARS_SECTION,
-		position = -1
+		name = "Show health",
+		description = "Show the configured HP display for your player.",
+		section = QUICK_SECTION,
+		position = 1
 	)
 	default boolean healthBarsEnabled()
 	{
@@ -591,6 +590,7 @@ public interface OverheadsConfig extends Config
 
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_STYLE_KEY,
 		name = "Style",
 		description = "OSRS artwork or modern styled bars.",
@@ -603,6 +603,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SCALE_MODE_KEY,
 		name = "Scale mode",
 		description = "Controls boss sizing. Fixed uses Scale for both dimensions; Threshold switches to the boss width and height scales at the configured threshold; Dynamic interpolates each dimension independently. Public health scale is not actual maximum HP.",
@@ -615,6 +616,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SCALE_PERCENT_KEY,
 		name = "Scale",
 		description = "Fixed health-bar size multiplier, or the starting multiplier used by Threshold and Dynamic modes.",
@@ -632,6 +634,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SCALE_THRESHOLD_KEY,
 		name = "Boss scale threshold",
 		description = "Public actor health scale that activates the boss width and height scales in Threshold mode or reaches them in Dynamic mode. This is not actual maximum HP.",
@@ -648,6 +651,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_LARGE_SCALE_PERCENT_KEY,
 		name = "Boss width scale",
 		description = "Health-bar width multiplier used at or above the configured public health scale threshold.",
@@ -665,6 +669,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_LARGE_HEIGHT_SCALE_PERCENT_KEY,
 		name = "Boss height scale",
 		description = "Health-bar height multiplier used at or above the configured public health scale threshold.",
@@ -682,6 +687,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SOLID_WIDTH_KEY,
 		name = "Width",
 		description = "Width of the modern health bar in pixels. ",
@@ -698,6 +704,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_HEIGHT_KEY,
 		name = "Height",
 		description = "Health-bar height in pixels. ",
@@ -714,6 +721,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_X_OFFSET_KEY,
 		name = "X offset",
 		description = "Horizontal health-bar offset in pixels. Adjacent spinner changes advance by 2 pixels while the plugin is enabled.",
@@ -731,6 +739,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_Y_OFFSET_KEY,
 		name = "Y offset",
 		description = "Vertical health-bar offset in pixels. Positive values move it upward.",
@@ -748,6 +757,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_FILL_DIRECTION_KEY,
 		name = "Fill direction",
 		description = "Direction in which the filled portion of a modern health bar grows.",
@@ -761,6 +771,7 @@ public interface OverheadsConfig extends Config
 
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_FRONT_GRADIENT_COORDINATES_KEY,
 		name = "Front coordinates",
 		description = "Relative restarts the front horizontal or vertical blend inside filled health. Absolute anchors it to the full bar so its colors stay fixed as health changes.",
@@ -773,6 +784,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_FRONT_GRADIENT_KEY,
 		name = "Front gradient",
 		description = "Solid uses Front color. Horizontal and Vertical blend toward Front second color. Health based blends from the second color at empty health to the primary color at full health.",
@@ -785,6 +797,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_FRONT_COLOR_KEY,
 		name = "Front color",
 		description = "Primary RGBA color for the filled portion of a modern health bar.",
@@ -798,6 +811,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_FRONT_SECONDARY_COLOR_KEY,
 		name = "Front second color",
 		description = "Secondary RGBA color used by non-solid front gradients.",
@@ -811,6 +825,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_POISONED_FRONT_COLOR_KEY,
 		name = "Poisoned front color",
 		description = "Primary RGBA front color used for your local player's Modern health bar while poisoned or envenomed.",
@@ -824,6 +839,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_BACK_GRADIENT_COORDINATES_KEY,
 		name = "Back coordinates",
 		description = "Relative restarts the back horizontal or vertical blend inside missing health. Absolute anchors it to the full bar so its colors stay fixed as health changes.",
@@ -836,6 +852,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_BACK_GRADIENT_KEY,
 		name = "Back gradient",
 		description = "Solid uses Back color. Horizontal and Vertical blend toward Back second color. Health based blends from the second color at empty health to the primary color at full health.",
@@ -848,6 +865,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_BACK_COLOR_KEY,
 		name = "Back color",
 		description = "Primary RGBA color for the missing-health portion of a modern health bar.",
@@ -861,6 +879,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_BACK_SECONDARY_COLOR_KEY,
 		name = "Back second color",
 		description = "Secondary RGBA color used by non-solid back gradients.",
@@ -874,6 +893,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_DAMAGE_TRAIL_ENABLED_KEY,
 		name = "Damage trail",
 		description = "Hold recently lost health, then animate the trail down to the current Modern health-bar value. Healing updates immediately.",
@@ -886,6 +906,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_DAMAGE_TRAIL_COLOR_KEY,
 		name = "Damage trail color",
 		description = "RGBA color for recently lost health in a Modern health bar.",
@@ -899,6 +920,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_DAMAGE_TRAIL_HOLD_KEY,
 		name = "Damage trail hold",
 		description = "How long recently lost health remains stationary before draining.",
@@ -916,6 +938,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_DAMAGE_TRAIL_DRAIN_KEY,
 		name = "Damage trail drain",
 		description = "How long the held damage trail takes to animate down to current health.",
@@ -933,6 +956,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SEGMENTS_ENABLED_KEY,
 		name = "HP segments",
 		description = "Draw League-style dividers every configured hitpoints. Exact values are available for your player and NPCs covered by RuneLite's NPC stats; the selected mode controls unknown actors.",
@@ -946,6 +970,7 @@ public interface OverheadsConfig extends Config
 
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SEGMENT_VALUE_MODE_KEY,
 		name = "Segment HP source",
 		description = "Exact HP uses your real Hitpoints level or RuneLite NPC stats. Public fallback keeps segments visible for actors whose maximum HP is unknown, but those fallback units are normalized public health-scale units rather than hitpoints.",
@@ -958,6 +983,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_HITPOINTS_PER_SEGMENT_KEY,
 		name = "HP per segment",
 		description = "Draw one divider for each multiple of this many hitpoints. In Public scale mode or when using its fallback, the same number is measured in normalized public health-scale units.",
@@ -974,6 +1000,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SEGMENT_COLOR_KEY,
 		name = "Segment color",
 		description = "RGBA color for health-segment dividers.",
@@ -987,6 +1014,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_SEGMENT_THICKNESS_KEY,
 		name = "Segment thickness",
 		description = "Thickness of Modern health-bar segment dividers in pixels. Decimal values allow sub-pixel lines.",
@@ -1003,6 +1031,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_BORDER_COLOR_KEY,
 		name = "Border color",
 		description = "RGBA color for the border around a modern health bar.",
@@ -1016,6 +1045,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_BORDER_THICKNESS_KEY,
 		name = "Border thickness",
 		description = "Modern health-bar border thickness in pixels. Decimal values allow sub-pixel borders; set to 0 for no border.",
@@ -1032,6 +1062,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEALTH_BAR_CORNER_RADIUS_KEY,
 		name = "Corner radius",
 		description = "Antialiased Modern health-bar corner radius in pixels, limited by half the bar's smaller dimension. Decimal values allow sub-pixel curves.",
@@ -1050,9 +1081,9 @@ public interface OverheadsConfig extends Config
 	@ConfigItem(
 		keyName = OVERHEAD_CHAT_ENABLED_KEY,
 		name = "Show overhead chat",
-		description = "Draw replacement overhead chat. Filtered messages remain hidden.",
-		section = OVERHEAD_CHAT_SECTION,
-		position = -1
+		description = "Show overhead chat for your player. Filtered messages remain hidden.",
+		section = QUICK_SECTION,
+		position = 0
 	)
 	default boolean overheadChatEnabled()
 	{
@@ -1061,6 +1092,7 @@ public interface OverheadsConfig extends Config
 
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SHOW_NPC_OVERHEAD_CHAT_KEY,
 		name = "NPC overhead text",
 		description = "Draw replacement overhead text for NPCs. Player overhead chat remains controlled by Show overhead chat.",
@@ -1073,6 +1105,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_FONT_KEY,
 		name = "Font",
 		description = "Font used for overhead chat. The font picker includes RuneLite, custom, and system fonts.",
@@ -1085,6 +1118,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_COLOR_KEY,
 		name = "Color",
 		description = "Fallback RGBA color for replacement overhead chat. Recognized local color prefixes override RGB per message or glyph while retaining this alpha.",
@@ -1098,6 +1132,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_RELATIONSHIP_COLORS_KEY,
 		name = "Relationship colors",
 		description = "Use separate default overhead-chat colors for group iron teammates, friends, and clan members. Your own typed color prefixes still take priority.",
@@ -1110,6 +1145,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_FRIEND_COLOR_KEY,
 		name = "Friend color",
 		description = "Default RGBA overhead-chat color for players on your friends list when relationship colors are enabled.",
@@ -1123,6 +1159,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_CLAN_COLOR_KEY,
 		name = "Clan color",
 		description = "Default RGBA overhead-chat color for members of your clan when relationship colors are enabled.",
@@ -1136,6 +1173,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_GROUP_IRON_COLOR_KEY,
 		name = "Group iron color",
 		description = "Default RGBA overhead-chat color for members of your group iron team when relationship colors are enabled.",
@@ -1149,6 +1187,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_EFFECT_KEY,
 		name = "Default Text Effect",
 		description = "Fallback animation for replacement overhead chat. Static draws unanimated text. A matching effect prefix typed by you overrides it for that local message; other senders' native effects cannot be inherited.",
@@ -1161,6 +1200,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_SHADOW_KEY,
 		name = "Text shadow",
 		description = "Draw a configurable shadow behind replacement overhead chat.",
@@ -1173,6 +1213,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_SHADOW_COLOR_KEY,
 		name = "Shadow color",
 		description = "RGBA color used for the replacement overhead-chat shadow.",
@@ -1186,6 +1227,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_X_OFFSET_KEY,
 		name = "X offset",
 		description = "Horizontal overhead-chat offset in whole pixels.",
@@ -1203,6 +1245,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = OVERHEAD_CHAT_Y_OFFSET_KEY,
 		name = "Y offset",
 		description = "Vertical overhead-chat offset in whole pixels. Positive values move it upward.",
@@ -1222,9 +1265,9 @@ public interface OverheadsConfig extends Config
 	@ConfigItem(
 		keyName = HEAD_ICONS_ENABLED_KEY,
 		name = "Show head icons",
-		description = "Draw replacement head icons. Native head icons are hidden while the plugin is enabled.",
-		section = HEAD_ICONS_SECTION,
-		position = -1
+		description = "Show the configured prayer, skull and hint icons for your player.",
+		section = QUICK_SECTION,
+		position = 2
 	)
 	default boolean headIconsEnabled()
 	{
@@ -1233,6 +1276,7 @@ public interface OverheadsConfig extends Config
 
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SHOW_PRAYER_ICONS_KEY,
 		name = "Prayer icons",
 		description = "Show player overhead-prayer icons.",
@@ -1245,6 +1289,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SHOW_PRAYER_ICON_BACKGROUND_KEY,
 		name = "Prayer background",
 		description = "Draw the background behind supported Resource Pack overhead-prayer textures. Native prayer icons already include their background.",
@@ -1257,6 +1302,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SHOW_SKULL_ICONS_KEY,
 		name = "Skull icons",
 		description = "Show player skull icons.",
@@ -1269,6 +1315,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SHOW_NPC_ICONS_KEY,
 		name = "NPC icons",
 		description = "Show NPC overhead icons.",
@@ -1281,6 +1328,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = SHOW_HINT_ARROWS_KEY,
 		name = "Hint arrows",
 		description = "Show actor hint arrows.",
@@ -1293,6 +1341,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEAD_ICON_SCALE_PERCENT_KEY,
 		name = "Scale",
 		description = "Base head-icon scale as a percentage. Zoom scaling is applied on top when enabled.",
@@ -1310,6 +1359,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEAD_ICON_SCALE_WITH_ZOOM_KEY,
 		name = "Scale with zoom",
 		description = "Adjust head-icon size with camera zoom so icons stay proportional to the game world.",
@@ -1322,6 +1372,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEAD_ICON_X_OFFSET_KEY,
 		name = "X offset",
 		description = "Horizontal head-icon offset in pixels.",
@@ -1339,6 +1390,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEAD_ICON_Y_OFFSET_KEY,
 		name = "Y offset",
 		description = "Vertical head-icon offset in pixels. Positive values move icons upward.",
@@ -1356,6 +1408,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEAD_ICON_Z_OFFSET_KEY,
 		name = "Z offset",
 		description = "Head-icon height offset in world units, following camera zoom and angle. Positive values raise icons. Applied in addition to X and Y pixel offsets.",
@@ -1372,6 +1425,7 @@ public interface OverheadsConfig extends Config
 	}
 
 	@ConfigItem(
+		hidden = true,
 		keyName = HEAD_ICON_SPACING_KEY,
 		name = "Spacing",
 		description = "Gap below the first head icon and between each stacked icon, in pixels.",
@@ -1389,6 +1443,7 @@ public interface OverheadsConfig extends Config
 	}
 
     @ConfigItem(
+		hidden = true,
         keyName = "alwaysShowSelfHealth",
         name = "Always show my HP",
         description = "Show your own current HP outside combat too.",
@@ -1401,6 +1456,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "selfHealthDisplay",
         name = "My HP display",
         description = "My HP display.",
@@ -1413,6 +1469,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "npcHealthDisplay",
         name = "NPC HP display",
         description = "NPC numbers show the visible HP percentage.",
@@ -1425,6 +1482,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "otherHealthDisplay",
         name = "Other player HP display",
         description = "Other player numbers use the visible HP percentage.",
@@ -1437,6 +1495,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "healthPosition",
         name = "HP position",
         description = "HP position.",
@@ -1449,6 +1508,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "healthOrientation",
         name = "HP orientation",
         description = "HP orientation.",
@@ -1461,6 +1521,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "healthScaleWithZoom",
         name = "Scale HP with zoom",
         description = "Scale HP with zoom.",
@@ -1473,6 +1534,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "playerHealthWidth",
         name = "Player bar length",
         description = "Player bar length.",
@@ -1486,6 +1548,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "playerHealthHeight",
         name = "Player bar thickness",
         description = "Player bar thickness.",
@@ -1499,6 +1562,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "healthBarOpacity",
         name = "HP bar opacity",
         description = "Opacity of the bar and border; numbers have their own color.",
@@ -1512,6 +1576,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "healthTextFont",
         name = "HP number font",
         description = "HP number font.",
@@ -1524,6 +1589,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "healthTextColor",
         name = "HP number color",
         description = "HP number color.",
@@ -1537,6 +1603,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerVisibility",
         name = "Prayer display",
         description = "Prayer display.",
@@ -1549,6 +1616,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerDisplay",
         name = "Prayer numbers / bar",
         description = "Prayer numbers / bar.",
@@ -1561,6 +1629,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerPosition",
         name = "Prayer position",
         description = "Prayer position.",
@@ -1573,6 +1642,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerOrientation",
         name = "Prayer orientation",
         description = "Prayer orientation.",
@@ -1585,6 +1655,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerScaleWithZoom",
         name = "Scale prayer with zoom",
         description = "Scale prayer with zoom.",
@@ -1597,6 +1668,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerWidth",
         name = "Prayer bar length",
         description = "Prayer bar length.",
@@ -1610,6 +1682,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerHeight",
         name = "Prayer bar thickness",
         description = "Prayer bar thickness.",
@@ -1623,6 +1696,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerXOffset",
         name = "Prayer X offset",
         description = "Prayer X offset.",
@@ -1636,6 +1710,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerYOffset",
         name = "Prayer Y offset",
         description = "Prayer Y offset.",
@@ -1649,6 +1724,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerOpacity",
         name = "Prayer bar opacity",
         description = "Opacity of the prayer bar and border; numbers have their own color.",
@@ -1662,6 +1738,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerColor",
         name = "Prayer fill",
         description = "Prayer fill.",
@@ -1675,6 +1752,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerTextColor",
         name = "Prayer number color",
         description = "Prayer number color.",
@@ -1688,6 +1766,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerTextFont",
         name = "Prayer number font",
         description = "Prayer number font.",
@@ -1700,6 +1779,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "chatPosition",
         name = "Chat position",
         description = "Chat position.",
@@ -1712,6 +1792,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "chatScaleWithZoom",
         name = "Scale chat with zoom",
         description = "Scale chat with zoom.",
@@ -1724,6 +1805,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "hitsplatPosition",
         name = "Hitsplat position",
         description = "Hitsplat position.",
@@ -1736,6 +1818,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "hitsplatScaleWithZoom",
         name = "Scale hitsplat with zoom",
         description = "Scale hitsplat with zoom.",
@@ -1748,6 +1831,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "iconsPosition",
         name = "Icon position",
         description = "Icon position.",
@@ -1760,6 +1844,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerIconShape",
         name = "Prayer icon frame",
         description = "Prayer icon frame.",
@@ -1772,6 +1857,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerIconBackground",
         name = "Prayer icon background",
         description = "Prayer icon background.",
@@ -1784,18 +1870,19 @@ public interface OverheadsConfig extends Config
         return new Color(35, 40, 46, 210);
     }
 
-    @ConfigItem(keyName = "prayerIconBackgroundTracksPoints", name = "Prayer background follows points",
+    @ConfigItem(hidden = true, keyName = "prayerIconBackgroundTracksPoints", name = "Prayer background follows points",
         description = "Drain and refill the Round or Square prayer icon background using your current prayer points or available shared party prayer. Unknown values keep the normal background.",
         section = HEAD_ICONS_SECTION, position = 134)
     default boolean prayerIconBackgroundTracksPoints() { return false; }
 
     @Alpha
-    @ConfigItem(keyName = "prayerIconEmptyBackground", name = "Empty prayer background",
+    @ConfigItem(hidden = true, keyName = "prayerIconEmptyBackground", name = "Empty prayer background",
         description = "Color behind the empty portion when the prayer icon background follows prayer points.",
         section = HEAD_ICONS_SECTION, position = 135)
     default Color prayerIconEmptyBackground() { return new Color(12, 15, 18, 150); }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerIconBorder",
         name = "Prayer icon border",
         description = "Prayer icon border.",
@@ -1809,6 +1896,7 @@ public interface OverheadsConfig extends Config
     }
 
     @ConfigItem(
+		hidden = true,
         keyName = "prayerIconScalePercent",
         name = "Prayer icon size",
         description = "Prayer icon size.",
@@ -1821,35 +1909,35 @@ public interface OverheadsConfig extends Config
         return 100;
     }
 
-    @ConfigItem(keyName = "healthNumberFormat", name = "HP number format",
+    @ConfigItem(hidden = true, keyName = "healthNumberFormat", name = "HP number format",
         description = "Format for your own HP; other actors use visible percentages.", section = HEALTH_BARS_SECTION, position = 200)
     default OverheadsNumberFormat healthNumberFormat()
     {
         return OverheadsNumberFormat.CURRENT;
     }
 
-    @ConfigItem(keyName = "prayerNumberFormat", name = "Prayer number format",
+    @ConfigItem(hidden = true, keyName = "prayerNumberFormat", name = "Prayer number format",
         description = "Format for your prayer points.", section = PRAYER_SECTION, position = 201)
     default OverheadsNumberFormat prayerNumberFormat()
     {
         return OverheadsNumberFormat.CURRENT;
     }
 
-    @ConfigItem(keyName = "prayerBarStyle", name = "Prayer style",
+    @ConfigItem(hidden = true, keyName = "prayerBarStyle", name = "Prayer style",
         description = "OSRS artwork or modern prayer bar.", section = PRAYER_SECTION, position = 202)
     default OverheadsHealthBarStyle prayerBarStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
-    @ConfigItem(keyName = "prayerFillDirection", name = "Prayer fill direction",
+    @ConfigItem(hidden = true, keyName = "prayerFillDirection", name = "Prayer fill direction",
         description = "Direction the filled prayer bar grows.", section = PRAYER_SECTION, position = 203)
     default OverheadsHealthBarFillDirection prayerFillDirection()
     {
         return OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
     }
 
-    @ConfigItem(keyName = "prayerBackColor", name = "Prayer background",
+    @ConfigItem(hidden = true, keyName = "prayerBackColor", name = "Prayer background",
         description = "Color for missing prayer points in the Modern style.", section = PRAYER_SECTION, position = 204)
     @Alpha
     default Color prayerBackColor()
@@ -1857,7 +1945,7 @@ public interface OverheadsConfig extends Config
         return new Color(30, 43, 55);
     }
 
-    @ConfigItem(keyName = "prayerBorderColor", name = "Prayer border",
+    @ConfigItem(hidden = true, keyName = "prayerBorderColor", name = "Prayer border",
         description = "Modern prayer bar border color.", section = PRAYER_SECTION, position = 205)
     @Alpha
     default Color prayerBorderColor()
@@ -1865,7 +1953,7 @@ public interface OverheadsConfig extends Config
         return new Color(18, 24, 30);
     }
 
-    @ConfigItem(keyName = "prayerBorderThickness", name = "Prayer border thickness",
+    @ConfigItem(hidden = true, keyName = "prayerBorderThickness", name = "Prayer border thickness",
         description = "Modern prayer bar border thickness.", section = PRAYER_SECTION, position = 206)
     @Range(min = 0, max = 10)
     default int prayerBorderThickness()
@@ -1873,7 +1961,7 @@ public interface OverheadsConfig extends Config
         return 1;
     }
 
-    @ConfigItem(keyName = "prayerCornerRadius", name = "Prayer corner radius",
+    @ConfigItem(hidden = true, keyName = "prayerCornerRadius", name = "Prayer corner radius",
         description = "Modern prayer bar corner radius.", section = PRAYER_SECTION, position = 207)
     @Range(min = 0, max = 30)
     default int prayerCornerRadius()
@@ -1881,14 +1969,14 @@ public interface OverheadsConfig extends Config
         return 3;
     }
 
-    @ConfigItem(keyName = "hitsplatStyle", name = "Style",
+    @ConfigItem(hidden = true, keyName = "hitsplatStyle", name = "Style",
         description = "Style for damage and miss hitsplats. Special encounter indicators keep their artwork.", section = DISPLAY_SECTION, position = 208)
     default OverheadsHitsplatStyle hitsplatStyle()
     {
         return OverheadsHitsplatStyle.OSRS;
     }
 
-    @ConfigItem(keyName = "hitsplatDamageColor", name = "Damage background",
+    @ConfigItem(hidden = true, keyName = "hitsplatDamageColor", name = "Damage background",
         description = "Modern damage hitsplat background.", section = DISPLAY_SECTION, position = 209)
     @Alpha
     default Color hitsplatDamageColor()
@@ -1896,7 +1984,7 @@ public interface OverheadsConfig extends Config
         return new Color(169, 54, 63, 235);
     }
 
-    @ConfigItem(keyName = "hitsplatMissColor", name = "Miss background",
+    @ConfigItem(hidden = true, keyName = "hitsplatMissColor", name = "Miss background",
         description = "Modern miss hitsplat background.", section = DISPLAY_SECTION, position = 210)
     @Alpha
     default Color hitsplatMissColor()
@@ -1904,21 +1992,21 @@ public interface OverheadsConfig extends Config
         return new Color(54, 97, 160, 235);
     }
 
-    @ConfigItem(keyName = "hitsplatNumberColor", name = "Number color",
+    @ConfigItem(hidden = true, keyName = "hitsplatNumberColor", name = "Number color",
         description = "Text color for Modern and Numbers only hitsplats.", section = DISPLAY_SECTION, position = 211)
     @Alpha
     default Color hitsplatNumberColor()
     {
         return Color.WHITE;
     }
-    @ConfigItem(keyName = "restorePreview", name = "Health restore preview",
+    @ConfigItem(hidden = true, keyName = "restorePreview", name = "Health restore preview",
         description = "Preview the actual HP restored by the inventory item under the pointer.", section = HEALTH_BARS_SECTION, position = 220)
     default boolean restorePreview()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "restorePreviewColor", name = "Restore preview color",
+    @ConfigItem(hidden = true, keyName = "restorePreviewColor", name = "Restore preview color",
         description = "Color of the projected restored portion.", section = HEALTH_BARS_SECTION, position = 221)
     @Alpha
     default Color restorePreviewColor()
@@ -1926,14 +2014,14 @@ public interface OverheadsConfig extends Config
         return new Color(115, 235, 170, 190);
     }
 
-    @ConfigItem(keyName = "prayerTickIndicator", name = "Prayer tick indicator",
+    @ConfigItem(hidden = true, keyName = "prayerTickIndicator", name = "Prayer tick indicator",
         description = "Sweep once per observed game tick and flash when your prayer points decrease. This does not predict the next drain.", section = PRAYER_SECTION, position = 222)
     default boolean prayerTickIndicator()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "prayerTickColor", name = "Prayer tick color",
+    @ConfigItem(hidden = true, keyName = "prayerTickColor", name = "Prayer tick color",
         description = "Color of the tick marker.", section = PRAYER_SECTION, position = 223)
     @Alpha
     default Color prayerTickColor()
@@ -1941,7 +2029,7 @@ public interface OverheadsConfig extends Config
         return new Color(235, 240, 255);
     }
 
-    @ConfigItem(keyName = "lowHealthThreshold", name = "Low HP threshold",
+    @ConfigItem(hidden = true, keyName = "lowHealthThreshold", name = "Low HP threshold",
         description = "Use the warning color below this percentage of your HP. Zero disables it.", section = HEALTH_BARS_SECTION, position = 224)
     @Range(min = 0, max = 100)
     default int lowHealthThreshold()
@@ -1949,7 +2037,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "lowPrayerThreshold", name = "Low prayer threshold",
+    @ConfigItem(hidden = true, keyName = "lowPrayerThreshold", name = "Low prayer threshold",
         description = "Use the warning color below this percentage of your prayer. Zero disables it.", section = PRAYER_SECTION, position = 225)
     @Range(min = 0, max = 100)
     default int lowPrayerThreshold()
@@ -1957,7 +2045,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "lowResourceColor", name = "Low health color",
+    @ConfigItem(hidden = true, keyName = "lowResourceColor", name = "Low health color",
         description = "Warning color for your low HP.", section = HEALTH_BARS_SECTION, position = 226)
     @Alpha
     default Color lowResourceColor()
@@ -1965,56 +2053,56 @@ public interface OverheadsConfig extends Config
         return new Color(255, 106, 87);
     }
 
-    @ConfigItem(keyName = "npcHealthVisibility", name = "NPC HP visibility",
+    @ConfigItem(hidden = true, keyName = "npcHealthVisibility", name = "NPC HP visibility",
         description = "Restrict which NPC HP bars and numbers are shown.", section = HEALTH_BARS_SECTION, position = 227)
     default OverheadsVisibility npcHealthVisibility()
     {
         return OverheadsVisibility.ALL;
     }
 
-    @ConfigItem(keyName = "otherHealthVisibility", name = "Other player HP visibility",
+    @ConfigItem(hidden = true, keyName = "otherHealthVisibility", name = "Other player HP visibility",
         description = "Restrict which other player HP bars and numbers are shown.", section = HEALTH_BARS_SECTION, position = 228)
     default OverheadsVisibility otherHealthVisibility()
     {
         return OverheadsVisibility.ALL;
     }
 
-    @ConfigItem(keyName = "hiddenNpcHealthIds", name = "Hidden NPC HP IDs",
+    @ConfigItem(hidden = true, keyName = "hiddenNpcHealthIds", name = "Hidden NPC HP IDs",
         description = "Comma-separated NPC IDs whose ordinary HP display should be hidden. Special encounter bars remain native.", section = HEALTH_BARS_SECTION, position = 229)
     default String hiddenNpcHealthIds()
     {
         return "";
     }
 
-    @ConfigItem(keyName = "selfNameVisibility", name = "My name",
+    @ConfigItem(hidden = true, keyName = "selfNameVisibility", name = "My name",
         description = "Choose when this nameplate is displayed.", section = HEAD_ICONS_SECTION, position = 230)
     default OverheadsVisibility selfNameVisibility()
     {
         return OverheadsVisibility.HIDDEN;
     }
 
-    @ConfigItem(keyName = "playerNameVisibility", name = "Other player names",
+    @ConfigItem(hidden = true, keyName = "playerNameVisibility", name = "Other player names",
         description = "Choose when this nameplate is displayed.", section = HEAD_ICONS_SECTION, position = 231)
     default OverheadsVisibility playerNameVisibility()
     {
         return OverheadsVisibility.HIDDEN;
     }
 
-    @ConfigItem(keyName = "npcNameVisibility", name = "NPC names",
+    @ConfigItem(hidden = true, keyName = "npcNameVisibility", name = "NPC names",
         description = "Choose when this nameplate is displayed.", section = HEAD_ICONS_SECTION, position = 232)
     default OverheadsVisibility npcNameVisibility()
     {
         return OverheadsVisibility.HIDDEN;
     }
 
-    @ConfigItem(keyName = "namePosition", name = "Nameplate position",
+    @ConfigItem(hidden = true, keyName = "namePosition", name = "Nameplate position",
         description = "Placement relative to the actor.", section = HEAD_ICONS_SECTION, position = 233)
     default OverheadsPosition namePosition()
     {
         return OverheadsPosition.ABOVE;
     }
 
-    @ConfigItem(keyName = "nameXOffset", name = "Nameplate X offset",
+    @ConfigItem(hidden = true, keyName = "nameXOffset", name = "Nameplate X offset",
         description = "Offset in pixels. Positive Y moves upward.", section = HEAD_ICONS_SECTION, position = 234)
     @Range(min = -300, max = 300)
     default int nameXOffset()
@@ -2022,7 +2110,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "nameYOffset", name = "Nameplate Y offset",
+    @ConfigItem(hidden = true, keyName = "nameYOffset", name = "Nameplate Y offset",
         description = "Offset in pixels. Positive Y moves upward.", section = HEAD_ICONS_SECTION, position = 235)
     @Range(min = -300, max = 300)
     default int nameYOffset()
@@ -2030,21 +2118,21 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "nameScaleWithZoom", name = "Scale nameplate with zoom",
+    @ConfigItem(hidden = true, keyName = "nameScaleWithZoom", name = "Scale nameplate with zoom",
         description = "Scale with camera zoom.", section = HEAD_ICONS_SECTION, position = 236)
     default boolean nameScaleWithZoom()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "statusPosition", name = "Status icon position",
+    @ConfigItem(hidden = true, keyName = "statusPosition", name = "Status icon position",
         description = "Placement relative to the actor.", section = HEAD_ICONS_SECTION, position = 237)
     default OverheadsPosition statusPosition()
     {
         return OverheadsPosition.ABOVE;
     }
 
-    @ConfigItem(keyName = "statusXOffset", name = "Status icon X offset",
+    @ConfigItem(hidden = true, keyName = "statusXOffset", name = "Status icon X offset",
         description = "Offset in pixels. Positive Y moves upward.", section = HEAD_ICONS_SECTION, position = 238)
     @Range(min = -300, max = 300)
     default int statusXOffset()
@@ -2052,7 +2140,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "statusYOffset", name = "Status icon Y offset",
+    @ConfigItem(hidden = true, keyName = "statusYOffset", name = "Status icon Y offset",
         description = "Offset in pixels. Positive Y moves upward.", section = HEAD_ICONS_SECTION, position = 239)
     @Range(min = -300, max = 300)
     default int statusYOffset()
@@ -2060,21 +2148,21 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "statusScaleWithZoom", name = "Scale status icon with zoom",
+    @ConfigItem(hidden = true, keyName = "statusScaleWithZoom", name = "Scale status icon with zoom",
         description = "Scale with camera zoom.", section = HEAD_ICONS_SECTION, position = 240)
     default boolean statusScaleWithZoom()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "nameFont", name = "Name font",
+    @ConfigItem(hidden = true, keyName = "nameFont", name = "Name font",
         description = "Nameplate font.", section = HEAD_ICONS_SECTION, position = 241)
     default FontType nameFont()
     {
         return FontType.SMALL;
     }
 
-    @ConfigItem(keyName = "nameColor", name = "Name color",
+    @ConfigItem(hidden = true, keyName = "nameColor", name = "Name color",
         description = "Nameplate text color.", section = HEAD_ICONS_SECTION, position = 242)
     @Alpha
     default Color nameColor()
@@ -2082,7 +2170,7 @@ public interface OverheadsConfig extends Config
         return new Color(235, 235, 235);
     }
 
-    @ConfigItem(keyName = "nameBackground", name = "Name background",
+    @ConfigItem(hidden = true, keyName = "nameBackground", name = "Name background",
         description = "Nameplate background, including opacity.", section = HEAD_ICONS_SECTION, position = 243)
     @Alpha
     default Color nameBackground()
@@ -2090,21 +2178,21 @@ public interface OverheadsConfig extends Config
         return new Color(12, 18, 24, 170);
     }
 
-    @ConfigItem(keyName = "showStatusIcons", name = "My status icons",
+    @ConfigItem(hidden = true, keyName = "showStatusIcons", name = "My status icons",
         description = "Show your current poison, venom and disease status.", section = HEAD_ICONS_SECTION, position = 244)
     default boolean showStatusIcons()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "showTargetingIcon", name = "My current target",
+    @ConfigItem(hidden = true, keyName = "showTargetingIcon", name = "My current target",
         description = "Mark the NPC you are currently interacting with.", section = HEAD_ICONS_SECTION, position = 245)
     default boolean showTargetingIcon()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "statusIconSize", name = "Status icon size",
+    @ConfigItem(hidden = true, keyName = "statusIconSize", name = "Status icon size",
         description = "Status badge size in pixels.", section = HEAD_ICONS_SECTION, position = 246)
     @Range(min = 10, max = 40)
     default int statusIconSize()
@@ -2112,21 +2200,21 @@ public interface OverheadsConfig extends Config
         return 16;
     }
 
-    @ConfigItem(keyName = "separatePrayerPosition", name = "Separate prayer position",
+    @ConfigItem(hidden = true, keyName = "separatePrayerPosition", name = "Separate prayer position",
         description = "Position prayer icons independently of skulls and other head icons.", section = HEAD_ICONS_SECTION, position = 247)
     default boolean separatePrayerPosition()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "prayerIconPosition", name = "Prayer icon position",
+    @ConfigItem(hidden = true, keyName = "prayerIconPosition", name = "Prayer icon position",
         description = "Position of independently placed prayer icons.", section = HEAD_ICONS_SECTION, position = 248)
     default OverheadsPosition prayerIconPosition()
     {
         return OverheadsPosition.RIGHT;
     }
 
-    @ConfigItem(keyName = "prayerIconXOffset", name = "Prayer icon X offset",
+    @ConfigItem(hidden = true, keyName = "prayerIconXOffset", name = "Prayer icon X offset",
         description = "Offset in pixels. Positive Y moves upward.", section = HEAD_ICONS_SECTION, position = 249)
     @Range(min = -300, max = 300)
     default int prayerIconXOffset()
@@ -2134,7 +2222,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "prayerIconYOffset", name = "Prayer icon Y offset",
+    @ConfigItem(hidden = true, keyName = "prayerIconYOffset", name = "Prayer icon Y offset",
         description = "Offset in pixels. Positive Y moves upward.", section = HEAD_ICONS_SECTION, position = 250)
     @Range(min = -300, max = 300)
     default int prayerIconYOffset()
@@ -2142,35 +2230,35 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "runDisplay", name = "Run energy display",
+    @ConfigItem(hidden = true, keyName = "runDisplay", name = "Run energy display",
         description = "Show your own resource as a bar, numbers, both, or hide it.", section = RUN_SECTION, position = 251)
     default OverheadsBarDisplay runDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
-    @ConfigItem(keyName = "runStyle", name = "Run energy style",
+    @ConfigItem(hidden = true, keyName = "runStyle", name = "Run energy style",
         description = "OSRS artwork or Modern appearance.", section = RUN_SECTION, position = 252)
     default OverheadsHealthBarStyle runStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
-    @ConfigItem(keyName = "runPosition", name = "Run energy position",
+    @ConfigItem(hidden = true, keyName = "runPosition", name = "Run energy position",
         description = "Placement relative to your player.", section = RUN_SECTION, position = 253)
     default OverheadsPosition runPosition()
     {
         return OverheadsPosition.BELOW;
     }
 
-    @ConfigItem(keyName = "runOrientation", name = "Run energy orientation",
+    @ConfigItem(hidden = true, keyName = "runOrientation", name = "Run energy orientation",
         description = "Horizontal or vertical bar.", section = RUN_SECTION, position = 254)
     default OverheadsOrientation runOrientation()
     {
         return OverheadsOrientation.HORIZONTAL;
     }
 
-    @ConfigItem(keyName = "runWidth", name = "Run energy bar length",
+    @ConfigItem(hidden = true, keyName = "runWidth", name = "Run energy bar length",
         description = "Bar length in pixels.", section = RUN_SECTION, position = 255)
     @Range(min = 10, max = 200)
     default int runWidth()
@@ -2178,7 +2266,7 @@ public interface OverheadsConfig extends Config
         return 50;
     }
 
-    @ConfigItem(keyName = "runHeight", name = "Run energy bar thickness",
+    @ConfigItem(hidden = true, keyName = "runHeight", name = "Run energy bar thickness",
         description = "Bar thickness in pixels.", section = RUN_SECTION, position = 256)
     @Range(min = 2, max = 30)
     default int runHeight()
@@ -2186,7 +2274,7 @@ public interface OverheadsConfig extends Config
         return 6;
     }
 
-    @ConfigItem(keyName = "runXOffset", name = "Run energy X offset",
+    @ConfigItem(hidden = true, keyName = "runXOffset", name = "Run energy X offset",
         description = "Horizontal offset in pixels.", section = RUN_SECTION, position = 257)
     @Range(min = -300, max = 300)
     default int runXOffset()
@@ -2194,7 +2282,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "runYOffset", name = "Run energy Y offset",
+    @ConfigItem(hidden = true, keyName = "runYOffset", name = "Run energy Y offset",
         description = "Vertical offset. Positive moves upward.", section = RUN_SECTION, position = 258)
     @Range(min = -300, max = 300)
     default int runYOffset()
@@ -2202,7 +2290,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "runColor", name = "Run energy fill",
+    @ConfigItem(hidden = true, keyName = "runColor", name = "Run energy fill",
         description = "Filled bar color.", section = RUN_SECTION, position = 259)
     @Alpha
     default Color runColor()
@@ -2210,7 +2298,7 @@ public interface OverheadsConfig extends Config
         return new Color(223, 191, 70);
     }
 
-    @ConfigItem(keyName = "runBackColor", name = "Run energy background",
+    @ConfigItem(hidden = true, keyName = "runBackColor", name = "Run energy background",
         description = "Modern missing-resource color.", section = RUN_SECTION, position = 260)
     @Alpha
     default Color runBackColor()
@@ -2218,7 +2306,7 @@ public interface OverheadsConfig extends Config
         return new Color(30, 38, 46);
     }
 
-    @ConfigItem(keyName = "runBorderColor", name = "Run energy border",
+    @ConfigItem(hidden = true, keyName = "runBorderColor", name = "Run energy border",
         description = "Modern bar border color.", section = RUN_SECTION, position = 261)
     @Alpha
     default Color runBorderColor()
@@ -2226,7 +2314,7 @@ public interface OverheadsConfig extends Config
         return new Color(10, 16, 22);
     }
 
-    @ConfigItem(keyName = "runCornerRadius", name = "Run energy corner radius",
+    @ConfigItem(hidden = true, keyName = "runCornerRadius", name = "Run energy corner radius",
         description = "Modern bar corner radius.", section = RUN_SECTION, position = 262)
     @Range(min = 0, max = 30)
     default int runCornerRadius()
@@ -2234,7 +2322,7 @@ public interface OverheadsConfig extends Config
         return 3;
     }
 
-    @ConfigItem(keyName = "runOpacity", name = "Run energy bar opacity",
+    @ConfigItem(hidden = true, keyName = "runOpacity", name = "Run energy bar opacity",
         description = "Opacity of the bar and border; numbers have their own color.", section = RUN_SECTION, position = 263)
     @Range(min = 0, max = 100)
     default int runOpacity()
@@ -2242,7 +2330,7 @@ public interface OverheadsConfig extends Config
         return 100;
     }
 
-    @ConfigItem(keyName = "runTextColor", name = "Run energy number color",
+    @ConfigItem(hidden = true, keyName = "runTextColor", name = "Run energy number color",
         description = "Resource number color.", section = RUN_SECTION, position = 264)
     @Alpha
     default Color runTextColor()
@@ -2250,63 +2338,63 @@ public interface OverheadsConfig extends Config
         return Color.WHITE;
     }
 
-    @ConfigItem(keyName = "runFont", name = "Run energy font",
+    @ConfigItem(hidden = true, keyName = "runFont", name = "Run energy font",
         description = "Resource number font.", section = RUN_SECTION, position = 265)
     default FontType runFont()
     {
         return FontType.SMALL;
     }
 
-    @ConfigItem(keyName = "runNumberFormat", name = "Run energy number format",
+    @ConfigItem(hidden = true, keyName = "runNumberFormat", name = "Run energy number format",
         description = "Current, current / maximum, or percentage.", section = RUN_SECTION, position = 266)
     default OverheadsNumberFormat runNumberFormat()
     {
         return OverheadsNumberFormat.PERCENTAGE;
     }
 
-    @ConfigItem(keyName = "runScaleWithZoom", name = "Scale run energy with zoom",
+    @ConfigItem(hidden = true, keyName = "runScaleWithZoom", name = "Scale run energy with zoom",
         description = "Scale with camera zoom.", section = RUN_SECTION, position = 267)
     default boolean runScaleWithZoom()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "runFillDirection", name = "Run energy fill direction",
+    @ConfigItem(hidden = true, keyName = "runFillDirection", name = "Run energy fill direction",
         description = "Direction the resource bar grows.", section = RUN_SECTION, position = 268)
     default OverheadsHealthBarFillDirection runFillDirection()
     {
         return OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
     }
 
-    @ConfigItem(keyName = "specialDisplay", name = "Special attack display",
+    @ConfigItem(hidden = true, keyName = "specialDisplay", name = "Special attack display",
         description = "Show your own resource as a bar, numbers, both, or hide it.", section = SPECIAL_SECTION, position = 269)
     default OverheadsBarDisplay specialDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
-    @ConfigItem(keyName = "specialStyle", name = "Special attack style",
+    @ConfigItem(hidden = true, keyName = "specialStyle", name = "Special attack style",
         description = "OSRS artwork or Modern appearance.", section = SPECIAL_SECTION, position = 270)
     default OverheadsHealthBarStyle specialStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
-    @ConfigItem(keyName = "specialPosition", name = "Special attack position",
+    @ConfigItem(hidden = true, keyName = "specialPosition", name = "Special attack position",
         description = "Placement relative to your player.", section = SPECIAL_SECTION, position = 271)
     default OverheadsPosition specialPosition()
     {
         return OverheadsPosition.BELOW;
     }
 
-    @ConfigItem(keyName = "specialOrientation", name = "Special attack orientation",
+    @ConfigItem(hidden = true, keyName = "specialOrientation", name = "Special attack orientation",
         description = "Horizontal or vertical bar.", section = SPECIAL_SECTION, position = 272)
     default OverheadsOrientation specialOrientation()
     {
         return OverheadsOrientation.HORIZONTAL;
     }
 
-    @ConfigItem(keyName = "specialWidth", name = "Special attack bar length",
+    @ConfigItem(hidden = true, keyName = "specialWidth", name = "Special attack bar length",
         description = "Bar length in pixels.", section = SPECIAL_SECTION, position = 273)
     @Range(min = 10, max = 200)
     default int specialWidth()
@@ -2314,7 +2402,7 @@ public interface OverheadsConfig extends Config
         return 50;
     }
 
-    @ConfigItem(keyName = "specialHeight", name = "Special attack bar thickness",
+    @ConfigItem(hidden = true, keyName = "specialHeight", name = "Special attack bar thickness",
         description = "Bar thickness in pixels.", section = SPECIAL_SECTION, position = 274)
     @Range(min = 2, max = 30)
     default int specialHeight()
@@ -2322,7 +2410,7 @@ public interface OverheadsConfig extends Config
         return 6;
     }
 
-    @ConfigItem(keyName = "specialXOffset", name = "Special attack X offset",
+    @ConfigItem(hidden = true, keyName = "specialXOffset", name = "Special attack X offset",
         description = "Horizontal offset in pixels.", section = SPECIAL_SECTION, position = 275)
     @Range(min = -300, max = 300)
     default int specialXOffset()
@@ -2330,7 +2418,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "specialYOffset", name = "Special attack Y offset",
+    @ConfigItem(hidden = true, keyName = "specialYOffset", name = "Special attack Y offset",
         description = "Vertical offset. Positive moves upward.", section = SPECIAL_SECTION, position = 276)
     @Range(min = -300, max = 300)
     default int specialYOffset()
@@ -2338,7 +2426,7 @@ public interface OverheadsConfig extends Config
         return -18;
     }
 
-    @ConfigItem(keyName = "specialColor", name = "Special attack fill",
+    @ConfigItem(hidden = true, keyName = "specialColor", name = "Special attack fill",
         description = "Filled bar color.", section = SPECIAL_SECTION, position = 277)
     @Alpha
     default Color specialColor()
@@ -2346,7 +2434,7 @@ public interface OverheadsConfig extends Config
         return new Color(80, 195, 150);
     }
 
-    @ConfigItem(keyName = "specialBackColor", name = "Special attack background",
+    @ConfigItem(hidden = true, keyName = "specialBackColor", name = "Special attack background",
         description = "Modern missing-resource color.", section = SPECIAL_SECTION, position = 278)
     @Alpha
     default Color specialBackColor()
@@ -2354,7 +2442,7 @@ public interface OverheadsConfig extends Config
         return new Color(30, 38, 46);
     }
 
-    @ConfigItem(keyName = "specialBorderColor", name = "Special attack border",
+    @ConfigItem(hidden = true, keyName = "specialBorderColor", name = "Special attack border",
         description = "Modern bar border color.", section = SPECIAL_SECTION, position = 279)
     @Alpha
     default Color specialBorderColor()
@@ -2362,7 +2450,7 @@ public interface OverheadsConfig extends Config
         return new Color(10, 16, 22);
     }
 
-    @ConfigItem(keyName = "specialCornerRadius", name = "Special attack corner radius",
+    @ConfigItem(hidden = true, keyName = "specialCornerRadius", name = "Special attack corner radius",
         description = "Modern bar corner radius.", section = SPECIAL_SECTION, position = 280)
     @Range(min = 0, max = 30)
     default int specialCornerRadius()
@@ -2370,7 +2458,7 @@ public interface OverheadsConfig extends Config
         return 3;
     }
 
-    @ConfigItem(keyName = "specialOpacity", name = "Special attack bar opacity",
+    @ConfigItem(hidden = true, keyName = "specialOpacity", name = "Special attack bar opacity",
         description = "Opacity of the bar and border; numbers have their own color.", section = SPECIAL_SECTION, position = 281)
     @Range(min = 0, max = 100)
     default int specialOpacity()
@@ -2378,7 +2466,7 @@ public interface OverheadsConfig extends Config
         return 100;
     }
 
-    @ConfigItem(keyName = "specialTextColor", name = "Special attack number color",
+    @ConfigItem(hidden = true, keyName = "specialTextColor", name = "Special attack number color",
         description = "Resource number color.", section = SPECIAL_SECTION, position = 282)
     @Alpha
     default Color specialTextColor()
@@ -2386,28 +2474,28 @@ public interface OverheadsConfig extends Config
         return Color.WHITE;
     }
 
-    @ConfigItem(keyName = "specialFont", name = "Special attack font",
+    @ConfigItem(hidden = true, keyName = "specialFont", name = "Special attack font",
         description = "Resource number font.", section = SPECIAL_SECTION, position = 283)
     default FontType specialFont()
     {
         return FontType.SMALL;
     }
 
-    @ConfigItem(keyName = "specialNumberFormat", name = "Special attack number format",
+    @ConfigItem(hidden = true, keyName = "specialNumberFormat", name = "Special attack number format",
         description = "Current, current / maximum, or percentage.", section = SPECIAL_SECTION, position = 284)
     default OverheadsNumberFormat specialNumberFormat()
     {
         return OverheadsNumberFormat.PERCENTAGE;
     }
 
-    @ConfigItem(keyName = "specialScaleWithZoom", name = "Scale special attack with zoom",
+    @ConfigItem(hidden = true, keyName = "specialScaleWithZoom", name = "Scale special attack with zoom",
         description = "Scale with camera zoom.", section = SPECIAL_SECTION, position = 285)
     default boolean specialScaleWithZoom()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "specialFillDirection", name = "Special attack fill direction",
+    @ConfigItem(hidden = true, keyName = "specialFillDirection", name = "Special attack fill direction",
         description = "Direction the resource bar grows.", section = SPECIAL_SECTION, position = 286)
     default OverheadsHealthBarFillDirection specialFillDirection()
     {
@@ -2415,14 +2503,14 @@ public interface OverheadsConfig extends Config
     }
 
 
-    @ConfigItem(keyName = "hitsplatMotion", name = "Movement",
+    @ConfigItem(hidden = true, keyName = "hitsplatMotion", name = "Movement",
         description = "Fixed arrangement or scrolling columns of observed hits.", section = DISPLAY_SECTION, position = 300)
     default OverheadsHitsplatMotion hitsplatMotion()
     {
         return OverheadsHitsplatMotion.FIXED;
     }
 
-    @ConfigItem(keyName = "hitsplatScrollColumns", name = "Scroll columns",
+    @ConfigItem(hidden = true, keyName = "hitsplatScrollColumns", name = "Scroll columns",
         description = "Number of columns for scrolling hitsplats.", section = DISPLAY_SECTION, position = 301)
     @Range(min = 1, max = 4)
     default int hitsplatScrollColumns()
@@ -2430,7 +2518,7 @@ public interface OverheadsConfig extends Config
         return 2;
     }
 
-    @ConfigItem(keyName = "hitsplatScrollDistance", name = "Scroll distance",
+    @ConfigItem(hidden = true, keyName = "hitsplatScrollDistance", name = "Scroll distance",
         description = "Pixels travelled over each hitsplat lifetime, before zoom scaling.", section = DISPLAY_SECTION, position = 302)
     @Range(min = 0, max = 256)
     default int hitsplatScrollDistance()
@@ -2438,7 +2526,7 @@ public interface OverheadsConfig extends Config
         return 48;
     }
 
-    @ConfigItem(keyName = "hitsplatPoisonColor", name = "Poison background",
+    @ConfigItem(hidden = true, keyName = "hitsplatPoisonColor", name = "Poison background",
         description = "Modern poison hitsplat background.", section = DISPLAY_SECTION, position = 303)
     @Alpha
     default Color hitsplatPoisonColor()
@@ -2446,7 +2534,7 @@ public interface OverheadsConfig extends Config
         return new Color(66, 132, 42, 235);
     }
 
-    @ConfigItem(keyName = "hitsplatVenomColor", name = "Venom background",
+    @ConfigItem(hidden = true, keyName = "hitsplatVenomColor", name = "Venom background",
         description = "Modern venom hitsplat background.", section = DISPLAY_SECTION, position = 304)
     @Alpha
     default Color hitsplatVenomColor()
@@ -2454,7 +2542,7 @@ public interface OverheadsConfig extends Config
         return new Color(39, 85, 57, 235);
     }
 
-    @ConfigItem(keyName = "hitsplatBurnColor", name = "Burn background",
+    @ConfigItem(hidden = true, keyName = "hitsplatBurnColor", name = "Burn background",
         description = "Modern burn hitsplat background.", section = DISPLAY_SECTION, position = 305)
     @Alpha
     default Color hitsplatBurnColor()
@@ -2462,7 +2550,7 @@ public interface OverheadsConfig extends Config
         return new Color(179, 93, 29, 235);
     }
 
-    @ConfigItem(keyName = "hitsplatMissNumberColor", name = "Miss number color",
+    @ConfigItem(hidden = true, keyName = "hitsplatMissNumberColor", name = "Miss number color",
         description = "Modern and Numbers only miss text color.", section = DISPLAY_SECTION, position = 306)
     @Alpha
     default Color hitsplatMissNumberColor()
@@ -2470,7 +2558,7 @@ public interface OverheadsConfig extends Config
         return Color.WHITE;
     }
 
-    @ConfigItem(keyName = "hitsplatStatusNumberColor", name = "Status number color",
+    @ConfigItem(hidden = true, keyName = "hitsplatStatusNumberColor", name = "Status number color",
         description = "Modern and Numbers only poison, venom and burn text color.", section = DISPLAY_SECTION, position = 307)
     @Alpha
     default Color hitsplatStatusNumberColor()
@@ -2478,7 +2566,7 @@ public interface OverheadsConfig extends Config
         return Color.WHITE;
     }
 
-    @ConfigItem(keyName = "hitsplatBorderColor", name = "Border color",
+    @ConfigItem(hidden = true, keyName = "hitsplatBorderColor", name = "Border color",
         description = "Modern hitsplat border color.", section = DISPLAY_SECTION, position = 308)
     @Alpha
     default Color hitsplatBorderColor()
@@ -2486,7 +2574,7 @@ public interface OverheadsConfig extends Config
         return new Color(255, 255, 255, 95);
     }
 
-    @ConfigItem(keyName = "hitsplatBorderThickness", name = "Border thickness",
+    @ConfigItem(hidden = true, keyName = "hitsplatBorderThickness", name = "Border thickness",
         description = "Modern hitsplat border width. Zero hides the border.", section = DISPLAY_SECTION, position = 309)
     @Range(min = 0, max = 5)
     default int hitsplatBorderThickness()
@@ -2494,7 +2582,7 @@ public interface OverheadsConfig extends Config
         return 1;
     }
 
-    @ConfigItem(keyName = "hitsplatCornerRadius", name = "Corner radius",
+    @ConfigItem(hidden = true, keyName = "hitsplatCornerRadius", name = "Corner radius",
         description = "Modern hitsplat corner roundness. Zero gives square corners.", section = DISPLAY_SECTION, position = 310)
     @Range(min = 0, max = 30)
     default int hitsplatCornerRadius()
@@ -2502,14 +2590,14 @@ public interface OverheadsConfig extends Config
         return 8;
     }
 
-    @ConfigItem(keyName = "hitsplatTextShadow", name = "Number shadow",
+    @ConfigItem(hidden = true, keyName = "hitsplatTextShadow", name = "Number shadow",
         description = "Draw a shadow behind Modern and Numbers only hitsplat text.", section = DISPLAY_SECTION, position = 311)
     default boolean hitsplatTextShadow()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "hitsplatXOffset", name = "X offset",
+    @ConfigItem(hidden = true, keyName = "hitsplatXOffset", name = "X offset",
         description = "Horizontal offset for every replacement hitsplat group.", section = DISPLAY_SECTION, position = 312)
     @Range(min = -256, max = 256)
     default int hitsplatXOffset()
@@ -2517,7 +2605,7 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "hitsplatYOffset", name = "Y offset",
+    @ConfigItem(hidden = true, keyName = "hitsplatYOffset", name = "Y offset",
         description = "Vertical offset for every replacement hitsplat group. Positive moves upward.", section = DISPLAY_SECTION, position = 313)
     @Range(min = -256, max = 256)
     default int hitsplatYOffset()
@@ -2525,204 +2613,204 @@ public interface OverheadsConfig extends Config
         return 0;
     }
 
-    @ConfigItem(keyName = "nativeNpcUiIds", name = "Native NPC UI IDs", description = "Comma-separated NPC IDs that keep their complete original overhead display. Includes transformed IDs.", section = HEALTH_BARS_SECTION, position = 400)
+    @ConfigItem(hidden = true, keyName = "nativeNpcUiIds", name = "Native NPC UI IDs", description = "Comma-separated NPC IDs that keep their complete original overhead display. Includes transformed IDs.", section = HEALTH_BARS_SECTION, position = 400)
     default String nativeNpcUiIds()
     {
         return "";
     }
 
-    @ConfigItem(keyName = "relationshipNames", name = "Relationship name colors", description = "Use distinct colors for player relationships and observable NPC categories.", section = HEAD_ICONS_SECTION, position = 401)
+    @ConfigItem(hidden = true, keyName = "relationshipNames", name = "Relationship name colors", description = "Use distinct colors for player relationships and observable NPC categories.", section = HEAD_ICONS_SECTION, position = 401)
     default boolean relationshipNames()
     {
         return false;
     }
 
     @Alpha
-    @ConfigItem(keyName = "selfNameColor", name = "My name color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 402)
+    @ConfigItem(hidden = true, keyName = "selfNameColor", name = "My name color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 402)
     default Color selfNameColor()
     {
         return new Color(255, 255, 255);
     }
 
     @Alpha
-    @ConfigItem(keyName = "friendNameColor", name = "Friends color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 403)
+    @ConfigItem(hidden = true, keyName = "friendNameColor", name = "Friends color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 403)
     default Color friendNameColor()
     {
         return new Color(100, 235, 140);
     }
 
     @Alpha
-    @ConfigItem(keyName = "clanNameColor", name = "Clan and friends chat color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 404)
+    @ConfigItem(hidden = true, keyName = "clanNameColor", name = "Clan and friends chat color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 404)
     default Color clanNameColor()
     {
         return new Color(190, 150, 255);
     }
 
     @Alpha
-    @ConfigItem(keyName = "partyNameColor", name = "RuneLite party color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 405)
+    @ConfigItem(hidden = true, keyName = "partyNameColor", name = "RuneLite party color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 405)
     default Color partyNameColor()
     {
         return new Color(100, 210, 255);
     }
 
     @Alpha
-    @ConfigItem(keyName = "playerNameColor", name = "Other players color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 406)
+    @ConfigItem(hidden = true, keyName = "playerNameColor", name = "Other players color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 406)
     default Color playerNameColor()
     {
         return new Color(230, 230, 230);
     }
 
     @Alpha
-    @ConfigItem(keyName = "npcNameColor", name = "Other NPCs color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 407)
+    @ConfigItem(hidden = true, keyName = "npcNameColor", name = "Other NPCs color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 407)
     default Color npcNameColor()
     {
         return new Color(255, 220, 100);
     }
 
     @Alpha
-    @ConfigItem(keyName = "followerNameColor", name = "Followers color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 408)
+    @ConfigItem(hidden = true, keyName = "followerNameColor", name = "Followers color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 408)
     default Color followerNameColor()
     {
         return new Color(130, 220, 210);
     }
 
     @Alpha
-    @ConfigItem(keyName = "shopNameColor", name = "Shops color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 409)
+    @ConfigItem(hidden = true, keyName = "shopNameColor", name = "Shops color", description = "Nameplate color, including opacity.", section = HEAD_ICONS_SECTION, position = 409)
     default Color shopNameColor()
     {
         return new Color(255, 175, 100);
     }
 
-    @ConfigItem(keyName = "localBoostPrayerIcons", name = "My active boost prayers", description = "Show your active offensive prayers using the prayer icon frame and placement.", section = HEAD_ICONS_SECTION, position = 410)
+    @ConfigItem(hidden = true, keyName = "localBoostPrayerIcons", name = "My active boost prayers", description = "Show your active offensive prayers using the prayer icon frame and placement.", section = HEAD_ICONS_SECTION, position = 410)
     default boolean localBoostPrayerIcons()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "keepOnScreen", name = "Keep overheads on screen", description = "Keep the actor layout inside the viewport. Oversized layouts are clipped.", section = HEALTH_BARS_SECTION, position = 676)
+    @ConfigItem(hidden = true, keyName = "keepOnScreen", name = "Keep overheads on screen", description = "Keep the actor layout inside the viewport. Oversized layouts are clipped.", section = HEALTH_BARS_SECTION, position = 676)
     default boolean keepOnScreen()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "layoutPreview", name = "Alignment preview", description = "Outline your displayed components while adjusting positions.", section = HEALTH_BARS_SECTION, position = 677)
+    @ConfigItem(hidden = true, keyName = "layoutPreview", name = "Alignment preview", description = "Outline your displayed components while adjusting positions.", section = HEALTH_BARS_SECTION, position = 677)
     default boolean layoutPreview()
     {
         return false;
     }
 
-    @ConfigItem(keyName = "regenDisplay", name = "HP regeneration timer", description = "Estimated natural HP timer from the enabled Regen Meter plugin. Hidden for independent cape timers or unknown timing.", section = HEALTH_BARS_SECTION, position = 678)
+    @ConfigItem(hidden = true, keyName = "regenDisplay", name = "HP regeneration timer", description = "Estimated natural HP timer from the enabled Regen Meter plugin. Hidden for independent cape timers or unknown timing.", section = HEALTH_BARS_SECTION, position = 678)
     default OverheadsBarDisplay regenDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
-    @ConfigItem(keyName = "poisonTimerDisplay", name = "Poison / venom timer", description = "Estimate after an observed poison or venom hit. Hidden until synchronized and when overdue or cured.", section = HEALTH_BARS_SECTION, position = 679)
+    @ConfigItem(hidden = true, keyName = "poisonTimerDisplay", name = "Poison / venom timer", description = "Estimate after an observed poison or venom hit. Hidden until synchronized and when overdue or cured.", section = HEALTH_BARS_SECTION, position = 679)
     default OverheadsBarDisplay poisonTimerDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
-    @ConfigItem(keyName = "partyDisplay", name = "Party resources (opt-in)", description = "Shares your name, HP, prayer, run and special energy with your existing RuneLite party. Shows received member data; ~ marks last received values. Not copied by setups.", section = HEALTH_BARS_SECTION, position = 680)
+    @ConfigItem(hidden = true, keyName = "partyDisplay", name = "Party resources (opt-in)", description = "Shares your name, HP, prayer, run and special energy with your existing RuneLite party. Shows received member data; ~ marks last received values. Not copied by setups.", section = HEALTH_BARS_SECTION, position = 680)
     default OverheadsBarDisplay partyDisplay()
     {
         return OverheadsBarDisplay.HIDDEN;
     }
 
     @Range(min = 5, max = 300)
-    @ConfigItem(keyName = "partyDataLifetime", name = "Party data lifetime", description = "Hide values after this many seconds without an update. Run energy is rounded by RuneLite.", section = HEALTH_BARS_SECTION, position = 681)
+    @ConfigItem(hidden = true, keyName = "partyDataLifetime", name = "Party data lifetime", description = "Hide values after this many seconds without an update. Run energy is rounded by RuneLite.", section = HEALTH_BARS_SECTION, position = 681)
     default int partyDataLifetime()
     {
         return 60;
     }
 
-    @ConfigItem(keyName = "partyShowHealth", name = "Party HP", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 682)
+    @ConfigItem(hidden = true, keyName = "partyShowHealth", name = "Party HP", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 682)
     default boolean partyShowHealth()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "partyShowPrayer", name = "Party Prayer", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 683)
+    @ConfigItem(hidden = true, keyName = "partyShowPrayer", name = "Party Prayer", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 683)
     default boolean partyShowPrayer()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "partyShowRun", name = "Party Run energy", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 684)
+    @ConfigItem(hidden = true, keyName = "partyShowRun", name = "Party Run energy", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 684)
     default boolean partyShowRun()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "partyShowSpecial", name = "Party Special energy", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 685)
+    @ConfigItem(hidden = true, keyName = "partyShowSpecial", name = "Party Special energy", description = "Show this received resource when party data is enabled.", section = HEALTH_BARS_SECTION, position = 685)
     default boolean partyShowSpecial()
     {
         return true;
     }
 
-    @ConfigItem(keyName = "indicatorPosition", name = "Indicator position", description = "Position for local timers and party resources.", section = HEALTH_BARS_SECTION, position = 686)
+    @ConfigItem(hidden = true, keyName = "indicatorPosition", name = "Indicator position", description = "Position for local timers and party resources.", section = HEALTH_BARS_SECTION, position = 686)
     default OverheadsPosition indicatorPosition()
     {
         return OverheadsPosition.RIGHT;
     }
 
-    @ConfigItem(keyName = "indicatorOrientation", name = "Indicator orientation", description = "Horizontal or vertical bars.", section = HEALTH_BARS_SECTION, position = 687)
+    @ConfigItem(hidden = true, keyName = "indicatorOrientation", name = "Indicator orientation", description = "Horizontal or vertical bars.", section = HEALTH_BARS_SECTION, position = 687)
     default OverheadsOrientation indicatorOrientation()
     {
         return OverheadsOrientation.HORIZONTAL;
     }
 
-    @ConfigItem(keyName = "indicatorStyle", name = "Indicator style", description = "OSRS or modern bar appearance.", section = HEALTH_BARS_SECTION, position = 688)
+    @ConfigItem(hidden = true, keyName = "indicatorStyle", name = "Indicator style", description = "OSRS or modern bar appearance.", section = HEALTH_BARS_SECTION, position = 688)
     default OverheadsHealthBarStyle indicatorStyle()
     {
         return OverheadsHealthBarStyle.SOLID;
     }
 
     @Range(min = 20, max = 200)
-    @ConfigItem(keyName = "indicatorWidth", name = "Indicator length", description = "Length in pixels.", section = HEALTH_BARS_SECTION, position = 689)
+    @ConfigItem(hidden = true, keyName = "indicatorWidth", name = "Indicator length", description = "Length in pixels.", section = HEALTH_BARS_SECTION, position = 689)
     default int indicatorWidth()
     {
         return 70;
     }
 
     @Range(min = 2, max = 30)
-    @ConfigItem(keyName = "indicatorHeight", name = "Indicator thickness", description = "Bar thickness in pixels.", section = HEALTH_BARS_SECTION, position = 690)
+    @ConfigItem(hidden = true, keyName = "indicatorHeight", name = "Indicator thickness", description = "Bar thickness in pixels.", section = HEALTH_BARS_SECTION, position = 690)
     default int indicatorHeight()
     {
         return 12;
     }
 
     @Range(min = -300, max = 300)
-    @ConfigItem(keyName = "indicatorXOffset", name = "Indicator X offset", description = "Horizontal offset.", section = HEALTH_BARS_SECTION, position = 691)
+    @ConfigItem(hidden = true, keyName = "indicatorXOffset", name = "Indicator X offset", description = "Horizontal offset.", section = HEALTH_BARS_SECTION, position = 691)
     default int indicatorXOffset()
     {
         return 0;
     }
 
     @Range(min = -300, max = 300)
-    @ConfigItem(keyName = "indicatorYOffset", name = "Indicator Y offset", description = "Positive moves upward.", section = HEALTH_BARS_SECTION, position = 692)
+    @ConfigItem(hidden = true, keyName = "indicatorYOffset", name = "Indicator Y offset", description = "Positive moves upward.", section = HEALTH_BARS_SECTION, position = 692)
     default int indicatorYOffset()
     {
         return 0;
     }
 
-    @ConfigItem(keyName = "indicatorScaleWithZoom", name = "Scale indicators with zoom", description = "Resize indicators with camera zoom.", section = HEALTH_BARS_SECTION, position = 693)
+    @ConfigItem(hidden = true, keyName = "indicatorScaleWithZoom", name = "Scale indicators with zoom", description = "Resize indicators with camera zoom.", section = HEALTH_BARS_SECTION, position = 693)
     default boolean indicatorScaleWithZoom()
     {
         return false;
     }
 
     @Range(min = 0, max = 100)
-    @ConfigItem(keyName = "indicatorOpacity", name = "Indicator opacity", description = "Opacity for bars and their numbers.", section = HEALTH_BARS_SECTION, position = 694)
+    @ConfigItem(hidden = true, keyName = "indicatorOpacity", name = "Indicator opacity", description = "Opacity for bars and their numbers.", section = HEALTH_BARS_SECTION, position = 694)
     default int indicatorOpacity()
     {
         return 100;
     }
-    @ConfigItem(keyName = "runHideWhenFull", name = "Hide full run energy",
+    @ConfigItem(hidden = true, keyName = "runHideWhenFull", name = "Hide full run energy",
         description = "Hide your run-energy numbers and bar while energy is completely full.", section = RUN_SECTION, position = 710)
     default boolean runHideWhenFull() { return false; }
 
-    @ConfigItem(keyName = "specialHideWhenFull", name = "Hide full special energy",
+    @ConfigItem(hidden = true, keyName = "specialHideWhenFull", name = "Hide full special energy",
         description = "Hide your special-attack numbers and bar while energy is completely full.", section = SPECIAL_SECTION, position = 711)
     default boolean specialHideWhenFull() { return false; }
 
