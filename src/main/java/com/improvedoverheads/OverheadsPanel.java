@@ -777,27 +777,19 @@ final class OverheadsPanel extends PluginPanel
             if ((scope == OverheadsProfiles.Scope.NPCS || scope == OverheadsProfiles.Scope.PLAYERS) && (component == OverheadsComponent.PRAYER || component == OverheadsComponent.RUN || component == OverheadsComponent.SPECIAL || component == OverheadsComponent.TIMERS)) { continue; }
             available.add(component);
             JPanel basic = column();
-            JPanel advanced = column();
             settingRows.forEach((key, row) ->
             {
                 if (OverheadsComponent.forKey(key) != component) { return; }
                 if (row.getParent() != null) { row.getParent().remove(row); }
-                if (component != OverheadsComponent.HEALTH) (basicSetting(key) ? basic : advanced).add(row);
             });
-            if (component == OverheadsComponent.HEALTH)
+            for (String section : new String[]{"Display", "Party sharing", "Styling", "Position and size", "Effects", "Animation", "Large targets", "Damage trail", "Segments", "Restore and warnings", "Status icons"})
             {
-                for (String section : new String[]{"Display", "Styling", "Position and size", "Damage trail", "Segments", "Restore and warnings"})
+                if (settingRows.keySet().stream().noneMatch(key -> OverheadsComponent.forKey(key) == component && sectionName(component, key).equals(section))) continue;
+                section(basic, section, content -> settingRows.forEach((key, row) ->
                 {
-                    section(basic, section, content -> settingRows.forEach((key, row) ->
-                    {
-                        if (OverheadsComponent.forKey(key) == component && healthSection(key).equals(section)) content.add(row);
-                    }));
-                }
+                    if (OverheadsComponent.forKey(key) == component && sectionName(component, key).equals(section)) content.add(row);
+                }));
             }
-            JToggleButton expand = new JToggleButton("More settings");
-            advanced.setVisible(false);
-            expand.addActionListener(event -> { advanced.setVisible(expand.isSelected()); revalidate(); });
-            if (component != OverheadsComponent.HEALTH) { basic.add(expand); basic.add(advanced); }
             if (component == OverheadsComponent.HITS)
             {
                 JButton themes = new JButton("Hitsplat themes");
@@ -858,13 +850,27 @@ final class OverheadsPanel extends PluginPanel
         return "Styling";
     }
 
-    private static boolean basicSetting(String key)
+    private static String sectionName(OverheadsComponent component, String key)
     {
-        return key.startsWith("partyShow") || key.endsWith("Display") || key.equals("healthBarsEnabled")
-            || key.equals("overheadChatEnabled") || key.equals("headIconsEnabled") || key.endsWith("Visibility") || key.endsWith("Style")
-            || key.equals("alwaysShowSelfHealth") || key.equals("showNpcOverheadChat") || key.equals("showPrayerIcons")
-            || key.equals("showSkullIcons") || key.equals("showNpcIcons") || key.startsWith("disable")
-            || key.equals("overheadChatFont") || key.equals("overheadChatColor") || key.equals("hitsplatMotion");
+        if (component == OverheadsComponent.HEALTH) return healthSection(key);
+        if (component == OverheadsComponent.LAYOUT) return "Display";
+        if (component == OverheadsComponent.TIMERS && key.startsWith("party")) return "Party sharing";
+        if (key.startsWith("largeTarget")) return "Large targets";
+        if (key.startsWith("fade") || key.equals("fullOpacityDuration") || key.equals("hitsplatMotion") || key.startsWith("hitsplatScroll")) return "Animation";
+        if (key.equals("overheadChatEffect")) return "Effects";
+        if (key.startsWith("status") || key.equals("showStatusIcons") || key.equals("showTargetingIcon")) return "Status icons";
+        if (key.startsWith("prayerRestore") || key.startsWith("lowPrayer") || key.equals("prayerLowColor")
+            || key.startsWith("prayerTick")) return "Restore and warnings";
+        if (!key.equals("spriteScalingMode") && (key.contains("Offset") || key.contains("Width") || key.contains("Height")
+            || key.contains("Scale") || key.contains("Spacing") || key.endsWith("Position") || key.endsWith("Orientation")
+            || key.startsWith("layout") || key.endsWith("Radius") && !key.contains("Corner"))) return "Position and size";
+        if (key.startsWith("partyShow") || key.endsWith("Display") || key.endsWith("Visibility") || key.endsWith("HideWhenFull")
+            || key.equals("overheadChatEnabled") || key.equals("headIconsEnabled") || key.startsWith("disable")
+            || key.equals("showNpcOverheadChat") || key.equals("showPrayerIcons") || key.equals("showSkullIcons")
+            || key.equals("showNpcIcons") || key.equals("showHintArrows") || key.equals("localBoostPrayerIcons")
+            || key.equals("maxHitsplats") || key.equals("reuseOldHitsplatSlots") || key.equals("hitsplatReuseInterval")
+            || key.equals("onlyDisplayMine") || key.equals("prioritizeMine") || key.equals("hideZeroHitsplats")) return "Display";
+        return "Styling";
     }
 
     void refresh()
@@ -876,6 +882,7 @@ final class OverheadsPanel extends PluginPanel
             settingRows.forEach((key, row) -> row.setVisible(settingVisible(key)));
             sections.forEach((content, toggle) -> {
                 boolean visible = java.util.Arrays.stream(content.getComponents()).anyMatch(java.awt.Component::isVisible);
+                toggle.getParent().setVisible(visible);
                 toggle.setVisible(visible);
                 content.setVisible(visible && toggle.isSelected());
             });
@@ -934,7 +941,7 @@ final class OverheadsPanel extends PluginPanel
         details.setVisible(false);
         details.setAlignmentX(LEFT_ALIGNMENT);
         JToggleButton expand = new JToggleButton(title);
-        expand.setSelected(title.equals("Display"));
+        expand.setSelected(title.equals("Display") || title.equals("Party sharing"));
         details.setVisible(expand.isSelected());
         sections.put(details, expand);
         expand.setAlignmentX(LEFT_ALIGNMENT);
@@ -945,9 +952,11 @@ final class OverheadsPanel extends PluginPanel
             revalidate();
             repaint();
         });
-        content.add(Box.createVerticalStrut(5));
-        content.add(expand);
-        content.add(details);
+        JPanel group = column();
+        group.add(Box.createVerticalStrut(5));
+        group.add(expand);
+        group.add(details);
+        content.add(group);
     }
 
     private void addTab(String name, Consumer<JPanel> basicBuilder, Consumer<JPanel> advancedBuilder)
@@ -1161,6 +1170,7 @@ final class OverheadsPanel extends PluginPanel
         boolean self = scope == OverheadsProfiles.Scope.SELF || scope == OverheadsProfiles.Scope.UNIVERSAL;
         boolean npc = scope == OverheadsProfiles.Scope.NPCS;
         boolean players = scope == OverheadsProfiles.Scope.PLAYERS || scope == OverheadsProfiles.Scope.PARTY;
+        if (key.startsWith("indicator") && scope == OverheadsProfiles.Scope.PARTY) { return false; }
         if (key.startsWith("partyShow") && scope != OverheadsProfiles.Scope.PARTY && scope != OverheadsProfiles.Scope.UNIVERSAL) { return false; }
         if (players && (key.equals("prayerVisibility") || key.equals("prayerTickIndicator") || key.equals("prayerTickColor") || key.startsWith("prayerRestore") || key.equals("prayerLowColor") || key.equals("lowPrayerThreshold"))) { return false; }
         if ((key.equals("partyDisplay") || key.equals("partyDataLifetime")) && scope != OverheadsProfiles.Scope.PARTY) { return false; }

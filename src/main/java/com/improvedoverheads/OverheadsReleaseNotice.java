@@ -26,7 +26,7 @@ public final class OverheadsReleaseNotice
         "Universal controls apply the selected component to all actor groups when requested.",
         "Share named setups and hitsplat themes with JSON; Undo restores the last applied changes.",
         "Optional run and special-energy displays can hide while full.",
-        "Health display, styling, positioning and damage trails have separate side-panel sections.",
+        "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
         "Round and square prayer icon backgrounds can drain and refill with prayer points.",
     };
 

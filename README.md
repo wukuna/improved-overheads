@@ -2,6 +2,8 @@
 
 Customize overhead chat, HP, prayer points, hitsplats, and head icons from the Chat, Bars, Icons, Hits and More sidebar tabs. Select My player, Party, Other players or NPCs before editing. Each actor group keeps its own appearance settings; Universal applies only the selected component when you click Apply to all.
 
+The regular settings menu contains four quick visibility toggles for your own player: overhead chat, health, head icons and hitsplats. Use the side panel for colors, fonts, sizes, placement, animations, resource displays, party sharing and all other settings. Each component separates its display controls from styling and placement; applicable sections provide effects, damage trails, segments and restoration options.
+
 * Health, Prayer, Run energy and Special energy have separate sections. Choose Numbers only, Bar only or Both for each supported resource.
 * Hide HP independently for yourself, NPCs, or other players. Choose current, current / maximum, or percentage readouts for your own HP and prayer.
 * Place overheads above, below, left, or right of the actor, with adjustable offsets and optional camera zoom scaling.
