@@ -59,6 +59,18 @@ public class OverheadsOverlay extends Overlay
 	private final OverheadsOverheadChatRenderer overheadChatRenderer;
 	private final OverheadsLocalChatEffectTracker localChatEffectTracker;
 	private final OverheadsExtrasRenderer extras;
+    private final OverheadsRestorationSplats restoration;
+    @Inject
+    void configureRestorationIcons(net.runelite.client.game.SkillIconManager icons)
+    {
+        restoration.setIcons(icons);
+    }
+
+    void statChanged(net.runelite.api.events.StatChanged event)
+    {
+        restoration.changed(event);
+    }
+
     private OverheadsIndicators indicators;
     private OverheadsProfiles profiles;
     @Inject
@@ -105,6 +117,7 @@ public class OverheadsOverlay extends Overlay
 		OverheadsLocalChatEffectTracker localChatEffectTracker)
 	{
 		this.client = client;
+        this.restoration = new OverheadsRestorationSplats(client, config);
 		this.sprites = new OverheadsActorUiSpriteCache(client);
 		this.plugin = plugin;
 		this.config = config;
@@ -236,7 +249,8 @@ public class OverheadsOverlay extends Overlay
 					boolean projectActorTop = needsActorTop(
 						renderHealthBar,
 						renderHeadIcons,
-						renderChat) || drawOthers && (extras.hasContent(actor) || indicators != null && indicators.hasContent(actor));
+						renderChat) || drawOthers && (extras.hasContent(actor) || indicators != null && indicators.hasContent(actor)
+                            || actor == localPlayer && restoration.hasContent());
 					int projectionHeight = projectActorTop
 						? actorProjectionHeight(actorBaseOverheadHeight(actor, gameCycle))
 						: 0;
@@ -325,6 +339,7 @@ public class OverheadsOverlay extends Overlay
 							gameCycle,
 							actorScale, collision);
 					}
+                    if (drawOthers && actor == localPlayer) restoration.render(overlayGraphics, localPlayer, actorTop, collision);
 	                if (collision != null)
 	                {
 	                    collision.render();
@@ -343,6 +358,7 @@ public class OverheadsOverlay extends Overlay
 	void gameTick()
 	{
 		healthBarRenderer.vitals().gameTick();
+        restoration.tick();
 	}
 
 	void clientTick()
@@ -353,6 +369,7 @@ public class OverheadsOverlay extends Overlay
 	void clearVitals()
 	{
 		healthBarRenderer.vitals().clear();
+        restoration.clear();
 	}
 
 	void reflow()
@@ -838,6 +855,7 @@ public class OverheadsOverlay extends Overlay
 
 	void clearCaches()
 	{
+        restoration.clearSplats();
 		hitmarkDefinitions.clear();
 		sprites.clear();
 		npcOverheadHeights.clear();

@@ -4,7 +4,7 @@ enum OverheadsComponent
 {
     HEALTH("Health"), PRAYER("Prayer"), RUN("Run energy"), SPECIAL("Special energy"),
     CHAT("Chat"), ICONS("Prayer and head icons"), HITS("Hitsplats"), NAMES("Names and status"),
-    TIMERS("Timers and party"), LAYOUT("Spacing");
+    HEALING("Healing"), RESTORATION("Prayer restoration"), TIMERS("Timers and party"), LAYOUT("Spacing");
 
     private final String label;
     OverheadsComponent(String label) { this.label = label; }
@@ -12,6 +12,8 @@ enum OverheadsComponent
 
     static OverheadsComponent forKey(String key)
     {
+        if (key.startsWith("healingSplat")) return HEALING;
+        if (key.startsWith("prayerSplat")) return RESTORATION;
         if (key.startsWith("overheadChat") || key.startsWith("chat") || key.equals("showNpcOverheadChat")) return CHAT;
         if (key.equals("partyShowHealth")) return HEALTH;
         if (key.equals("partyShowPrayer")) return PRAYER;

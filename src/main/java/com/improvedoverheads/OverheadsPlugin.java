@@ -181,6 +181,12 @@ public class OverheadsPlugin extends Plugin
     }
 
     @Subscribe
+    public void onStatChanged(net.runelite.api.events.StatChanged event)
+    {
+        if (running) overlay.statChanged(event);
+    }
+
+    @Subscribe
     public void onClientTick(ClientTick event)
     {
         overlay.clientTick();

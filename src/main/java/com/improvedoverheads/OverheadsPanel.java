@@ -782,6 +782,34 @@ final class OverheadsPanel extends PluginPanel
                 number(group, "statusIconSize", "Status icon size",
                     "Status badge size in pixels.", config::statusIconSize, 10, 40);
             });
+        addTab("Healing", restores ->
+        {
+            toggle(restores, "healingSplatEnabled", "Enabled", "Show actual increases in your HP, including food, regeneration and healing effects.", config::healingSplatEnabled);
+            choice(restores, "healingSplatDisplay", "Display", "Show an icon, restored amount, or both.", config::healingSplatDisplay, OverheadsRestoreDisplay.values());
+            color(restores, "healingSplatColor", "Number color", "Color and alpha of the restored amount.", config::healingSplatColor);
+            font(restores, "healingSplatFont", "Number font", "Font and size of the restored amount.", config::healingSplatFont);
+            number(restores, "healingSplatOpacity", "Opacity", "Opacity of the icon and number.", config::healingSplatOpacity, 0, 100);
+            number(restores, "healingSplatDuration", "Duration (ms)", "Time each restoration splat remains visible.", config::healingSplatDuration, 200, 5000);
+            choice(restores, "healingSplatPosition", "Position", "Native places splats on your character; other positions use overhead spacing.", config::healingSplatPosition, OverheadsHitsplatPosition.values());
+            number(restores, "healingSplatXOffset", "X offset", "Horizontal offset in pixels.", config::healingSplatXOffset, -300, 300);
+            number(restores, "healingSplatYOffset", "Y offset", "Vertical offset in pixels. Positive moves upward.", config::healingSplatYOffset, -300, 300);
+            number(restores, "healingSplatScalePercent", "Scale (%)", "Scale the icon and number together.", config::healingSplatScalePercent, 25, 300);
+            toggle(restores, "healingSplatScaleWithZoom", "Scale with zoom", "Scale with camera zoom.", config::healingSplatScaleWithZoom);
+        });
+        addTab("Prayer restoration", restores ->
+        {
+            toggle(restores, "prayerSplatEnabled", "Enabled", "Show actual increases in your prayer points.", config::prayerSplatEnabled);
+            choice(restores, "prayerSplatDisplay", "Display", "Show an icon, restored amount, or both.", config::prayerSplatDisplay, OverheadsRestoreDisplay.values());
+            color(restores, "prayerSplatColor", "Number color", "Color and alpha of the restored amount.", config::prayerSplatColor);
+            font(restores, "prayerSplatFont", "Number font", "Font and size of the restored amount.", config::prayerSplatFont);
+            number(restores, "prayerSplatOpacity", "Opacity", "Opacity of the icon and number.", config::prayerSplatOpacity, 0, 100);
+            number(restores, "prayerSplatDuration", "Duration (ms)", "Time each restoration splat remains visible.", config::prayerSplatDuration, 200, 5000);
+            choice(restores, "prayerSplatPosition", "Position", "Native places splats on your character; other positions use overhead spacing.", config::prayerSplatPosition, OverheadsHitsplatPosition.values());
+            number(restores, "prayerSplatXOffset", "X offset", "Horizontal offset in pixels.", config::prayerSplatXOffset, -300, 300);
+            number(restores, "prayerSplatYOffset", "Y offset", "Vertical offset in pixels. Positive moves upward.", config::prayerSplatYOffset, -300, 300);
+            number(restores, "prayerSplatScalePercent", "Scale (%)", "Scale the icon and number together.", config::prayerSplatScalePercent, 25, 300);
+            toggle(restores, "prayerSplatScaleWithZoom", "Scale with zoom", "Scale with camera zoom.", config::prayerSplatScaleWithZoom);
+        });
         organizeComponents();
         if (selected >= 0 && selected < tabs.getTabCount())
         {
@@ -800,7 +828,7 @@ final class OverheadsPanel extends PluginPanel
         componentTab("Chat", OverheadsComponent.CHAT);
         componentTab("Bars", OverheadsComponent.HEALTH, OverheadsComponent.PRAYER, OverheadsComponent.RUN, OverheadsComponent.SPECIAL);
         componentTab("Icons", OverheadsComponent.ICONS);
-        componentTab("Hits", OverheadsComponent.HITS);
+        componentTab("Hits", OverheadsComponent.HITS, OverheadsComponent.HEALING, OverheadsComponent.RESTORATION);
         componentTab("More", OverheadsComponent.NAMES, OverheadsComponent.TIMERS, OverheadsComponent.LAYOUT);
     }
 
@@ -814,6 +842,7 @@ final class OverheadsPanel extends PluginPanel
         for (OverheadsComponent component : components)
         {
             if ((scope == OverheadsProfiles.Scope.NPCS || scope == OverheadsProfiles.Scope.PLAYERS) && (component == OverheadsComponent.PRAYER || component == OverheadsComponent.RUN || component == OverheadsComponent.SPECIAL || component == OverheadsComponent.TIMERS)) { continue; }
+            if (scope != OverheadsProfiles.Scope.SELF && (component == OverheadsComponent.HEALING || component == OverheadsComponent.RESTORATION)) continue;
             available.add(component);
             sectionContext = scope.name() + "/" + component.name();
             JPanel basic = column();
@@ -898,6 +927,13 @@ final class OverheadsPanel extends PluginPanel
 
     private static String sectionName(OverheadsComponent component, String key)
     {
+        if (component == OverheadsComponent.HEALING || component == OverheadsComponent.RESTORATION)
+        {
+            if (key.endsWith("Enabled") || key.endsWith("Display")) return "Display";
+            if (key.endsWith("Duration")) return "Animation";
+            if (key.endsWith("Position") || key.contains("Offset") || key.contains("Scale")) return "Position and size";
+            return "Styling";
+        }
         if (component == OverheadsComponent.HEALTH) return healthSection(key);
         if (key.startsWith("prayerIconRow2")) return "Row 2 background";
         if (key.equals("showPrayerIconBackground") || key.equals("prayerIconShape") || key.equals("prayerIconBackground")
@@ -1278,6 +1314,15 @@ final class OverheadsPanel extends PluginPanel
     private boolean settingVisible(String key)
     {
         boolean self = scope == OverheadsProfiles.Scope.SELF;
+        if (key.startsWith("healingSplat") || key.startsWith("prayerSplat"))
+        {
+            if (!self) return false;
+            boolean prayer = key.startsWith("prayerSplat");
+            if (key.endsWith("Enabled")) return true;
+            if (!(prayer ? config.prayerSplatEnabled() : config.healingSplatEnabled())) return false;
+            OverheadsRestoreDisplay display = prayer ? config.prayerSplatDisplay() : config.healingSplatDisplay();
+            return !(key.endsWith("Color") || key.endsWith("Font")) || display != OverheadsRestoreDisplay.ICON_ONLY;
+        }
         boolean npc = scope == OverheadsProfiles.Scope.NPCS;
         boolean players = scope == OverheadsProfiles.Scope.PLAYERS || scope == OverheadsProfiles.Scope.PARTY;
         if (key.startsWith("indicator") && scope == OverheadsProfiles.Scope.PARTY) { return false; }

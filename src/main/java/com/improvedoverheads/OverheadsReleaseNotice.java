@@ -28,6 +28,7 @@ public final class OverheadsReleaseNotice
         "Optional run and special-energy displays can hide while full.",
         "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
         "Protection and combat/misc prayers have separate sizes, positions and two-row layouts; each row has independent backgrounds and prayer-point drain effects.",
+        "Show healing and prayer-restoration splats independently, with separate display, styling and placement controls.",
         "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
     };
 

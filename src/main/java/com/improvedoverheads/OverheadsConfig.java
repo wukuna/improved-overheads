@@ -31,6 +31,106 @@ public interface OverheadsConfig extends Config
         return 4;
     }
 
+    @ConfigItem(hidden = true, keyName = "healingSplatEnabled", name = "Healing: Enabled",
+        description = "Show actual increases in your HP, including food, regeneration and healing effects.", position = 3300)
+    default boolean healingSplatEnabled() { return false; }
+
+    @ConfigItem(hidden = true, keyName = "healingSplatDisplay", name = "Healing: Display",
+        description = "Show an icon, restored amount, or both.", position = 3301)
+    default OverheadsRestoreDisplay healingSplatDisplay() { return OverheadsRestoreDisplay.ICON_AND_NUMBER; }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "healingSplatColor", name = "Healing: Number color",
+        description = "Color and alpha of the restored amount.", position = 3302)
+    default Color healingSplatColor() { return new Color(105, 240, 135); }
+
+    @ConfigItem(hidden = true, keyName = "healingSplatFont", name = "Healing: Number font",
+        description = "Font and size of the restored amount.", position = 3303)
+    default FontType healingSplatFont() { return FontType.SMALL; }
+
+    @Range(min = 0, max = 100)
+    @ConfigItem(hidden = true, keyName = "healingSplatOpacity", name = "Healing: Opacity",
+        description = "Opacity of the icon and number.", position = 3304)
+    default int healingSplatOpacity() { return 100; }
+
+    @Range(min = 200, max = 5000)
+    @ConfigItem(hidden = true, keyName = "healingSplatDuration", name = "Healing: Duration (ms)",
+        description = "Time each restoration splat remains visible.", position = 3305)
+    default int healingSplatDuration() { return 1200; }
+
+    @ConfigItem(hidden = true, keyName = "healingSplatPosition", name = "Healing: Position",
+        description = "Native places splats on your character; other positions use overhead spacing.", position = 3306)
+    default OverheadsHitsplatPosition healingSplatPosition() { return OverheadsHitsplatPosition.NATIVE; }
+
+    @Range(min = -300, max = 300)
+    @ConfigItem(hidden = true, keyName = "healingSplatXOffset", name = "Healing: X offset",
+        description = "Horizontal offset in pixels.", position = 3307)
+    default int healingSplatXOffset() { return -24; }
+
+    @Range(min = -300, max = 300)
+    @ConfigItem(hidden = true, keyName = "healingSplatYOffset", name = "Healing: Y offset",
+        description = "Vertical offset in pixels. Positive moves upward.", position = 3308)
+    default int healingSplatYOffset() { return 0; }
+
+    @Range(min = 25, max = 300)
+    @ConfigItem(hidden = true, keyName = "healingSplatScalePercent", name = "Healing: Scale (%)",
+        description = "Scale the icon and number together.", position = 3309)
+    default int healingSplatScalePercent() { return 100; }
+
+    @ConfigItem(hidden = true, keyName = "healingSplatScaleWithZoom", name = "Healing: Scale with zoom",
+        description = "Scale with camera zoom.", position = 3310)
+    default boolean healingSplatScaleWithZoom() { return false; }
+
+    @ConfigItem(hidden = true, keyName = "prayerSplatEnabled", name = "Prayer restoration: Enabled",
+        description = "Show actual increases in your prayer points.", position = 3300)
+    default boolean prayerSplatEnabled() { return false; }
+
+    @ConfigItem(hidden = true, keyName = "prayerSplatDisplay", name = "Prayer restoration: Display",
+        description = "Show an icon, restored amount, or both.", position = 3301)
+    default OverheadsRestoreDisplay prayerSplatDisplay() { return OverheadsRestoreDisplay.ICON_AND_NUMBER; }
+
+    @Alpha
+    @ConfigItem(hidden = true, keyName = "prayerSplatColor", name = "Prayer restoration: Number color",
+        description = "Color and alpha of the restored amount.", position = 3302)
+    default Color prayerSplatColor() { return new Color(110, 215, 255); }
+
+    @ConfigItem(hidden = true, keyName = "prayerSplatFont", name = "Prayer restoration: Number font",
+        description = "Font and size of the restored amount.", position = 3303)
+    default FontType prayerSplatFont() { return FontType.SMALL; }
+
+    @Range(min = 0, max = 100)
+    @ConfigItem(hidden = true, keyName = "prayerSplatOpacity", name = "Prayer restoration: Opacity",
+        description = "Opacity of the icon and number.", position = 3304)
+    default int prayerSplatOpacity() { return 100; }
+
+    @Range(min = 200, max = 5000)
+    @ConfigItem(hidden = true, keyName = "prayerSplatDuration", name = "Prayer restoration: Duration (ms)",
+        description = "Time each restoration splat remains visible.", position = 3305)
+    default int prayerSplatDuration() { return 1200; }
+
+    @ConfigItem(hidden = true, keyName = "prayerSplatPosition", name = "Prayer restoration: Position",
+        description = "Native places splats on your character; other positions use overhead spacing.", position = 3306)
+    default OverheadsHitsplatPosition prayerSplatPosition() { return OverheadsHitsplatPosition.NATIVE; }
+
+    @Range(min = -300, max = 300)
+    @ConfigItem(hidden = true, keyName = "prayerSplatXOffset", name = "Prayer restoration: X offset",
+        description = "Horizontal offset in pixels.", position = 3307)
+    default int prayerSplatXOffset() { return 24; }
+
+    @Range(min = -300, max = 300)
+    @ConfigItem(hidden = true, keyName = "prayerSplatYOffset", name = "Prayer restoration: Y offset",
+        description = "Vertical offset in pixels. Positive moves upward.", position = 3308)
+    default int prayerSplatYOffset() { return 0; }
+
+    @Range(min = 25, max = 300)
+    @ConfigItem(hidden = true, keyName = "prayerSplatScalePercent", name = "Prayer restoration: Scale (%)",
+        description = "Scale the icon and number together.", position = 3309)
+    default int prayerSplatScalePercent() { return 100; }
+
+    @ConfigItem(hidden = true, keyName = "prayerSplatScaleWithZoom", name = "Prayer restoration: Scale with zoom",
+        description = "Scale with camera zoom.", position = 3310)
+    default boolean prayerSplatScaleWithZoom() { return false; }
+
     String PRAYER_SECTION = "prayerBar";
     String RUN_SECTION = "runBar";
     String SPECIAL_SECTION = "specialBar";

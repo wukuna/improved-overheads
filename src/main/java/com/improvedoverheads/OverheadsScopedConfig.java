@@ -19,6 +19,29 @@ final class OverheadsScopedConfig implements OverheadsConfig
         this.group = group;
     }
 
+    @Override public boolean healingSplatEnabled() { return read("healingSplatEnabled", Boolean.class, DEFAULTS::healingSplatEnabled); }
+    @Override public OverheadsRestoreDisplay healingSplatDisplay() { return read("healingSplatDisplay", OverheadsRestoreDisplay.class, DEFAULTS::healingSplatDisplay); }
+    @Override public Color healingSplatColor() { return read("healingSplatColor", Color.class, DEFAULTS::healingSplatColor); }
+    @Override public FontType healingSplatFont() { return read("healingSplatFont", FontType.class, DEFAULTS::healingSplatFont); }
+    @Override public int healingSplatOpacity() { return read("healingSplatOpacity", Integer.class, DEFAULTS::healingSplatOpacity); }
+    @Override public int healingSplatDuration() { return read("healingSplatDuration", Integer.class, DEFAULTS::healingSplatDuration); }
+    @Override public OverheadsHitsplatPosition healingSplatPosition() { return read("healingSplatPosition", OverheadsHitsplatPosition.class, DEFAULTS::healingSplatPosition); }
+    @Override public int healingSplatXOffset() { return read("healingSplatXOffset", Integer.class, DEFAULTS::healingSplatXOffset); }
+    @Override public int healingSplatYOffset() { return read("healingSplatYOffset", Integer.class, DEFAULTS::healingSplatYOffset); }
+    @Override public int healingSplatScalePercent() { return read("healingSplatScalePercent", Integer.class, DEFAULTS::healingSplatScalePercent); }
+    @Override public boolean healingSplatScaleWithZoom() { return read("healingSplatScaleWithZoom", Boolean.class, DEFAULTS::healingSplatScaleWithZoom); }
+    @Override public boolean prayerSplatEnabled() { return read("prayerSplatEnabled", Boolean.class, DEFAULTS::prayerSplatEnabled); }
+    @Override public OverheadsRestoreDisplay prayerSplatDisplay() { return read("prayerSplatDisplay", OverheadsRestoreDisplay.class, DEFAULTS::prayerSplatDisplay); }
+    @Override public Color prayerSplatColor() { return read("prayerSplatColor", Color.class, DEFAULTS::prayerSplatColor); }
+    @Override public FontType prayerSplatFont() { return read("prayerSplatFont", FontType.class, DEFAULTS::prayerSplatFont); }
+    @Override public int prayerSplatOpacity() { return read("prayerSplatOpacity", Integer.class, DEFAULTS::prayerSplatOpacity); }
+    @Override public int prayerSplatDuration() { return read("prayerSplatDuration", Integer.class, DEFAULTS::prayerSplatDuration); }
+    @Override public OverheadsHitsplatPosition prayerSplatPosition() { return read("prayerSplatPosition", OverheadsHitsplatPosition.class, DEFAULTS::prayerSplatPosition); }
+    @Override public int prayerSplatXOffset() { return read("prayerSplatXOffset", Integer.class, DEFAULTS::prayerSplatXOffset); }
+    @Override public int prayerSplatYOffset() { return read("prayerSplatYOffset", Integer.class, DEFAULTS::prayerSplatYOffset); }
+    @Override public int prayerSplatScalePercent() { return read("prayerSplatScalePercent", Integer.class, DEFAULTS::prayerSplatScalePercent); }
+    @Override public boolean prayerSplatScaleWithZoom() { return read("prayerSplatScaleWithZoom", Boolean.class, DEFAULTS::prayerSplatScaleWithZoom); }
+
     void invalidate() { values = new ConcurrentHashMap<>(); }
 
     private <T> T read(String key, Class<T> type, java.util.function.Supplier<T> fallback)

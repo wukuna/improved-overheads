@@ -22,6 +22,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 * Customize Modern hitsplat backgrounds for damage, misses, poison, venom, and burn, with separate damage/miss/status number colors, borders, rounded corners, and shadows.
 * Scroll hitsplats upward or downward in one to four columns, with adjustable travel distance and spacing.
 * Open Hits → Hitsplat themes to start from a preset or save up to 12 named themes. Copy and import theme JSON with a change preview; themes leave hit filters and other overhead components unchanged.
+* Enable My player → Hits → Healing or Prayer restoration for separate floating splats after your HP or prayer points increase. Choose icons, numbers or both, with independent fonts, colors, opacity, duration, position and zoom scaling. Healing includes food, regeneration and other observed heals. Both start disabled; turn off Vitality when using these displays to avoid duplicates. These are separate from the item-hover previews.
 * Preview HP and prayer restored by the inventory item under your pointer, using RuneLite's Item Stats calculations.
 * Add low-HP and low-prayer colors, plus an optional prayer tick sweep that flashes when your points decrease.
 * Optionally hide the local run-energy and special-attack displays independently while full. Numbers and bars return as soon as energy drops.

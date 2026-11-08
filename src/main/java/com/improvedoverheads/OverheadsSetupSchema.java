@@ -42,6 +42,28 @@ final class OverheadsSetupSchema
 
     OverheadsSetupSchema(OverheadsConfig config)
     {
+        add("healingSplatEnabled", "Healing: Enabled", config::healingSplatEnabled, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
+        add("healingSplatDisplay", "Healing: Display", config::healingSplatDisplay, value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsRestoreDisplay.values()));
+        add("healingSplatColor", "Healing: Number color", config::healingSplatColor, OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("healingSplatFont", "Healing: Number font", config::healingSplatFont, OverheadsSetupSchema::fontJson, OverheadsSetupSchema::fontValue);
+        add("healingSplatOpacity", "Healing: Opacity", config::healingSplatOpacity, JsonPrimitive::new, value -> integerValue(value, 0, 100));
+        add("healingSplatDuration", "Healing: Duration (ms)", config::healingSplatDuration, JsonPrimitive::new, value -> integerValue(value, 200, 5000));
+        add("healingSplatPosition", "Healing: Position", config::healingSplatPosition, value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsHitsplatPosition.values()));
+        add("healingSplatXOffset", "Healing: X offset", config::healingSplatXOffset, JsonPrimitive::new, value -> integerValue(value, -300, 300));
+        add("healingSplatYOffset", "Healing: Y offset", config::healingSplatYOffset, JsonPrimitive::new, value -> integerValue(value, -300, 300));
+        add("healingSplatScalePercent", "Healing: Scale (%)", config::healingSplatScalePercent, JsonPrimitive::new, value -> integerValue(value, 25, 300));
+        add("healingSplatScaleWithZoom", "Healing: Scale with zoom", config::healingSplatScaleWithZoom, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
+        add("prayerSplatEnabled", "Prayer restoration: Enabled", config::prayerSplatEnabled, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
+        add("prayerSplatDisplay", "Prayer restoration: Display", config::prayerSplatDisplay, value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsRestoreDisplay.values()));
+        add("prayerSplatColor", "Prayer restoration: Number color", config::prayerSplatColor, OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
+        add("prayerSplatFont", "Prayer restoration: Number font", config::prayerSplatFont, OverheadsSetupSchema::fontJson, OverheadsSetupSchema::fontValue);
+        add("prayerSplatOpacity", "Prayer restoration: Opacity", config::prayerSplatOpacity, JsonPrimitive::new, value -> integerValue(value, 0, 100));
+        add("prayerSplatDuration", "Prayer restoration: Duration (ms)", config::prayerSplatDuration, JsonPrimitive::new, value -> integerValue(value, 200, 5000));
+        add("prayerSplatPosition", "Prayer restoration: Position", config::prayerSplatPosition, value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsHitsplatPosition.values()));
+        add("prayerSplatXOffset", "Prayer restoration: X offset", config::prayerSplatXOffset, JsonPrimitive::new, value -> integerValue(value, -300, 300));
+        add("prayerSplatYOffset", "Prayer restoration: Y offset", config::prayerSplatYOffset, JsonPrimitive::new, value -> integerValue(value, -300, 300));
+        add("prayerSplatScalePercent", "Prayer restoration: Scale (%)", config::prayerSplatScalePercent, JsonPrimitive::new, value -> integerValue(value, 25, 300));
+        add("prayerSplatScaleWithZoom", "Prayer restoration: Scale with zoom", config::prayerSplatScaleWithZoom, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
         add("prayerRestorePreview", "Prayer restore preview", config::prayerRestorePreview, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
         add("prayerRestorePreviewColor", "Prayer restore color", config::prayerRestorePreviewColor, OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
         add("prayerLowColor", "Low prayer color", config::prayerLowColor, OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
