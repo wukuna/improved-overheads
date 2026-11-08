@@ -117,7 +117,7 @@ final class OverheadsSetupWindow extends JDialog
         }
         else
         {
-            String[] groups = {"My player", "Other players", "NPCs"};
+            String[] groups = {"My player", "Other players", "NPCs", "Party"};
             JComboBox<String> from = new JComboBox<>(groups);
             JComboBox<String> to = new JComboBox<>(groups);
             to.setSelectedIndex(1);

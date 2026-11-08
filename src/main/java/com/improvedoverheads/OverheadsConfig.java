@@ -1784,6 +1784,17 @@ public interface OverheadsConfig extends Config
         return new Color(35, 40, 46, 210);
     }
 
+    @ConfigItem(keyName = "prayerIconBackgroundTracksPoints", name = "Prayer background follows points",
+        description = "Drain and refill the Round or Square prayer icon background using your current prayer points or available shared party prayer. Unknown values keep the normal background.",
+        section = HEAD_ICONS_SECTION, position = 134)
+    default boolean prayerIconBackgroundTracksPoints() { return false; }
+
+    @Alpha
+    @ConfigItem(keyName = "prayerIconEmptyBackground", name = "Empty prayer background",
+        description = "Color behind the empty portion when the prayer icon background follows prayer points.",
+        section = HEAD_ICONS_SECTION, position = 135)
+    default Color prayerIconEmptyBackground() { return new Color(12, 15, 18, 150); }
+
     @ConfigItem(
         keyName = "prayerIconBorder",
         name = "Prayer icon border",

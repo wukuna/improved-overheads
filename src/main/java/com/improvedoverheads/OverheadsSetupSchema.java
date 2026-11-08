@@ -308,6 +308,10 @@ final class OverheadsSetupSchema
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("iconsPosition", "Icons: Icon position", config::iconsPosition,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPosition.values()));
+        add("prayerIconBackgroundTracksPoints", "Icons: Background follows prayer points", config::prayerIconBackgroundTracksPoints,
+            value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
+        add("prayerIconEmptyBackground", "Icons: Empty prayer background", config::prayerIconEmptyBackground,
+            OverheadsSetupSchema::colorJson, OverheadsSetupSchema::colorValue);
         add("prayerIconShape", "Icons: Prayer icon frame", config::prayerIconShape,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsIconShape.values()));
         add("prayerIconBackground", "Icons: Prayer icon background", config::prayerIconBackground,

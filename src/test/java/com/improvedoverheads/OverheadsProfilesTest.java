@@ -22,6 +22,52 @@ import static org.mockito.Mockito.*;
 public class OverheadsProfilesTest
 {
     @Test
+    public void partyMigratesFromOtherPlayersButEditsAndMembershipStayIndependent() throws Exception
+    {
+        Fixture f = new Fixture();
+        f.put(OverheadsProfiles.Scope.PLAYERS, "healthBarOpacity", 35);
+        f.put(OverheadsProfiles.Scope.PLAYERS, "healthBarDamageTrailHold", 650);
+        f.profiles.initialize();
+        assertEquals(35, f.profiles.config(OverheadsProfiles.Scope.PARTY).healthBarOpacity());
+        assertEquals(650, f.profiles.config(OverheadsProfiles.Scope.PARTY).healthBarDamageTrailHold());
+        f.put(OverheadsProfiles.Scope.PARTY, "healthBarOpacity", 81);
+        f.put(OverheadsProfiles.Scope.PARTY, "healthBarDamageTrailHold", 300);
+        f.profiles.initialize();
+        assertEquals(81, f.profiles.config(OverheadsProfiles.Scope.PARTY).healthBarOpacity());
+        assertEquals(35, f.profiles.config(OverheadsProfiles.Scope.PLAYERS).healthBarOpacity());
+        assertEquals(650, f.profiles.config(OverheadsProfiles.Scope.PLAYERS).healthBarDamageTrailHold());
+        OverheadsPartyTest.Fixture shared = new OverheadsPartyTest.Fixture(false);
+        java.lang.reflect.Field field = OverheadsProfiles.class.getDeclaredField("party");
+        field.setAccessible(true);
+        field.set(f.profiles, shared.state);
+        assertEquals(OverheadsProfiles.Scope.PARTY, f.profiles.scope(shared.player));
+        assertEquals(OverheadsProfiles.Scope.SELF, f.profiles.scope(f.player));
+        assertEquals(OverheadsProfiles.Scope.NPCS, f.profiles.scope(mock(NPC.class)));
+        when(shared.party.isInParty()).thenReturn(false);
+        assertEquals(OverheadsProfiles.Scope.PLAYERS, f.profiles.scope(shared.player));
+        verifyNoInteractions(shared.data);
+    }
+
+    @Test
+    public void olderScopedSetupsCopyPartyPreferencesWithoutChangingSharingConsent()
+    {
+        Fixture f = new Fixture();
+        f.profiles.initialize();
+        OverheadsSetups setups = f.setups();
+        JsonObject root = new Gson().fromJson(setups.exportCurrent("Legacy", setups.session()), JsonObject.class);
+        JsonObject settings = new JsonObject();
+        settings.addProperty("players.healthBarOpacity", 45);
+        root.add("settings", settings);
+        setups.apply(setups.preview(root.toString(), setups.session()));
+        assertEquals(45, f.profiles.config(OverheadsProfiles.Scope.PARTY).healthBarOpacity());
+        assertEquals(OverheadsBarDisplay.HIDDEN, f.self.partyDisplay());
+        f.put(OverheadsProfiles.Scope.PARTY, "healthBarOpacity", 72);
+        setups.apply(setups.preview(setups.copyGroup(3, 2, setups.session()), setups.session()));
+        assertEquals(72, f.profiles.config(OverheadsProfiles.Scope.NPCS).healthBarOpacity());
+        assertEquals(45, f.profiles.config(OverheadsProfiles.Scope.PLAYERS).healthBarOpacity());
+    }
+
+    @Test
     public void themePresetAndGroupCopyTargetTheSelectedActorOnly()
     {
         Fixture f = new Fixture();
@@ -103,7 +149,7 @@ public class OverheadsProfilesTest
         f.put(OverheadsProfiles.Scope.UNIVERSAL, "prayerOpacity", 7);
         assertNotEquals(12, f.self.healthBarOpacity());
         f.profiles.applyUniversal(OverheadsComponent.HEALTH);
-        for (OverheadsProfiles.Scope scope : new OverheadsProfiles.Scope[]{OverheadsProfiles.Scope.SELF, OverheadsProfiles.Scope.PLAYERS, OverheadsProfiles.Scope.NPCS})
+        for (OverheadsProfiles.Scope scope : new OverheadsProfiles.Scope[]{OverheadsProfiles.Scope.SELF, OverheadsProfiles.Scope.PLAYERS, OverheadsProfiles.Scope.NPCS, OverheadsProfiles.Scope.PARTY})
         {
             assertEquals(12, f.profiles.config(scope).healthBarOpacity());
             assertNotEquals(Color.RED, f.profiles.config(scope).overheadChatColor());
@@ -123,6 +169,7 @@ public class OverheadsProfilesTest
         from.put(OverheadsProfiles.Scope.SELF, "healthBarOpacity", 21);
         from.put(OverheadsProfiles.Scope.PLAYERS, "healthBarOpacity", 41);
         from.put(OverheadsProfiles.Scope.NPCS, "healthBarOpacity", 61);
+        from.put(OverheadsProfiles.Scope.PARTY, "healthBarOpacity", 81);
         from.put(OverheadsProfiles.Scope.UNIVERSAL, "overheadChatColor", Color.BLUE);
         from.put(OverheadsProfiles.Scope.SELF, "partyDisplay", OverheadsBarDisplay.BOTH);
         OverheadsSetups exporter = from.setups();
@@ -211,6 +258,7 @@ public class OverheadsProfilesTest
         {
             when(client.getLocalPlayer()).thenReturn(player);
             when(manager.getConfig(OverheadsProfiles.PlayersConfig.class)).thenReturn(config(OverheadsProfiles.PlayersConfig.class, OverheadsProfiles.Scope.PLAYERS));
+            when(manager.getConfig(OverheadsProfiles.PartyConfig.class)).thenReturn(config(OverheadsProfiles.PartyConfig.class, OverheadsProfiles.Scope.PARTY));
             when(manager.getConfig(OverheadsProfiles.NpcsConfig.class)).thenReturn(config(OverheadsProfiles.NpcsConfig.class, OverheadsProfiles.Scope.NPCS));
             when(manager.getConfig(OverheadsProfiles.UniversalConfig.class)).thenReturn(config(OverheadsProfiles.UniversalConfig.class, OverheadsProfiles.Scope.UNIVERSAL));
             when(manager.getConfiguration(anyString(), anyString())).thenAnswer(call ->

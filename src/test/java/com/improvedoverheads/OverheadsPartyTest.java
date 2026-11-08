@@ -196,7 +196,7 @@ public class OverheadsPartyTest
         assertFalse(renderer.replacesHealth(render.player));
     }
 
-    private static final class Fixture
+    static final class Fixture
     {
         final Client client = mock(Client.class);
         final OverheadsConfig config = mock(OverheadsConfig.class, CALLS_REAL_METHODS);
