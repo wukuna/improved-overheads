@@ -181,9 +181,9 @@ final class OverheadsHealthBarRenderer
 				{
 					fill = config.lowResourceColor();
 				}
-				String text = self ? config.healthNumberFormat().format(
+                String text = self ? config.healthNumberFormat().format(
 					client.getBoostedSkillLevel(Skill.HITPOINTS), client.getRealSkillLevel(Skill.HITPOINTS))
-					: Math.round(fraction * 100) + "%";
+                    : observedHealthText(fraction, exactMaximumHitpoints(actor), config.healthNumberFormat());
 				renderBar(graphics, bounds, vertical, display, config.healthPosition(), fraction, trail,
 					fill, config.healthBarFrontSecondaryColor(), config.healthBarOpacity(),
 					text, config.healthTextFont(), low ? config.lowResourceColor() : config.healthTextColor(), zoom,
@@ -191,7 +191,7 @@ final class OverheadsHealthBarRenderer
 					self ? vitals.restore(false) : 0, self ? client.getRealSkillLevel(Skill.HITPOINTS) : 0, layout);
 				if (config.healthPosition() == OverheadsPosition.ABOVE)
 				{
-					occupied = occupiedTop(graphics, bounds, display, config.healthTextFont(), zoom, config.healthBarBorderThickness());
+                    occupied = occupiedTop(graphics, bounds, display, config.healthTextFont(), zoom, config.healthBarBorderThickness(), config.healthTextPosition());
 				}
 			}
 		}
@@ -219,7 +219,7 @@ final class OverheadsHealthBarRenderer
 					vitals.restore(true), client.getRealSkillLevel(Skill.PRAYER), layout);
 				if (config.prayerPosition() == OverheadsPosition.ABOVE)
 				{
-					occupied = Math.min(occupied, occupiedTop(graphics, bounds, config.prayerDisplay(), config.prayerTextFont(), zoom, config.prayerBorderThickness()));
+                    occupied = Math.min(occupied, occupiedTop(graphics, bounds, config.prayerDisplay(), config.prayerTextFont(), zoom, config.prayerBorderThickness(), OverheadsBarTextPosition.ON_BAR));
 				}
 			}
 		}
@@ -234,7 +234,7 @@ final class OverheadsHealthBarRenderer
 		String displayed = restore > 0 ? text + " +" + restore : text;
 		Rectangle painted = OverheadsCollisionLayout.barBounds(graphics, bounds, vertical, display, position,
 			displayed, font, zoom, prayer ? config.prayerBorderThickness() : config.healthBarBorderThickness(), opacity,
-			prayer && config.prayerTickIndicator() ? 255 : textColor.getAlpha());
+            prayer && config.prayerTickIndicator() ? 255 : textColor.getAlpha(), prayer ? OverheadsBarTextPosition.ON_BAR : config.healthTextPosition());
 		OverheadsCollisionLayout.draw(layout, graphics, prayer ? "prayer" : "health", position, painted,
 			g -> paintBar(g, bounds, vertical, display, position, fraction, trail, fill, secondFill, opacity,
 				text, font, textColor, zoom, segmentMaximum, prayer, restore, maximum));
@@ -304,13 +304,10 @@ final class OverheadsHealthBarRenderer
 				java.awt.Font actual = font.getFont();
 				g.setFont(actual.deriveFont((float) Math.max(6, Math.min(96, actual.getSize2D() * zoom))));
 				java.awt.FontMetrics metrics = g.getFontMetrics();
-				int x = bounds.x + (bounds.width - metrics.stringWidth(text)) / 2;
-				if (vertical && display == OverheadsBarDisplay.BOTH)
-				{
-					x = position == OverheadsPosition.RIGHT ? bounds.x + bounds.width + 4
-						: bounds.x - metrics.stringWidth(text) - 4;
-				}
-				int y = bounds.y + (bounds.height - metrics.getHeight()) / 2 + metrics.getAscent();
+                java.awt.Point baseline = (prayer ? OverheadsBarTextPosition.ON_BAR : config.healthTextPosition()).baseline(
+                    bounds, metrics, text, vertical, display, position, prayer ? config.prayerBorderThickness() : config.healthBarBorderThickness());
+                int x = baseline.x;
+                int y = baseline.y;
 				g.setColor(new Color(0, 0, 0, textColor.getAlpha()));
 				g.drawString(text, x + 1, y + 1);
 				g.setColor(textColor);
@@ -454,19 +451,27 @@ final class OverheadsHealthBarRenderer
 	}
 
 	private int occupiedTop(Graphics2D graphics, Rectangle bounds, OverheadsBarDisplay display,
-		net.runelite.client.config.FontType font, double zoom, double borderThickness)
+        net.runelite.client.config.FontType font, double zoom, double borderThickness, OverheadsBarTextPosition textPosition)
 	{
 		int top = bounds.y - (int) Math.ceil(clampBorderThickness(borderThickness));
 		if (display != OverheadsBarDisplay.BAR_ONLY)
 		{
 			java.awt.Font actual = font.getFont();
-			int height = graphics.getFontMetrics(actual.deriveFont((float) Math.max(6, Math.min(96, actual.getSize2D() * zoom)))).getHeight();
-			top = Math.min(top, bounds.y + (bounds.height - height) / 2);
+            java.awt.FontMetrics metrics = graphics.getFontMetrics(actual.deriveFont((float) Math.max(6, Math.min(96, actual.getSize2D() * zoom))));
+            top = Math.min(top, textPosition.baseline(bounds, metrics, "", false, display, OverheadsPosition.ABOVE, borderThickness).y - metrics.getAscent());
 		}
 		return top;
 	}
 
-	private boolean showHealth(Actor actor)
+    static String observedHealthText(double fraction, Integer maximum, OverheadsNumberFormat format)
+    {
+        double bounded = Math.max(0, Math.min(1, fraction));
+        if (maximum == null || maximum <= 0 || format == OverheadsNumberFormat.PERCENTAGE) return Math.round(bounded * 100) + "%";
+        String value = format.format((int) Math.round(bounded * maximum), maximum);
+        return bounded > 0 && bounded < 1 ? "~" + value : value;
+    }
+
+    private boolean showHealth(Actor actor)
 	{
 		if (actor != client.getLocalPlayer())
 		{

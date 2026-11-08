@@ -205,6 +205,7 @@ public class OverheadsPlugin extends Plugin
     @Subscribe
     public void onConfigChanged(ConfigChanged event)
     {
+        if (profiles != null) profiles.invalidate(event.getGroup());
         if (OverheadsProfiles.containsGroup(event.getGroup()) && !OverheadsSetups.STORAGE_KEY.equals(event.getKey())
             && !OverheadsSetups.THEMES_KEY.equals(event.getKey())
             && refreshQueued.compareAndSet(false, true))
