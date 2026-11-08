@@ -71,6 +71,12 @@ final class OverheadsCollisionLayout implements AutoCloseable
     private final List<Command> commands = new ArrayList<>();
     private final Map<String, Rectangle> resolved = new HashMap<>();
 
+    void compact(String key)
+    {
+        Slot slot = memory.slots.get(key);
+        if (slot != null) slot.shift.setLocation(0, 0);
+    }
+
     OverheadsCollisionLayout(Memory memory, int gap)
     {
         this(memory, gap, new ArrayList<>());

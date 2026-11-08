@@ -25,6 +25,46 @@ import static org.mockito.Mockito.*;
 
 public class OverheadsPrayerBadgesTest
 {
+    @Test public void emptyOverflowRowReleasesRememberedSpaceAndRegularRowsReturn()
+    {
+        for (HeadIcon overhead : new HeadIcon[]{HeadIcon.MELEE, HeadIcon.RANGED, HeadIcon.MAGIC,
+            HeadIcon.SMITE, HeadIcon.REDEMPTION, HeadIcon.RETRIBUTION})
+        {
+            OverheadsRenderPipelineTest.Fixture f = fixture();
+            when(f.config.prayerIconCombatPosition()).thenReturn(OverheadsPosition.ABOVE);
+            when(f.config.prayerIconCombatYOffset()).thenReturn(8);
+            Prayer[] extras = {Prayer.THICK_SKIN, Prayer.RAPID_RESTORE, Prayer.RAPID_HEAL, Prayer.PROTECT_ITEM};
+            int[] sprites = {SpriteID.Prayeron.THICK_SKIN, SpriteID.Prayeron.RAPID_RESTORE,
+                SpriteID.Prayeron.RAPID_HEAL, SpriteID.Prayeron.PROTECT_ITEM};
+            for (int i = 0; i < extras.length; i++)
+            {
+                when(f.client.isPrayerActive(extras[i])).thenReturn(true);
+                f.installSprite(sprites[i], OverheadsPrayerRowsTest.sprite(Color.BLUE, 20).getImage());
+            }
+            OverheadsCollisionLayout.Memory memory = new OverheadsCollisionLayout.Memory();
+            when(f.player.getOverheadIcon()).thenReturn(null);
+            render(f, memory);
+            when(f.player.getOverheadIcon()).thenReturn(overhead);
+            BufferedImage overflow = render(f, memory);
+            assertNotNull(pixels(overflow, Color.BLUE));
+            for (Prayer prayer : extras) when(f.client.isPrayerActive(prayer)).thenReturn(false);
+            BufferedImage compact = render(f, memory);
+            assertNull(pixels(compact, Color.BLUE));
+            assertTrue("Reclaim the empty row below " + overhead,
+                pixels(compact, Color.RED).y > pixels(overflow, Color.RED).y);
+            assertImageEquals(render(f, new OverheadsCollisionLayout.Memory()), compact);
+            when(f.player.getOverheadIcon()).thenReturn(null);
+            BufferedImage restored = render(f, memory);
+            assertNotNull(pixels(restored, Color.BLUE));
+            assertEquals(12, pixels(restored, Color.BLUE).height);
+            assertImageEquals(render(f, new OverheadsCollisionLayout.Memory()), restored);
+            when(f.player.getOverheadIcon()).thenReturn(overhead);
+            assertImageEquals(compact, render(f, memory));
+            assertEquals(8, f.config.prayerIconCombatYOffset());
+            assertEquals(OverheadsPrayerRow.ROW_2, f.config.prayerIconCombatRow());
+        }
+    }
+
     @Test public void protectionOffImmediatelyRestoresExactRegularRowAppearanceAndPosition()
     {
         OverheadsRenderPipelineTest.Fixture f = fixture();
@@ -276,9 +316,14 @@ public class OverheadsPrayerBadgesTest
 
     static BufferedImage render(OverheadsRenderPipelineTest.Fixture f)
     {
+        return render(f, new OverheadsCollisionLayout.Memory());
+    }
+
+    private static BufferedImage render(OverheadsRenderPipelineTest.Fixture f, OverheadsCollisionLayout.Memory memory)
+    {
         BufferedImage image = new BufferedImage(600, 440, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
-        try (OverheadsCollisionLayout layout = new OverheadsCollisionLayout(new OverheadsCollisionLayout.Memory(), 3))
+        try (OverheadsCollisionLayout layout = new OverheadsCollisionLayout(memory, 3))
         {
             assertTrue(f.icons.prepare(f.player));
             f.icons.renderPrepared(g, f.player, 100, new Point(300, 200), new Point(300, 200), 200, Integer.MAX_VALUE, layout);

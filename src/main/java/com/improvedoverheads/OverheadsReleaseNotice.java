@@ -28,7 +28,7 @@ public final class OverheadsReleaseNotice
         "Optional run and special-energy displays can hide while full.",
         "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
         "Overhead and combat/misc prayers have separate sizes, positions and two-row layouts; each row has independent backgrounds and prayer-point drain effects.",
-        "Attach optional small prayer badges to protection, Redemption, Smite or Retribution icons; separate sizes and backgrounds, with regular rows when no overhead prayer is active.",
+        "Attach optional small prayer badges to protection, Redemption, Smite or Retribution icons; empty row spacing collapses, and regular rows return when the overhead turns off.",
         "Show healing and prayer-restoration splats independently, with separate display, styling and placement controls.",
         "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
     };

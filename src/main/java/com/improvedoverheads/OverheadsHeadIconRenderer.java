@@ -290,6 +290,7 @@ final class OverheadsHeadIconRenderer
             target.translate(bounds.x, bounds.y);
             draws.add(new IconDraw(icon.sprite.getImageForScaling(mode, target.width, target.height), target));
         }
+        if (cornerMode && layout != null) layout.compact(key);
         OverheadsCollisionLayout.draw(layout, graphics, key, position, bounds, target ->
         {
             Graphics2D g = (Graphics2D) target.create();
