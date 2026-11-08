@@ -284,4 +284,14 @@ final class OverheadsScopedConfig implements OverheadsConfig
     @Override public int indicatorOpacity() { return read("indicatorOpacity", Integer.class, DEFAULTS::indicatorOpacity); }
     @Override public boolean runHideWhenFull() { return read("runHideWhenFull", Boolean.class, DEFAULTS::runHideWhenFull); }
     @Override public boolean specialHideWhenFull() { return read("specialHideWhenFull", Boolean.class, DEFAULTS::specialHideWhenFull); }
+
+    @Override public OverheadsBarTextPosition prayerTextPosition() { return read("prayerTextPosition", OverheadsBarTextPosition.class, DEFAULTS::prayerTextPosition); }
+    @Override public OverheadsBarTextPosition runTextPosition() { return read("runTextPosition", OverheadsBarTextPosition.class, DEFAULTS::runTextPosition); }
+    @Override public OverheadsBarTextPosition specialTextPosition() { return read("specialTextPosition", OverheadsBarTextPosition.class, DEFAULTS::specialTextPosition); }
+    @Override public OverheadsPrayerRow prayerIconRow() { return read("prayerIconRow", OverheadsPrayerRow.class, DEFAULTS::prayerIconRow); }
+    @Override public OverheadsPrayerRow prayerIconCombatRow() { return read("prayerIconCombatRow", OverheadsPrayerRow.class, DEFAULTS::prayerIconCombatRow); }
+    @Override public OverheadsPosition prayerIconCombatPosition() { return read("prayerIconCombatPosition", OverheadsPosition.class, DEFAULTS::prayerIconCombatPosition); }
+    @Override public int prayerIconCombatScalePercent() { return read("prayerIconCombatScalePercent", Integer.class, DEFAULTS::prayerIconCombatScalePercent); }
+    @Override public int prayerIconCombatXOffset() { return read("prayerIconCombatXOffset", Integer.class, DEFAULTS::prayerIconCombatXOffset); }
+    @Override public int prayerIconCombatYOffset() { return read("prayerIconCombatYOffset", Integer.class, DEFAULTS::prayerIconCombatYOffset); }
 }

@@ -283,10 +283,11 @@ final class OverheadsExtrasRenderer
             ? selected == OverheadsHealthBarFillDirection.TOP_TO_BOTTOM ? selected : OverheadsHealthBarFillDirection.BOTTOM_TO_TOP
             : selected == OverheadsHealthBarFillDirection.RIGHT_TO_LEFT ? selected : OverheadsHealthBarFillDirection.LEFT_TO_RIGHT;
         String displayed = (special ? config.specialNumberFormat() : config.runNumberFormat()).format((int) value, 100);
+        OverheadsBarTextPosition textPosition = special ? config.specialTextPosition() : config.runTextPosition();
         Rectangle painted = OverheadsCollisionLayout.barBounds(graphics, bounds, vertical, display, position, displayed,
             special ? config.specialFont() : config.runFont(), zoom, 1,
             special ? config.specialOpacity() : config.runOpacity(),
-            (special ? config.specialTextColor() : config.runTextColor()).getAlpha());
+            (special ? config.specialTextColor() : config.runTextColor()).getAlpha(), textPosition);
         OverheadsCollisionLayout.draw(layout, graphics, special ? "special" : "run", position, painted, target ->
         {
         Graphics2D g = (Graphics2D) target.create();
@@ -313,12 +314,9 @@ final class OverheadsExtrasRenderer
                 g.setFont(scaledFont(special ? config.specialFont() : config.runFont(), zoom));
                 FontMetrics metrics = g.getFontMetrics();
                 String text = (special ? config.specialNumberFormat() : config.runNumberFormat()).format((int) value, 100);
-                int x = bounds.x + (bounds.width - metrics.stringWidth(text)) / 2;
-                if (vertical && display == OverheadsBarDisplay.BOTH)
-                {
-                    x = position == OverheadsPosition.RIGHT ? bounds.x + bounds.width + 4 : bounds.x - metrics.stringWidth(text) - 4;
-                }
-                int y = bounds.y + (bounds.height - metrics.getHeight()) / 2 + metrics.getAscent();
+                java.awt.Point baseline = textPosition.baseline(bounds, metrics, text, vertical, display, position, 1);
+                int x = baseline.x;
+                int y = baseline.y;
                 Color textColor = special ? config.specialTextColor() : config.runTextColor();
                 g.setColor(new Color(0, 0, 0, textColor.getAlpha()));
                 g.drawString(text, x + 1, y + 1);

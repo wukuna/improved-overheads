@@ -219,7 +219,7 @@ final class OverheadsHealthBarRenderer
 					vitals.restore(true), client.getRealSkillLevel(Skill.PRAYER), layout);
 				if (config.prayerPosition() == OverheadsPosition.ABOVE)
 				{
-                    occupied = Math.min(occupied, occupiedTop(graphics, bounds, config.prayerDisplay(), config.prayerTextFont(), zoom, config.prayerBorderThickness(), OverheadsBarTextPosition.ON_BAR));
+                    occupied = Math.min(occupied, occupiedTop(graphics, bounds, config.prayerDisplay(), config.prayerTextFont(), zoom, config.prayerBorderThickness(), config.prayerTextPosition()));
 				}
 			}
 		}
@@ -234,7 +234,7 @@ final class OverheadsHealthBarRenderer
 		String displayed = restore > 0 ? text + " +" + restore : text;
 		Rectangle painted = OverheadsCollisionLayout.barBounds(graphics, bounds, vertical, display, position,
 			displayed, font, zoom, prayer ? config.prayerBorderThickness() : config.healthBarBorderThickness(), opacity,
-            prayer && config.prayerTickIndicator() ? 255 : textColor.getAlpha(), prayer ? OverheadsBarTextPosition.ON_BAR : config.healthTextPosition());
+            prayer && config.prayerTickIndicator() ? 255 : textColor.getAlpha(), prayer ? config.prayerTextPosition() : config.healthTextPosition());
 		OverheadsCollisionLayout.draw(layout, graphics, prayer ? "prayer" : "health", position, painted,
 			g -> paintBar(g, bounds, vertical, display, position, fraction, trail, fill, secondFill, opacity,
 				text, font, textColor, zoom, segmentMaximum, prayer, restore, maximum));
@@ -304,7 +304,7 @@ final class OverheadsHealthBarRenderer
 				java.awt.Font actual = font.getFont();
 				g.setFont(actual.deriveFont((float) Math.max(6, Math.min(96, actual.getSize2D() * zoom))));
 				java.awt.FontMetrics metrics = g.getFontMetrics();
-                java.awt.Point baseline = (prayer ? OverheadsBarTextPosition.ON_BAR : config.healthTextPosition()).baseline(
+                java.awt.Point baseline = (prayer ? config.prayerTextPosition() : config.healthTextPosition()).baseline(
                     bounds, metrics, text, vertical, display, position, prayer ? config.prayerBorderThickness() : config.healthBarBorderThickness());
                 int x = baseline.x;
                 int y = baseline.y;
