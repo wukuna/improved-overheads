@@ -58,7 +58,7 @@ public class OverheadsRenderPipelineTest
         f.hits.add(new OverheadsHitsplat(HitsplatID.BLOCK_ME, 0, 1, 90, 90, 90, 200, 220, 2, true));
         for (OverheadsPosition side : OverheadsPosition.values())
         {
-            when(f.config.hitsplatPosition()).thenReturn(side);
+            when(f.config.hitsplatPosition()).thenReturn(OverheadsHitsplatPosition.valueOf(side.name()));
             Rectangle pixels = pixelBounds(f.render());
             assertNotNull(pixels);
             switch (side)
@@ -73,6 +73,30 @@ public class OverheadsRenderPipelineTest
         assertNull(pixelBounds(f.render()));
         when(f.client.getDraw2DMask()).thenReturn(Client.DRAW_2D_ALL);
         f.cycle = 230;
+        assertNull(pixelBounds(f.render()));
+    }
+
+    @Test
+    public void nativeHitsplatPositionStaysCenteredOnTargetAndHonorsOffsets()
+    {
+        Fixture f = new Fixture();
+        when(f.config.healthBarsEnabled()).thenReturn(false);
+        when(f.config.headIconsEnabled()).thenReturn(false);
+        when(f.config.hitsplatStyle()).thenReturn(OverheadsHitsplatStyle.MODERN);
+        when(f.config.hitsplatPosition()).thenReturn(OverheadsHitsplatPosition.NATIVE);
+        f.hits.add(new OverheadsHitsplat(HitsplatID.DAMAGE_ME, 42, 0, 90, 90, 90, 200, 220, 1, true));
+        Rectangle nativeBounds = pixelBounds(f.render());
+        assertNotNull(nativeBounds);
+        assertEquals(f.centerX, nativeBounds.getCenterX(), 2);
+        assertEquals(f.feetY - 50, nativeBounds.getCenterY(), 2);
+        when(f.config.avoidOverlap()).thenReturn(false);
+        assertEquals(nativeBounds, pixelBounds(f.render()));
+        when(f.config.hitsplatXOffset()).thenReturn(17);
+        when(f.config.hitsplatYOffset()).thenReturn(12);
+        Rectangle shifted = pixelBounds(f.render());
+        assertEquals(nativeBounds.x + 17, shifted.x);
+        assertEquals(nativeBounds.y - 12, shifted.y);
+        when(f.player.getCanvasImageLocation(any(), eq(50))).thenReturn(null);
         assertNull(pixelBounds(f.render()));
     }
 

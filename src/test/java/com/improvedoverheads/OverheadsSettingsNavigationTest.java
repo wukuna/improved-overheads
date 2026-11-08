@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import net.runelite.client.config.ConfigDescriptor;
 import net.runelite.client.config.ConfigItemDescriptor;
 import net.runelite.client.config.ConfigManager;
@@ -67,6 +69,92 @@ public class OverheadsSettingsNavigationTest
             }
         });
         assertEquals(expected, found);
+    }
+
+    @Test
+    public void navigationFitsNarrowSidebarWithEitherClientLookAndFeel() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() ->
+        {
+            javax.swing.LookAndFeel previous = UIManager.getLookAndFeel();
+            try
+            {
+                for (javax.swing.LookAndFeel look : new javax.swing.LookAndFeel[]{new javax.swing.plaf.metal.MetalLookAndFeel(), new net.runelite.client.ui.laf.RuneLiteLAF()})
+                {
+                    UIManager.setLookAndFeel(look);
+                    OverheadsPanel panel = new OverheadsPanel(new OverheadsConfig() {}, mock(ConfigManager.class), mock(ColorPickerManager.class));
+                    panel.rebuild();
+                    panel.setSize(225, 650);
+                    layout(panel);
+                    JTabbedPane tabs = find(panel, JTabbedPane.class);
+                    assertEquals(5, tabs.getTabCount());
+                    for (int i = 0; i < tabs.getTabCount(); i++)
+                    {
+                        java.awt.Rectangle bounds = tabs.getBoundsAt(i);
+                        assertEquals(tabs.getBoundsAt(0).y, bounds.y);
+                        assertTrue(bounds.x + bounds.width <= tabs.getWidth());
+                    }
+                    assertEquals(OverheadsPanelStyle.CONTROL, actorPicker(panel).getBackground());
+                    assertEquals(12, actorPicker(panel).getFont().getSize());
+                }
+            }
+            catch (Exception error) { throw new RuntimeException(error); }
+            finally
+            {
+                try { UIManager.setLookAndFeel(previous); }
+                catch (Exception error) { throw new RuntimeException(error); }
+            }
+        });
+    }
+
+    @Test
+    public void rebuildingPreservesSelectedPageAndExpandedSection() throws Exception
+    {
+        SwingUtilities.invokeAndWait(() ->
+        {
+            OverheadsPanel panel = new OverheadsPanel(new OverheadsConfig() {}, mock(ConfigManager.class), mock(ColorPickerManager.class));
+            panel.rebuild();
+            find(panel, JTabbedPane.class).setSelectedIndex(2);
+            JToggleButton styling = findToggle(panel, "Styling");
+            styling.doClick();
+            panel.rebuild();
+            assertEquals(2, find(panel, JTabbedPane.class).getSelectedIndex());
+            assertTrue(findToggle(panel, "Styling").isSelected());
+        });
+    }
+
+    private static void layout(Container parent)
+    {
+        parent.doLayout();
+        for (Component child : parent.getComponents()) if (child instanceof Container) layout((Container) child);
+    }
+
+    private static <T> T find(Container parent, Class<T> type)
+    {
+        for (Component child : parent.getComponents())
+        {
+            if (type.isInstance(child)) return type.cast(child);
+            if (child instanceof Container)
+            {
+                T found = find((Container) child, type);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private static JToggleButton findToggle(Container parent, String text)
+    {
+        for (Component child : parent.getComponents())
+        {
+            if (child instanceof JToggleButton && text.equals(((JToggleButton) child).getText())) return (JToggleButton) child;
+            if (child instanceof Container)
+            {
+                JToggleButton found = findToggle((Container) child, text);
+                if (found != null) return found;
+            }
+        }
+        return null;
     }
 
     private static void collectKeys(Container parent, Set<String> found)

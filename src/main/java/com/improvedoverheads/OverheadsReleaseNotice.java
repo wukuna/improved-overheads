@@ -28,6 +28,7 @@ public final class OverheadsReleaseNotice
         "Optional run and special-energy displays can hide while full.",
         "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
         "Round and square prayer icon backgrounds can drain and refill with prayer points.",
+        "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
     };
 
     @Inject private Client client;

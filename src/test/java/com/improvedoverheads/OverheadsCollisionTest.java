@@ -181,7 +181,7 @@ public class OverheadsCollisionTest
         when(f.config.iconsPosition()).thenReturn(side);
         when(f.config.namePosition()).thenReturn(side);
         when(f.config.chatPosition()).thenReturn(side);
-        when(f.config.hitsplatPosition()).thenReturn(side);
+        when(f.config.hitsplatPosition()).thenReturn(OverheadsHitsplatPosition.valueOf(side.name()));
         when(f.config.healthBarFrontColor()).thenReturn(Color.RED);
         when(f.config.healthBarBackColor()).thenReturn(Color.RED);
         when(f.config.healthTextColor()).thenReturn(Color.RED);

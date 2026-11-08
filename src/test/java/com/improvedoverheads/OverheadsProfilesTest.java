@@ -22,6 +22,22 @@ import static org.mockito.Mockito.*;
 public class OverheadsProfilesTest
 {
     @Test
+    public void nativeHitsplatPositionSharesWithoutChangingOtherActorGroups()
+    {
+        Fixture source = new Fixture();
+        source.profiles.initialize();
+        source.put(OverheadsProfiles.Scope.NPCS, "hitsplatPosition", OverheadsHitsplatPosition.NATIVE);
+        OverheadsSetups exporter = source.setups();
+        String json = exporter.exportCurrent("Native NPC hits", exporter.session());
+        Fixture destination = new Fixture();
+        destination.profiles.initialize();
+        OverheadsSetups importer = destination.setups();
+        importer.apply(importer.preview(json, importer.session()));
+        assertEquals(OverheadsHitsplatPosition.NATIVE, destination.profiles.config(OverheadsProfiles.Scope.NPCS).hitsplatPosition());
+        assertEquals(OverheadsHitsplatPosition.ABOVE, destination.self.hitsplatPosition());
+    }
+
+    @Test
     public void partyMigratesFromOtherPlayersButEditsAndMembershipStayIndependent() throws Exception
     {
         Fixture f = new Fixture();

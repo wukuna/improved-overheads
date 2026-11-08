@@ -15,6 +15,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 * Optionally drain and refill the prayer icon background with your prayer points or available shared party prayer. Choose a separate empty-background color; unknown or expired values keep the static background.
 * Customize overhead chat fonts, colors, shadows, effects, and relationship colors.
 * Adjust hitsplat size, placement, layout, lifetime, opacity, and visibility.
+* Choose Hits → Position and size → Native to anchor hitsplats on the target. Native positioning keeps your style, layout, motion and manual offsets, without automatic overlap repositioning.
 * Choose OSRS, Modern, or numbers-only damage and miss hitsplats. Special encounter indicators retain their artwork.
 * Customize Modern hitsplat backgrounds for damage, misses, poison, venom, and burn, with separate damage/miss/status number colors, borders, rounded corners, and shadows.
 * Scroll hitsplats upward or downward in one to four columns, with adjustable travel distance and spacing.

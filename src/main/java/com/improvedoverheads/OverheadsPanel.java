@@ -18,7 +18,6 @@ import javax.swing.*;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.config.ConfigProfile;
 import net.runelite.client.config.FontType;
-import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.ColorJButton;
 import net.runelite.client.ui.components.colorpicker.ColorPickerManager;
@@ -48,17 +47,26 @@ final class OverheadsPanel extends PluginPanel
     void setPartyRefresh(Runnable refresh) { refreshParty = refresh; }
     private final java.util.Map<JPanel, JToggleButton> sections = new java.util.LinkedHashMap<>();
     private final java.util.Map<String, JComponent> settingRows = new java.util.LinkedHashMap<>();
+    private final java.util.Map<String, Boolean> expandedSections = new java.util.HashMap<>();
+    private final java.util.Map<String, OverheadsComponent> selectedComponents = new java.util.HashMap<>();
+    private String sectionContext = "";
 
     @Inject
     OverheadsPanel(OverheadsConfig config, ConfigManager manager, ColorPickerManager colorPickers)
     {
+        super(false);
         this.config = config;
         this.manager = manager;
         this.colorPickers = colorPickers;
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 4));
+        setBackground(OverheadsPanelStyle.BACKGROUND);
+        setBorder(BorderFactory.createEmptyBorder(10, 7, 7, 7));
+        OverheadsPanelStyle.tabs(tabs);
         JPanel body = new JPanel(new BorderLayout(0, 6));
+        body.setOpaque(false);
         JButton sharing = new JButton("Setups");
+        OverheadsPanelStyle.control(sharing);
+        OverheadsPanelStyle.control(actors);
         sharing.addActionListener(event ->
         {
             if (setups == null)
@@ -73,9 +81,18 @@ final class OverheadsPanel extends PluginPanel
             }
             setupWindow.setVisible(true);
         });
-        JPanel header = new JPanel(new BorderLayout(0, 6));
-        header.add(actors, BorderLayout.NORTH);
-        header.add(sharing, BorderLayout.SOUTH);
+        JPanel header = new JPanel(new BorderLayout(0, 8));
+        header.setOpaque(false);
+        JLabel title = new JLabel("IMPROVED OVERHEADS");
+        title.setFont(OverheadsPanelStyle.FONT.deriveFont(java.awt.Font.BOLD, 13f));
+        title.setForeground(OverheadsPanelStyle.TEXT);
+        header.add(title, BorderLayout.NORTH);
+        JPanel actions = new JPanel(new BorderLayout(5, 0));
+        actions.setOpaque(false);
+        actors.setToolTipText("Choose whose overhead settings to edit.");
+        actions.add(actors, BorderLayout.CENTER);
+        actions.add(sharing, BorderLayout.EAST);
+        header.add(actions, BorderLayout.CENTER);
         actors.addActionListener(event ->
         {
             if (profiles == null || refreshing) { return; }
@@ -86,7 +103,7 @@ final class OverheadsPanel extends PluginPanel
         });
         body.add(header, BorderLayout.NORTH);
         body.add(tabs, BorderLayout.CENTER);
-        add(body, BorderLayout.NORTH);
+        add(body, BorderLayout.CENTER);
     }
 
     void rebuild()
@@ -618,8 +635,8 @@ final class OverheadsPanel extends PluginPanel
                 "How long replacement hitsplats take to disappear after the full-opacity duration.",
                 config::fadeOutDuration, 0, 60000);
             choice(advanced, "hitsplatPosition", "Hitsplat position",
-                "Hitsplat position.",
-                config::hitsplatPosition, OverheadsPosition.values());
+                "Native anchors hitsplats on the target without overlap repositioning. Styling, layout and offsets still apply.",
+                config::hitsplatPosition, OverheadsHitsplatPosition.values());
             toggle(advanced, "hitsplatScaleWithZoom", "Scale hitsplat with zoom",
                 "Scale hitsplat with zoom.",
                 config::hitsplatScaleWithZoom);
@@ -770,12 +787,15 @@ final class OverheadsPanel extends PluginPanel
     private void componentTab(String title, OverheadsComponent... components)
     {
         JPanel container = new JPanel(new BorderLayout(0, 5));
+        container.setOpaque(false);
         JPanel cards = new JPanel(new java.awt.CardLayout());
+        cards.setOpaque(false);
         List<OverheadsComponent> available = new ArrayList<>();
         for (OverheadsComponent component : components)
         {
             if ((scope == OverheadsProfiles.Scope.NPCS || scope == OverheadsProfiles.Scope.PLAYERS) && (component == OverheadsComponent.PRAYER || component == OverheadsComponent.RUN || component == OverheadsComponent.SPECIAL || component == OverheadsComponent.TIMERS)) { continue; }
             available.add(component);
+            sectionContext = scope.name() + "/" + component.name();
             JPanel basic = column();
             settingRows.forEach((key, row) ->
             {
@@ -804,32 +824,45 @@ final class OverheadsPanel extends PluginPanel
                     }
                     themeWindow.setVisible(true);
                 });
+                OverheadsPanelStyle.control(themes);
                 basic.add(themes);
             }
             if (component == OverheadsComponent.LAYOUT)
             {
                 JButton reset = new JButton("Reflow spacing");
                 reset.addActionListener(event -> reflow.run());
+                OverheadsPanelStyle.control(reset);
                 basic.add(reset);
             }
             if (component == OverheadsComponent.TIMERS && scope == OverheadsProfiles.Scope.PARTY)
             {
                 JButton sync = new JButton("Refresh party data");
                 sync.addActionListener(event -> refreshParty.run());
+                OverheadsPanelStyle.control(sync);
                 basic.add(sync);
             }
             if (scope == OverheadsProfiles.Scope.UNIVERSAL && profiles != null)
             {
                 JButton apply = new JButton("Apply " + component.toString().toLowerCase(java.util.Locale.ROOT) + " to all");
                 apply.addActionListener(event -> { profiles.applyUniversal(component); refresh(); });
+                OverheadsPanelStyle.control(apply);
                 basic.add(apply);
             }
-            cards.add(basic, component.name());
+            cards.add(OverheadsPanelStyle.scroll(basic), component.name());
         }
         if (available.size() > 1)
         {
             JComboBox<OverheadsComponent> select = new JComboBox<>(available.toArray(new OverheadsComponent[0]));
-            select.addActionListener(event -> ((java.awt.CardLayout) cards.getLayout()).show(cards, ((OverheadsComponent) select.getSelectedItem()).name()));
+            OverheadsPanelStyle.control(select);
+            OverheadsComponent previous = selectedComponents.get(title);
+            if (available.contains(previous)) select.setSelectedItem(previous);
+            ((java.awt.CardLayout) cards.getLayout()).show(cards, ((OverheadsComponent) select.getSelectedItem()).name());
+            select.addActionListener(event ->
+            {
+                OverheadsComponent component = (OverheadsComponent) select.getSelectedItem();
+                selectedComponents.put(title, component);
+                ((java.awt.CardLayout) cards.getLayout()).show(cards, component.name());
+            });
             container.add(select, BorderLayout.NORTH);
         }
         container.add(cards, BorderLayout.CENTER);
@@ -922,9 +955,23 @@ final class OverheadsPanel extends PluginPanel
     {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(8, 5, 8, 5));
+        panel.setBackground(OverheadsPanelStyle.BACKGROUND);
+        panel.setMinimumSize(new Dimension(0, 0));
         return panel;
+    }
+
+    private static final class DisclosureIcon implements Icon
+    {
+        private final boolean expanded;
+        private DisclosureIcon(boolean expanded) { this.expanded = expanded; }
+        public int getIconWidth() { return 12; }
+        public int getIconHeight() { return 12; }
+        public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y)
+        {
+            g.setColor(OverheadsPanelStyle.ACCENT);
+            if (expanded) g.fillPolygon(new int[]{x + 1, x + 9, x + 5}, new int[]{y + 4, y + 4, y + 8}, 3);
+            else g.fillPolygon(new int[]{x + 3, x + 3, x + 7}, new int[]{y + 2, y + 10, y + 6}, 3);
+        }
     }
 
     private void addTab(String name, Consumer<JPanel> builder)
@@ -937,23 +984,36 @@ final class OverheadsPanel extends PluginPanel
     private void section(JPanel content, String title, Consumer<JPanel> builder)
     {
         JPanel details = column();
+        details.setBackground(OverheadsPanelStyle.CARD);
+        details.setBorder(BorderFactory.createEmptyBorder(4, 8, 8, 8));
         builder.accept(details);
         details.setVisible(false);
         details.setAlignmentX(LEFT_ALIGNMENT);
         JToggleButton expand = new JToggleButton(title);
-        expand.setSelected(title.equals("Display") || title.equals("Party sharing"));
+        OverheadsPanelStyle.control(expand);
+        expand.setHorizontalAlignment(SwingConstants.LEFT);
+        expand.setForeground(OverheadsPanelStyle.ACCENT);
+        expand.setFont(OverheadsPanelStyle.FONT.deriveFont(java.awt.Font.BOLD));
+        expand.setBorder(BorderFactory.createEmptyBorder(7, 8, 7, 8));
+        String stateKey = sectionContext + "/" + title;
+        expand.setSelected(expandedSections.getOrDefault(stateKey, title.equals("Display") || title.equals("Party sharing")));
+        expand.setIcon(new DisclosureIcon(false));
+        expand.setSelectedIcon(new DisclosureIcon(true));
         details.setVisible(expand.isSelected());
         sections.put(details, expand);
         expand.setAlignmentX(LEFT_ALIGNMENT);
-        expand.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
+        expand.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         expand.addActionListener(event ->
         {
             details.setVisible(expand.isSelected());
+            expandedSections.put(stateKey, expand.isSelected());
+            for (java.awt.Container ancestor = details; ancestor != null; ancestor = ancestor.getParent()) ancestor.invalidate();
             revalidate();
             repaint();
         });
         JPanel group = column();
-        group.add(Box.createVerticalStrut(5));
+        group.setAlignmentX(LEFT_ALIGNMENT);
+        group.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 0, 6, 0), BorderFactory.createLineBorder(OverheadsPanelStyle.BORDER)));
         group.add(expand);
         group.add(details);
         content.add(group);
@@ -983,14 +1043,28 @@ final class OverheadsPanel extends PluginPanel
     {
         JPanel row = new JPanel(new BorderLayout(4, 0));
         row.setOpaque(false);
+        row.setMinimumSize(new Dimension(0, 0));
         row.setAlignmentX(LEFT_ALIGNMENT);
         row.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
         JLabel label = new JLabel(name);
+        label.setMinimumSize(new Dimension(0, 16));
+        OverheadsPanelStyle.control(label);
+        OverheadsPanelStyle.control(editor);
         label.setToolTipText(tip);
         editor.setToolTipText(tip);
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 55));
-        row.add(label, BorderLayout.NORTH);
-        row.add(editor, BorderLayout.CENTER);
+        if (editor instanceof ColorJButton)
+        {
+            editor.setPreferredSize(new Dimension(42, 22));
+            row.add(label, BorderLayout.CENTER);
+            row.add(editor, BorderLayout.EAST);
+            row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        }
+        else
+        {
+            row.add(label, BorderLayout.NORTH);
+            row.add(editor, BorderLayout.CENTER);
+        }
         parent.add(row);
         Object key = editor.getClientProperty("settingKey");
         if (key instanceof String)
@@ -1010,6 +1084,7 @@ final class OverheadsPanel extends PluginPanel
     private void toggle(JPanel panel, String key, String name, String tip, Supplier<Boolean> getter)
     {
         JCheckBox check = new JCheckBox(name);
+        OverheadsPanelStyle.control(check);
         check.putClientProperty("settingKey", key);
         check.setOpaque(false);
         check.setToolTipText(tip);
@@ -1128,6 +1203,7 @@ final class OverheadsPanel extends PluginPanel
                 editors.remove(dialog);
             });
             content.add(apply);
+            OverheadsPanelStyle.control(content);
             dialog.setContentPane(content);
             dialog.pack();
             dialog.setLocationRelativeTo(this);
