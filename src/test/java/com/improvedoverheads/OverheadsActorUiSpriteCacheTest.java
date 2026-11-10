@@ -225,6 +225,7 @@ public class OverheadsActorUiSpriteCacheTest
 		assertEquals(30, foreground.getHeight());
 		assertEquals(Color.RED.getRGB(), foreground.getImage().getRGB(29, 29));
 		assertSame(composed, cache.getPrayerIcon(0, spriteId, true));
+		assertSame(composed, cache.getPrayerIcon(0, spriteId, true, true));
 	}
 
 	@Test

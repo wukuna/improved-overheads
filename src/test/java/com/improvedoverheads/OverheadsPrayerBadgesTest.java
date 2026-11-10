@@ -288,6 +288,8 @@ public class OverheadsPrayerBadgesTest
             assertTrue(f.self.prayerIconBadgeBackground());
             ((JCheckBox) find(panel, "prayerIconSymbolsOnly")).doClick();
             assertTrue(f.self.prayerIconSymbolsOnly());
+            ((JCheckBox) find(panel, "prayerIconNativeSymbolsOnly")).doClick();
+            assertTrue(f.self.prayerIconNativeSymbolsOnly());
             assertTrue(f.self.prayerIconBadgeBackground());
         });
     }

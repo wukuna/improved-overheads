@@ -136,6 +136,7 @@ final class OverheadsScopedConfig implements OverheadsConfig
     @Override public boolean headIconsEnabled() { return read("headIconsEnabled", Boolean.class, DEFAULTS::headIconsEnabled); }
     @Override public boolean showPrayerIcons() { return read("showPrayerIcons", Boolean.class, DEFAULTS::showPrayerIcons); }
     @Override public boolean prayerIconSymbolsOnly() { return read("prayerIconSymbolsOnly", Boolean.class, DEFAULTS::prayerIconSymbolsOnly); }
+    @Override public boolean prayerIconNativeSymbolsOnly() { return read("prayerIconNativeSymbolsOnly", Boolean.class, DEFAULTS::prayerIconNativeSymbolsOnly); }
     @Override public boolean showPrayerIconBackground() { return read("showPrayerIconBackground", Boolean.class, DEFAULTS::showPrayerIconBackground); }
     @Override public boolean showSkullIcons() { return read("showSkullIcons", Boolean.class, DEFAULTS::showSkullIcons); }
     @Override public boolean showNpcIcons() { return read("showNpcIcons", Boolean.class, DEFAULTS::showNpcIcons); }

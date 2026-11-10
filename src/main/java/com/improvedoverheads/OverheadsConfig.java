@@ -1406,6 +1406,11 @@ public interface OverheadsConfig extends Config
         section = HEAD_ICONS_SECTION, position = 987)
     default boolean prayerIconSymbolsOnly() { return false; }
 
+    @ConfigItem(hidden = true, keyName = "prayerIconNativeSymbolsOnly", name = "Remove native prayer background",
+        description = "Remove only the original overhead backing, preserving the prayer symbol and your custom row and corner-badge backgrounds.",
+        section = HEAD_ICONS_SECTION, position = 988)
+    default boolean prayerIconNativeSymbolsOnly() { return false; }
+
 	@ConfigItem(
 		hidden = true,
 		keyName = SHOW_SKULL_ICONS_KEY,

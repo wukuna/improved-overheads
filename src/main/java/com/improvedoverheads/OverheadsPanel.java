@@ -669,6 +669,9 @@ final class OverheadsPanel extends PluginPanel
             choice(advanced, OverheadsConfig.SPRITE_SCALING_MODE_KEY, "Sprite scaling",
                 "Resize hitsplats, RuneScape health bars, and head icons with Nearest, Bilinear, Bicubic, or edge-directed xBR. xBR is used for enlarging sprites and smoothly reduced to fractional target sizes.",
                 config::spriteScalingMode, OverheadsSpriteScalingMode.values());
+            toggle(advanced, "prayerIconNativeSymbolsOnly", "Remove native prayer background",
+                "Remove only the original overhead backing. Keep your custom row backgrounds and corner-badge backgrounds.",
+                config::prayerIconNativeSymbolsOnly);
             toggle(advanced, "prayerIconSymbolsOnly", "Prayer symbols only",
                 "Remove original overhead backings and added row/corner badge backgrounds, keeping the symbols and resource-pack artwork. Off restores your saved backgrounds.",
                 config::prayerIconSymbolsOnly);

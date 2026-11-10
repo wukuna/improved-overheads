@@ -127,14 +127,14 @@ final class OverheadsActorUiSpriteCache
 		return getPrayerIcon(prayerIndex, resourcePackSpriteId, showBackground, false);
 	}
 
-	OverheadsSprite getPrayerIcon(int prayerIndex, int resourcePackSpriteId, boolean showBackground, boolean symbolsOnly)
+	OverheadsSprite getPrayerIcon(int prayerIndex, int resourcePackSpriteId, boolean showBackground, boolean removeNativeBackground)
 	{
 		OverheadsSprite foreground = getResourcePackOverride(resourcePackSpriteId);
 		if (foreground == null)
 		{
 			resourcePackPrayerSprites.remove(prayerIndex);
 			OverheadsSprite nativeIcon = get(SpriteID.HEADICONS_PRAYER, prayerIndex);
-			if (!symbolsOnly || nativeIcon == null)
+			if (!removeNativeBackground || nativeIcon == null)
 			{
 				return nativeIcon;
 			}
@@ -145,7 +145,7 @@ final class OverheadsActorUiSpriteCache
 			}
 			return nativePrayerSymbols.get(prayerIndex);
 		}
-		if (!showBackground || symbolsOnly)
+		if (!showBackground)
 		{
 			return foreground;
 		}

@@ -252,6 +252,7 @@ final class OverheadsSetupSchema
         add("showPrayerIcons", "Icons: Prayer icons", config::showPrayerIcons,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("prayerIconSymbolsOnly", "Icons: Prayer symbols only", config::prayerIconSymbolsOnly, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
+        add("prayerIconNativeSymbolsOnly", "Icons: Remove native prayer background", config::prayerIconNativeSymbolsOnly, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
         add("showPrayerIconBackground", "Icons: Prayer background", config::showPrayerIconBackground,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("showSkullIcons", "Icons: Skull icons", config::showSkullIcons,

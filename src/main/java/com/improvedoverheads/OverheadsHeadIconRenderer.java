@@ -451,7 +451,7 @@ final class OverheadsHeadIconRenderer
 			resourcePackPrayerSpriteId(prayerIndex),
             !config.prayerIconSymbolsOnly() && (row2 ? config.prayerIconRow2BackgroundEnabled() && config.prayerIconRow2Shape() == OverheadsIconShape.ORIGINAL
                 : config.showPrayerIconBackground() && config.prayerIconShape() == OverheadsIconShape.ORIGINAL),
-            config.prayerIconSymbolsOnly());
+            config.prayerIconSymbolsOnly() || config.prayerIconNativeSymbolsOnly());
         return stylePrayerIcon(prayerIndex, source);
     }
 

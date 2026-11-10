@@ -64,15 +64,15 @@ public class OverheadsPrayerSymbolsTest
         overrides.put(spriteId, first);
         OverheadsActorUiSpriteCache cache = new OverheadsActorUiSpriteCache(() -> 0,
             id -> { fail("Symbols-only resource packs do not load a native backing"); return null; }, () -> overrides);
-        OverheadsSprite result = cache.getPrayerIcon(0, spriteId, true, true);
+        OverheadsSprite result = cache.getPrayerIcon(0, spriteId, false, true);
         assertImageEquals(original, result.getImage());
-        assertSame(result, cache.getPrayerIcon(0, spriteId, true, true));
+        assertSame(result, cache.getPrayerIcon(0, spriteId, false, true));
         SpritePixels replacement = mock(SpritePixels.class);
         BufferedImage next = new BufferedImage(30, 30, BufferedImage.TYPE_INT_ARGB);
         next.setRGB(20, 20, Color.CYAN.getRGB());
         when(replacement.toBufferedImage()).thenReturn(next);
         overrides.put(spriteId, replacement);
-        assertImageEquals(next, cache.getPrayerIcon(0, spriteId, true, true).getImage());
+        assertImageEquals(next, cache.getPrayerIcon(0, spriteId, false, true).getImage());
     }
 
     @Test public void unknownNativeArtworkAndUnsupportedSizesRemainUntouched()
@@ -95,6 +95,8 @@ public class OverheadsPrayerSymbolsTest
         OverheadsProfilesTest.Fixture from = new OverheadsProfilesTest.Fixture();
         from.profiles.initialize();
         assertFalse(from.self.prayerIconSymbolsOnly());
+        assertFalse(from.self.prayerIconNativeSymbolsOnly());
+        from.put(OverheadsProfiles.Scope.PARTY, "prayerIconNativeSymbolsOnly", true);
         from.put(OverheadsProfiles.Scope.SELF, "prayerIconSymbolsOnly", true);
         from.put(OverheadsProfiles.Scope.NPCS, "prayerIconSymbolsOnly", true);
         from.put(OverheadsProfiles.Scope.SELF, "prayerIconBadgeBackground", true);
@@ -108,6 +110,8 @@ public class OverheadsPrayerSymbolsTest
         assertTrue(to.profiles.config(OverheadsProfiles.Scope.NPCS).prayerIconSymbolsOnly());
         assertFalse(to.profiles.config(OverheadsProfiles.Scope.PLAYERS).prayerIconSymbolsOnly());
         assertFalse(to.profiles.config(OverheadsProfiles.Scope.PARTY).prayerIconSymbolsOnly());
+        assertTrue(to.profiles.config(OverheadsProfiles.Scope.PARTY).prayerIconNativeSymbolsOnly());
+        assertFalse(to.self.prayerIconNativeSymbolsOnly());
         assertTrue(to.self.prayerIconBadgeBackground());
         to.put(OverheadsProfiles.Scope.SELF, "prayerIconSymbolsOnly", false);
         assertFalse(to.self.prayerIconSymbolsOnly());
