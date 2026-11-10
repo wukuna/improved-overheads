@@ -24,6 +24,8 @@ final class OverheadsActorUiSpriteCache
 	private final Map<Integer, SpriteGroup> groups = new HashMap<>();
 	private final Map<Integer, ResourcePackSprite> resourcePackSprites = new HashMap<>();
 	private final Map<Integer, ResourcePackPrayerSprite> resourcePackPrayerSprites = new HashMap<>();
+	private final Map<Integer, OverheadsSprite> nativePrayerSources = new HashMap<>();
+	private final Map<Integer, OverheadsSprite> nativePrayerSymbols = new HashMap<>();
 
 	@Inject
 	OverheadsActorUiSpriteCache(Client client)
@@ -122,13 +124,28 @@ final class OverheadsActorUiSpriteCache
 		int resourcePackSpriteId,
 		boolean showBackground)
 	{
+		return getPrayerIcon(prayerIndex, resourcePackSpriteId, showBackground, false);
+	}
+
+	OverheadsSprite getPrayerIcon(int prayerIndex, int resourcePackSpriteId, boolean showBackground, boolean symbolsOnly)
+	{
 		OverheadsSprite foreground = getResourcePackOverride(resourcePackSpriteId);
 		if (foreground == null)
 		{
 			resourcePackPrayerSprites.remove(prayerIndex);
-			return get(SpriteID.HEADICONS_PRAYER, prayerIndex);
+			OverheadsSprite nativeIcon = get(SpriteID.HEADICONS_PRAYER, prayerIndex);
+			if (!symbolsOnly || nativeIcon == null)
+			{
+				return nativeIcon;
+			}
+			if (nativePrayerSources.get(prayerIndex) != nativeIcon)
+			{
+				nativePrayerSources.put(prayerIndex, nativeIcon);
+				nativePrayerSymbols.put(prayerIndex, OverheadsNativePrayerSymbols.removeBacking(prayerIndex, nativeIcon));
+			}
+			return nativePrayerSymbols.get(prayerIndex);
 		}
-		if (!showBackground)
+		if (!showBackground || symbolsOnly)
 		{
 			return foreground;
 		}
@@ -170,6 +187,8 @@ final class OverheadsActorUiSpriteCache
 		groups.clear();
 		resourcePackSprites.clear();
 		resourcePackPrayerSprites.clear();
+		nativePrayerSources.clear();
+		nativePrayerSymbols.clear();
 	}
 
 	private static OverheadsSprite composePrayerIcon(

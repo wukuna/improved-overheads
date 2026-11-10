@@ -14,6 +14,7 @@ The regular settings menu contains four quick visibility toggles for your own pl
 * Choose On bar, Above bar or Below bar separately for Prayer, Run energy and Special attack numbers, including shared party resources.
 * Each actor group's Health section separates Display, Styling, Position and size, Damage trail, Segments, and applicable restoration settings.
 * Resize prayer icons and give Row 1 and Row 2 independent background toggles, frame shapes, background and border colors, opacity, and prayer-point drain effects under Icons. Background settings follow the assigned row.
+* Under Icons → Prayer and head icons → Styling, enable **Prayer symbols only** to remove original overhead backings and added row/corner-badge backgrounds without redrawing the symbols. The setting is separate for My player, Other players, NPCs and Party, starts off, and retains your saved background choices. Custom resource-pack artwork stays intact; unrecognized native artwork is left unchanged.
 * Optionally drain and refill the prayer icon background with your prayer points or available shared party prayer. Choose a separate empty-background color; unknown or expired values keep the static background.
 * Customize overhead chat fonts, colors, shadows, effects, and relationship colors.
 * Adjust hitsplat size, placement, layout, lifetime, opacity, and visibility.

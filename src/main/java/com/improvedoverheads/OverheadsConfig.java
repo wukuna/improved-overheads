@@ -1401,6 +1401,11 @@ public interface OverheadsConfig extends Config
 		return true;
 	}
 
+    @ConfigItem(hidden = true, keyName = "prayerIconSymbolsOnly", name = "Prayer symbols only",
+        description = "Remove original overhead backings and added row/corner badge backgrounds, preserving the symbols and resource-pack artwork. Off restores your saved backgrounds.",
+        section = HEAD_ICONS_SECTION, position = 987)
+    default boolean prayerIconSymbolsOnly() { return false; }
+
 	@ConfigItem(
 		hidden = true,
 		keyName = SHOW_SKULL_ICONS_KEY,

@@ -251,6 +251,7 @@ final class OverheadsSetupSchema
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("showPrayerIcons", "Icons: Prayer icons", config::showPrayerIcons,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
+        add("prayerIconSymbolsOnly", "Icons: Prayer symbols only", config::prayerIconSymbolsOnly, JsonPrimitive::new, OverheadsSetupSchema::booleanValue);
         add("showPrayerIconBackground", "Icons: Prayer background", config::showPrayerIconBackground,
             value -> new JsonPrimitive(value), OverheadsSetupSchema::booleanValue);
         add("showSkullIcons", "Icons: Skull icons", config::showSkullIcons,

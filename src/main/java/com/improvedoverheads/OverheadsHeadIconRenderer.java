@@ -401,7 +401,7 @@ final class OverheadsHeadIconRenderer
             if (attached && slot >= 0)
             {
                 badgeBuffer.put(slot, badgeIcons.computeIfAbsent(prayer, key -> OverheadsPrayerBadgeIcons.create(key,
-                    config.prayerIconBadgeSize(), config.prayerIconBadgeBackground(), config.prayerIconBadgeBackgroundColor(),
+                    config.prayerIconBadgeSize(), !config.prayerIconSymbolsOnly() && config.prayerIconBadgeBackground(), config.prayerIconBadgeBackgroundColor(),
                     config.prayerIconBadgeBorderColor())));
             }
             else
@@ -449,8 +449,9 @@ final class OverheadsHeadIconRenderer
 		OverheadsSprite source = sprites.getPrayerIcon(
 			prayerIndex,
 			resourcePackPrayerSpriteId(prayerIndex),
-            row2 ? config.prayerIconRow2BackgroundEnabled() && config.prayerIconRow2Shape() == OverheadsIconShape.ORIGINAL
-                : config.showPrayerIconBackground() && config.prayerIconShape() == OverheadsIconShape.ORIGINAL);
+            !config.prayerIconSymbolsOnly() && (row2 ? config.prayerIconRow2BackgroundEnabled() && config.prayerIconRow2Shape() == OverheadsIconShape.ORIGINAL
+                : config.showPrayerIconBackground() && config.prayerIconShape() == OverheadsIconShape.ORIGINAL),
+            config.prayerIconSymbolsOnly());
         return stylePrayerIcon(prayerIndex, source);
     }
 
@@ -458,7 +459,7 @@ final class OverheadsHeadIconRenderer
     {
         if (source == null) { return null; }
         boolean row2 = secondPrayerRow(prayerIndex);
-        boolean background = row2 ? config.prayerIconRow2BackgroundEnabled() : config.showPrayerIconBackground();
+        boolean background = !config.prayerIconSymbolsOnly() && (row2 ? config.prayerIconRow2BackgroundEnabled() : config.showPrayerIconBackground());
         OverheadsIconShape shape = row2 ? config.prayerIconRow2Shape() : config.prayerIconShape();
         int level = background && shape != OverheadsIconShape.ORIGINAL
             && (row2 ? config.prayerIconRow2TracksPoints() : config.prayerIconBackgroundTracksPoints()) ? prayerLevel : -1;
