@@ -82,6 +82,15 @@ public class OverheadsPlugin extends Plugin
         return hitsplats;
     }
 
+    private void updateSidePanel()
+    {
+        SwingUtilities.invokeLater(() -> {
+            if (!running || navigation == null) return;
+            if (config.hideSidePanel()) toolbar.removeNavigation(navigation);
+            else toolbar.addNavigation(navigation);
+        });
+    }
+
     @Override
     protected synchronized void startUp()
     {
@@ -94,7 +103,7 @@ public class OverheadsPlugin extends Plugin
         panel.setReflow(() -> clientThread.invokeLater(() -> { if (running) { overlay.reflow(); } }));
         navigation = NavigationButton.builder().tooltip("Improved Overheads")
             .icon(OverheadsPanel.icon()).priority(5).panel(panel).build();
-        toolbar.addNavigation(navigation);
+        if (!config.hideSidePanel()) toolbar.addNavigation(navigation);
         overlayManager.add(overlay);
         clientThread.invokeLater(() ->
         {
@@ -118,6 +127,7 @@ public class OverheadsPlugin extends Plugin
         actorUiVisibilityTracker.disable();
         overlayManager.remove(overlay);
         toolbar.removeNavigation(navigation);
+        navigation = null;
         panel.closeEditors();
         panel.setReflow(() -> {});
         panel.setPartyRefresh(() -> {});
@@ -211,6 +221,7 @@ public class OverheadsPlugin extends Plugin
     @Subscribe
     public void onConfigChanged(ConfigChanged event)
     {
+        if (OverheadsConfig.GROUP.equals(event.getGroup()) && "hideSidePanel".equals(event.getKey())) { updateSidePanel(); return; }
         if (profiles != null) profiles.invalidate(event.getGroup());
         if (OverheadsProfiles.containsGroup(event.getGroup()) && !OverheadsSetups.STORAGE_KEY.equals(event.getKey())
             && !OverheadsSetups.THEMES_KEY.equals(event.getKey())
@@ -235,6 +246,7 @@ public class OverheadsPlugin extends Plugin
     @Subscribe
     public void onProfileChanged(ProfileChanged event)
     {
+        updateSidePanel();
         if (profiles != null) { profiles.initialize(); }
         panel.invalidateSetupSession();
         clientThread.invokeLater(() -> { if (running) { clearState(); } });

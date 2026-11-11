@@ -4,6 +4,8 @@ Customize overhead chat, health and resource bars, hitsplats, prayer icons and c
 
 **Availability:** the first [Plugin Hub submission](https://github.com/runelite/plugin-hub/pull/20302) is awaiting review. This guide describes that submitted version.
 
+To hide the sidebar icon while keeping the plugin running, enable **Hide side panel** in RuneLite’s regular plugin settings. Turn it off there to restore the panel.
+
 ## Getting started
 
 1. Open the Improved Overheads side panel and select the actor group you want to customize.

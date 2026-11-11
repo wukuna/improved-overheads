@@ -13,6 +13,10 @@ import net.runelite.client.config.Units;
 @ConfigGroup(OverheadsConfig.GROUP)
 public interface OverheadsConfig extends Config
 {
+    @ConfigItem(keyName = "hideSidePanel", name = "Hide side panel", position = -1,
+        description = "Hide the sidebar icon while keeping the plugin enabled. Turn this off here to restore the panel.")
+    default boolean hideSidePanel() { return false; }
+
     @ConfigSection(name = "My player", description = "Quick visibility controls for your player. Use the Improved Overheads side panel for all actor groups and detailed settings.", position = 0)
     String QUICK_SECTION = "quickVisibility";
 

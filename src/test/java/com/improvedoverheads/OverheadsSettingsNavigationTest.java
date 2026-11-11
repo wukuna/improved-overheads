@@ -23,14 +23,14 @@ import static org.mockito.Mockito.*;
 public class OverheadsSettingsNavigationTest
 {
     @Test
-    public void regularSettingsExposeOnlyFourOwnPlayerToggles()
+    public void regularSettingsExposePlayerTogglesAndSidebarRecovery()
     {
         ConfigManager manager = mock(ConfigManager.class);
         when(manager.getConfigDescriptor(any())).thenCallRealMethod();
         ConfigDescriptor descriptor = manager.getConfigDescriptor(new OverheadsConfig() {});
         Set<String> visible = descriptor.getItems().stream().filter(item -> !item.getItem().hidden())
             .map(item -> item.getItem().keyName()).collect(Collectors.toSet());
-        assertEquals(new HashSet<>(Arrays.asList("healthBarsEnabled", "overheadChatEnabled", "headIconsEnabled", "disableMyHitsplats")), visible);
+        assertEquals(new HashSet<>(Arrays.asList("healthBarsEnabled", "overheadChatEnabled", "headIconsEnabled", "disableMyHitsplats", "hideSidePanel")), visible);
         assertEquals(1, descriptor.getSections().size());
         assertEquals("My player", descriptor.getSections().iterator().next().getSection().name());
         for (ConfigItemDescriptor item : descriptor.getItems())
@@ -38,7 +38,7 @@ public class OverheadsSettingsNavigationTest
             if (!item.getItem().hidden())
             {
                 assertEquals(boolean.class, item.getType());
-                assertEquals(OverheadsConfig.QUICK_SECTION, item.getItem().section());
+                assertEquals(item.getItem().keyName().equals("hideSidePanel") ? "" : OverheadsConfig.QUICK_SECTION, item.getItem().section());
             }
         }
     }
@@ -50,7 +50,7 @@ public class OverheadsSettingsNavigationTest
         f.profiles.initialize();
         when(f.manager.getConfigDescriptor(any())).thenCallRealMethod();
         Set<String> expected = f.manager.getConfigDescriptor(new OverheadsConfig() {}).getItems().stream()
-            .map(item -> item.getItem().keyName()).collect(Collectors.toSet());
+            .map(item -> item.getItem().keyName()).filter(key -> !key.equals("hideSidePanel")).collect(Collectors.toSet());
         Set<String> found = new HashSet<>();
         SwingUtilities.invokeAndWait(() ->
         {

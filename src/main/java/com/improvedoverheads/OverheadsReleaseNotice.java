@@ -32,6 +32,7 @@ public final class OverheadsReleaseNotice
         "Remove only native prayer backings while keeping custom backgrounds, or use Prayer symbols only to remove all backgrounds; symbols and resource-pack artwork are preserved.",
         "Show healing and prayer-restoration splats independently, with separate display, styling and placement controls.",
         "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
+        "Hide or restore the sidebar icon from the regular plugin settings.",
     };
 
     @Inject private Client client;

@@ -38,7 +38,7 @@ public class OverheadsSetupsTest
         for (java.lang.reflect.Method method : OverheadsConfig.class.getDeclaredMethods())
         {
             ConfigItem item = method.getAnnotation(ConfigItem.class);
-            if (item != null)
+            if (item != null && !item.keyName().equals("hideSidePanel"))
             {
                 assertTrue(item.keyName(), from.setups.schema.entries.containsKey(item.keyName()));
             }

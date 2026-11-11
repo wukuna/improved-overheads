@@ -42,7 +42,7 @@ public class OverheadsConfigProxyTest
         assertEquals(java.awt.Color.RED, self.healthTextColor());
         for (Method method : OverheadsConfig.class.getMethods())
         {
-            if (method.getAnnotation(ConfigItem.class) != null)
+            if (method.getAnnotation(ConfigItem.class) != null && !method.getName().equals("hideSidePanel"))
                 assertEquals(OverheadsScopedConfig.class, OverheadsScopedConfig.class.getMethod(method.getName()).getDeclaringClass());
         }
     }
