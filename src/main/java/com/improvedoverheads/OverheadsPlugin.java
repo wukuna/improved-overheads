@@ -43,7 +43,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 
 @PluginDescriptor(
     name = "Improved Overheads",
-    description = "Customize overhead chat, health bars, hitsplats, and head icons.",
+    description = "Customize chat, bars, hitsplats, prayer icons and corner badges for your player, party members, other players and NPCs.",
     tags = {"overhead", "chat", "health", "hitsplat", "prayer", "skull"},
     conflicts = {"Customize a Lot", "Custom HP Bar", "Advanced HP Bar", "Always On HP Bars", "No 0's", "Nameplates"}
 )
