@@ -66,6 +66,36 @@ public class OverheadsConfigProxyTest
     }
 
     @Test
+    public void savedHealthSidesAndNativeDeserializeWithoutChangingSettings() throws Exception
+    {
+        for (OverheadsHealthPosition position : OverheadsHealthPosition.values())
+        {
+            ConfigManager manager = mock(ConfigManager.class, call -> call.getMethod().getName().equals("stringToObject")
+                ? call.callRealMethod() : RETURNS_DEFAULTS.answer(call));
+            when(manager.getConfiguration(OverheadsConfig.GROUP, "healthPosition")).thenReturn(position.name());
+            Constructor<?> constructor = Class.forName("net.runelite.client.config.ConfigInvocationHandler")
+                .getDeclaredConstructor(ConfigManager.class);
+            constructor.setAccessible(true);
+            InvocationHandler handler = (InvocationHandler) constructor.newInstance(manager);
+            OverheadsConfig config = (OverheadsConfig) Proxy.newProxyInstance(OverheadsConfig.class.getClassLoader(),
+                new Class<?>[]{OverheadsConfig.class}, handler);
+            assertEquals(position, config.healthPosition());
+            verify(manager, never()).setConfiguration(anyString(), anyString(), any());
+        }
+        OverheadsConfig defaults = new OverheadsConfig() {};
+        assertEquals(OverheadsHealthPosition.NATIVE, defaults.healthPosition());
+        assertEquals(OverheadsHitsplatPosition.NATIVE, defaults.hitsplatPosition());
+        assertEquals(0, defaults.healthBarYOffset());
+        ConfigManager manager = mock(ConfigManager.class);
+        for (OverheadsProfiles.Scope scope : OverheadsProfiles.Scope.values())
+        {
+            OverheadsConfig config = new OverheadsScopedConfig(manager, scope.group);
+            assertEquals(OverheadsHealthPosition.NATIVE, config.healthPosition());
+            assertEquals(OverheadsHitsplatPosition.NATIVE, config.hitsplatPosition());
+        }
+    }
+
+    @Test
     public void settingsAndPanelWorkThroughRuneLiteConfigProxy() throws Exception
     {
         ConfigManager manager = mock(ConfigManager.class);

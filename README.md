@@ -61,6 +61,8 @@ Other players retain only their visible overhead icons. The local combat/misc di
 
 Under **Hits**, choose OSRS, Modern or numbers-only artwork, then set size, lifetime, opacity, motion and layout. Modern backgrounds have separate damage, miss and status styling. Special encounter indicators keep their original artwork.
 
+HP and hitsplats use **Native** positioning on a fresh install. **Bars → Health → HP position and size → Native** keeps HP beneath prayer icons, including when the health bar appears after a prayer. Existing saved placements and offsets are preserved.
+
 **Hits → Position and size → Native** keeps hitsplats anchored on the target while retaining your style, layout, motion and manual offsets. Side placements use the configured layout and overlap handling. Scrolling layouts support upward/downward motion in one to four columns.
 
 **My player → Hits → Healing** and **Prayer restoration** add optional floating splats after an observed HP or prayer increase. Each has independent icon/number choices, fonts, colors, duration, position and zoom scaling. They start off. Disable overlapping Vitality displays to avoid duplicates.

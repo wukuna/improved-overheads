@@ -143,7 +143,7 @@ public class OverheadsPartyTest
         OverheadsRenderPipelineTest.Fixture render = new OverheadsRenderPipelineTest.Fixture();
         when(render.player.getName()).thenReturn("Friend");
         when(render.client.getLocalPlayer()).thenReturn(mock(Player.class));
-        when(f.config.healthPosition()).thenReturn(OverheadsPosition.RIGHT);
+        when(f.config.healthPosition()).thenReturn(OverheadsHealthPosition.RIGHT);
         when(f.config.prayerPosition()).thenReturn(OverheadsPosition.RIGHT);
         when(f.config.runPosition()).thenReturn(OverheadsPosition.RIGHT);
         when(f.config.specialPosition()).thenReturn(OverheadsPosition.RIGHT);
@@ -176,7 +176,7 @@ public class OverheadsPartyTest
             }
         }
         finally { graphics.dispose(); }
-        when(f.config.healthPosition()).thenReturn(OverheadsPosition.LEFT);
+        when(f.config.healthPosition()).thenReturn(OverheadsHealthPosition.LEFT);
         when(f.config.prayerPosition()).thenReturn(OverheadsPosition.LEFT);
         when(f.config.runPosition()).thenReturn(OverheadsPosition.LEFT);
         when(f.config.specialPosition()).thenReturn(OverheadsPosition.LEFT);

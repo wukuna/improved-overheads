@@ -146,7 +146,7 @@ final class OverheadsIndicators
             config.healthBarScalePercent(), config.healthBarLargeHeightScalePercent(), config.healthBarScaleThreshold(), actor.getHealthScale()) / 100.0 : 1;
         int length = OverheadsHealthBarRenderer.barDimension(width, resource == 0 ? 10 : 20, 200, zoom * widthScale);
         int thickness = OverheadsHealthBarRenderer.barDimension(height, 2, 30, zoom * heightScale);
-        OverheadsPosition position = resource == 0 ? config.healthPosition() : resource == 1 ? config.prayerPosition() : resource == 2 ? config.runPosition() : resource == 3 ? config.specialPosition() : config.indicatorPosition();
+        OverheadsPosition position = resource == 0 ? config.healthPosition().side() : resource == 1 ? config.prayerPosition() : resource == 2 ? config.runPosition() : resource == 3 ? config.specialPosition() : config.indicatorPosition();
         Font baseFont = textFont.getFont();
         Font font = baseFont.deriveFont((float) Math.max(6, Math.min(96, baseFont.getSize2D() * zoom)));
         FontMetrics metrics = graphics.getFontMetrics(font);

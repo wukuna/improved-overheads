@@ -151,7 +151,7 @@ final class OverheadsScopedConfig implements OverheadsConfig
     @Override public OverheadsBarDisplay selfHealthDisplay() { return read("selfHealthDisplay", OverheadsBarDisplay.class, DEFAULTS::selfHealthDisplay); }
     @Override public OverheadsBarDisplay npcHealthDisplay() { return read("npcHealthDisplay", OverheadsBarDisplay.class, DEFAULTS::npcHealthDisplay); }
     @Override public OverheadsBarDisplay otherHealthDisplay() { return read("otherHealthDisplay", OverheadsBarDisplay.class, DEFAULTS::otherHealthDisplay); }
-    @Override public OverheadsPosition healthPosition() { return read("healthPosition", OverheadsPosition.class, DEFAULTS::healthPosition); }
+    @Override public OverheadsHealthPosition healthPosition() { return read("healthPosition", OverheadsHealthPosition.class, DEFAULTS::healthPosition); }
     @Override public OverheadsOrientation healthOrientation() { return read("healthOrientation", OverheadsOrientation.class, DEFAULTS::healthOrientation); }
     @Override public boolean healthScaleWithZoom() { return read("healthScaleWithZoom", Boolean.class, DEFAULTS::healthScaleWithZoom); }
     @Override public int playerHealthWidth() { return read("playerHealthWidth", Integer.class, DEFAULTS::playerHealthWidth); }

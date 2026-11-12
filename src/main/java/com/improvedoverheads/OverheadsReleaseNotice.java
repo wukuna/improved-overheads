@@ -31,7 +31,7 @@ public final class OverheadsReleaseNotice
         "Attach optional small prayer badges to protection, Redemption, Smite or Retribution icons; empty row spacing collapses, and regular rows return when the overhead turns off.",
         "Remove only native prayer backings while keeping custom backgrounds, or use Prayer symbols only to remove all backgrounds; symbols and resource-pack artwork are preserved.",
         "Show healing and prayer-restoration splats independently, with separate display, styling and placement controls.",
-        "Native hitsplat positioning keeps hits on the target while retaining your selected style.",
+        "HP and hitsplats default to native positions; HP stays beneath prayer icons regardless of which appears first, while saved placements are preserved.",
         "Hide or restore the sidebar icon from the regular plugin settings.",
     };
 

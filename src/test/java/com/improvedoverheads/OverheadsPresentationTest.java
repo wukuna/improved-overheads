@@ -221,7 +221,7 @@ public class OverheadsPresentationTest
         boolean health = true;
         @Override public OverheadsBarDisplay selfHealthDisplay() { return display; }
         @Override public OverheadsBarDisplay prayerDisplay() { return prayerDisplay; }
-        @Override public OverheadsPosition healthPosition() { return position; }
+        @Override public OverheadsHealthPosition healthPosition() { return OverheadsHealthPosition.valueOf(position.name()); }
         @Override public OverheadsOrientation healthOrientation() { return orientation; }
         @Override public OverheadsPrayerVisibility prayerVisibility() { return prayer; }
         @Override public int healthBarOpacity() { return opacity; }

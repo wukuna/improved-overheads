@@ -282,7 +282,7 @@ final class OverheadsSetupSchema
         add("otherHealthDisplay", "Health: Other player HP display", config::otherHealthDisplay,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsBarDisplay.values()));
         add("healthPosition", "Health: HP position", config::healthPosition,
-            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsPosition.values()));
+            value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsHealthPosition.values()));
         add("healthOrientation", "Health: HP orientation", config::healthOrientation,
             value -> new JsonPrimitive(value.name()), value -> enumValue(value, OverheadsOrientation.values()));
         add("healthScaleWithZoom", "Health: Scale HP with zoom", config::healthScaleWithZoom,

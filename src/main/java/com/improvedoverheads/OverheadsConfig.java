@@ -857,7 +857,7 @@ public interface OverheadsConfig extends Config
 	@Units(Units.PIXELS)
 	default int healthBarYOffset()
 	{
-		return 2;
+		return 0;
 	}
 
 	@ConfigItem(
@@ -1612,13 +1612,13 @@ public interface OverheadsConfig extends Config
 		hidden = true,
         keyName = "healthPosition",
         name = "HP position",
-        description = "HP position.",
+        description = "Native keeps HP beneath overhead icons. Other positions use custom overhead spacing.",
         section = HEALTH_BARS_SECTION,
         position = 104
     )
-    default OverheadsPosition healthPosition()
+    default OverheadsHealthPosition healthPosition()
     {
-        return OverheadsPosition.ABOVE;
+        return OverheadsHealthPosition.NATIVE;
     }
 
     @ConfigItem(
@@ -1933,7 +1933,7 @@ public interface OverheadsConfig extends Config
     )
     default OverheadsHitsplatPosition hitsplatPosition()
     {
-        return OverheadsHitsplatPosition.ABOVE;
+        return OverheadsHitsplatPosition.NATIVE;
     }
 
     @ConfigItem(

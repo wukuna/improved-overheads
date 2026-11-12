@@ -34,7 +34,7 @@ public class OverheadsProfilesTest
         OverheadsSetups importer = destination.setups();
         importer.apply(importer.preview(json, importer.session()));
         assertEquals(OverheadsHitsplatPosition.NATIVE, destination.profiles.config(OverheadsProfiles.Scope.NPCS).hitsplatPosition());
-        assertEquals(OverheadsHitsplatPosition.ABOVE, destination.self.hitsplatPosition());
+        assertEquals(OverheadsHitsplatPosition.NATIVE, destination.self.hitsplatPosition());
     }
 
     @Test

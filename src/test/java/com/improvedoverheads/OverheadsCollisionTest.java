@@ -98,6 +98,56 @@ public class OverheadsCollisionTest
     }
 
     @Test
+    public void healthAppearingAfterPrayerStaysUnderItAcrossRepeatedTransitions()
+    {
+        for (OverheadsHealthPosition placement : new OverheadsHealthPosition[]{OverheadsHealthPosition.NATIVE, OverheadsHealthPosition.ABOVE})
+        {
+            for (OverheadsPrayerLayout prayerLayout : OverheadsPrayerLayout.values())
+            {
+                OverheadsRenderPipelineTest.Fixture f = fixture(OverheadsPosition.ABOVE);
+                when(f.config.healthPosition()).thenReturn(placement);
+                when(f.config.prayerIconLayout()).thenReturn(prayerLayout);
+                when(f.config.prayerIconPosition()).thenReturn(OverheadsPosition.ABOVE);
+                when(f.config.prayerIconCombatPosition()).thenReturn(OverheadsPosition.ABOVE);
+                when(f.player.getOverheadText()).thenReturn(null);
+                when(f.config.healthBarsEnabled()).thenReturn(false);
+                assertNotNull(colorBounds(renderLarge(f), Color.BLUE));
+                when(f.config.healthBarsEnabled()).thenReturn(true);
+                BufferedImage first = renderLarge(f);
+                Rectangle health = colorBounds(first, Color.RED);
+                Rectangle prayer = colorBounds(first, Color.BLUE);
+                assertNotNull(health); assertNotNull(prayer);
+                assertTrue(placement + "/" + prayerLayout, prayer.y + prayer.height < health.y);
+                when(f.config.healthBarsEnabled()).thenReturn(false); renderLarge(f);
+                when(f.config.healthBarsEnabled()).thenReturn(true);
+                assertEquals(health, colorBounds(renderLarge(f), Color.RED));
+                when(f.player.getOverheadIcon()).thenReturn(null); renderLarge(f);
+                when(f.player.getOverheadIcon()).thenReturn(HeadIcon.MELEE);
+                BufferedImage returning = renderLarge(f);
+                assertEquals(health, colorBounds(returning, Color.RED));
+                prayer = colorBounds(returning, Color.BLUE);
+                assertTrue(prayer.y + prayer.height < health.y);
+            }
+        }
+    }
+
+    @Test
+    public void nativeHealthRemainsAtItsAnchorWhenChatAppearsWithoutOverlapHandling()
+    {
+        OverheadsRenderPipelineTest.Fixture f = fixture(OverheadsPosition.ABOVE);
+        when(f.config.healthPosition()).thenReturn(OverheadsHealthPosition.NATIVE);
+        when(f.config.avoidOverlap()).thenReturn(false);
+        when(f.config.keepOnScreen()).thenReturn(false);
+        when(f.config.layoutPreview()).thenReturn(false);
+        when(f.player.getOverheadText()).thenReturn(null);
+        Rectangle health = colorBounds(renderLarge(f), Color.RED);
+        when(f.player.getOverheadText()).thenReturn("Native HP stays put");
+        Rectangle withChat = colorBounds(renderLarge(f), Color.RED);
+        assertEquals(health.getLocation(), withChat.getLocation());
+        assertEquals(health.width, withChat.width);
+    }
+
+    @Test
     public void chatAppearanceDoesNotMoveExistingHealthAndManualModeRemainsAvailable()
     {
         OverheadsRenderPipelineTest.Fixture f = fixture(OverheadsPosition.ABOVE);
@@ -107,7 +157,7 @@ public class OverheadsCollisionTest
         Rectangle healthAfter = colorBounds(renderLarge(f), Color.RED);
         assertEquals(healthBefore, healthAfter);
         when(f.config.avoidOverlap()).thenReturn(false);
-        when(f.config.healthPosition()).thenReturn(OverheadsPosition.RIGHT);
+        when(f.config.healthPosition()).thenReturn(OverheadsHealthPosition.RIGHT);
         when(f.config.prayerPosition()).thenReturn(OverheadsPosition.RIGHT);
         when(f.config.healthBarOpacity()).thenReturn(50);
         assertNotNull(OverheadsRenderPipelineTest.pixelBounds(renderLarge(f)));
@@ -175,7 +225,7 @@ public class OverheadsCollisionTest
         OverheadsRenderPipelineTest.Fixture f = new OverheadsRenderPipelineTest.Fixture();
         f.centerX = 500;
         f.feetY = 500;
-        when(f.config.healthPosition()).thenReturn(side);
+        when(f.config.healthPosition()).thenReturn(OverheadsHealthPosition.valueOf(side.name()));
         when(f.config.prayerPosition()).thenReturn(side);
         when(f.config.runPosition()).thenReturn(side);
         when(f.config.iconsPosition()).thenReturn(side);

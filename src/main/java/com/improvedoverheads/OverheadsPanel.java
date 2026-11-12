@@ -177,8 +177,8 @@ final class OverheadsPanel extends PluginPanel
             section(content, "HP position and size", group ->
             {
                 choice(group, "healthPosition", "HP position",
-                    "HP position.",
-                    config::healthPosition, OverheadsPosition.values());
+                    "Native keeps HP beneath overhead icons. Other positions use custom overhead spacing.",
+                    config::healthPosition, OverheadsHealthPosition.values());
                 choice(group, "healthOrientation", "HP orientation",
                     "HP orientation.",
                     config::healthOrientation, OverheadsOrientation.values());

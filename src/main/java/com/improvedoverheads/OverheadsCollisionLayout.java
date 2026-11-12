@@ -112,7 +112,8 @@ final class OverheadsCollisionLayout implements AutoCloseable
 
     void render()
     {
-        commands.sort(Comparator.comparingLong(command -> command.slot.order));
+        commands.sort(Comparator.<Command>comparingInt(command -> nativeHealth(command) ? 0 : 1)
+            .thenComparingLong(command -> command.slot.order));
         List<Rectangle> occupied = new ArrayList<>();
         Set<String> seen = new HashSet<>();
         for (Command command : commands)
@@ -123,7 +124,8 @@ final class OverheadsCollisionLayout implements AutoCloseable
                 obstacles = new ArrayList<>(occupied);
                 obstacles.addAll(chatObstacles);
             }
-            Point shift = avoid ? resolve(command.bounds, command.slot.side, command.slot.shift, obstacles, gap) : new Point();
+            Point previous = nativeHealth(command) ? new Point() : command.slot.shift;
+            Point shift = avoid ? resolve(command.bounds, command.slot.side, previous, obstacles, gap) : new Point();
             command.slot.shift = shift;
             Rectangle actual = new Rectangle(command.bounds);
             actual.translate(shift.x, shift.y);
@@ -149,6 +151,11 @@ final class OverheadsCollisionLayout implements AutoCloseable
             }
         }
         memory.slots.keySet().retainAll(seen);
+    }
+
+    private static boolean nativeHealth(Command command)
+    {
+        return command.key.equals("health") && command.slot.side == OverheadsPosition.ABOVE;
     }
 
     static Point fit(Rectangle bounds, Rectangle viewport)

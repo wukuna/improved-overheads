@@ -162,8 +162,10 @@ final class OverheadsHealthBarRenderer
 				? config.playerHealthHeight() : config.healthBarHeight(), 2, 30, zoom * heightScale);
 			OverheadsBarDisplay display = healthDisplay(actor);
 			boolean vertical = config.healthOrientation() == OverheadsOrientation.VERTICAL;
-			Rectangle bounds = OverheadsPlacement.bounds(actor, new Point(anchor.getX(), stackAnchorY),
-				config.healthPosition(), Math.max(2, vertical ? thickness : length),
+            OverheadsHealthPosition placement = config.healthPosition();
+			Rectangle bounds = OverheadsPlacement.bounds(actor, new Point(anchor.getX(),
+                placement == OverheadsHealthPosition.NATIVE ? anchor.getY() : stackAnchorY),
+				placement.side(), Math.max(2, vertical ? thickness : length),
 				Math.max(2, vertical ? length : thickness), config.healthBarXOffset(), config.healthBarYOffset());
 			if (bounds != null)
 			{
@@ -184,12 +186,12 @@ final class OverheadsHealthBarRenderer
                 String text = self ? config.healthNumberFormat().format(
 					client.getBoostedSkillLevel(Skill.HITPOINTS), client.getRealSkillLevel(Skill.HITPOINTS))
                     : observedHealthText(fraction, exactMaximumHitpoints(actor), config.healthNumberFormat());
-				renderBar(graphics, bounds, vertical, display, config.healthPosition(), fraction, trail,
+				renderBar(graphics, bounds, vertical, display, placement.side(), fraction, trail,
 					fill, config.healthBarFrontSecondaryColor(), config.healthBarOpacity(),
 					text, config.healthTextFont(), low ? config.lowResourceColor() : config.healthTextColor(), zoom,
 					config.healthBarSegmentsEnabled() ? healthSegmentMaximum(actor, scale, config.healthBarSegmentValueMode()) : 0, false,
 					self ? vitals.restore(false) : 0, self ? client.getRealSkillLevel(Skill.HITPOINTS) : 0, layout);
-				if (config.healthPosition() == OverheadsPosition.ABOVE)
+				if (placement.side() == OverheadsPosition.ABOVE)
 				{
                     occupied = occupiedTop(graphics, bounds, display, config.healthTextFont(), zoom, config.healthBarBorderThickness(), config.healthTextPosition());
 				}
