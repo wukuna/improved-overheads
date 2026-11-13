@@ -3,8 +3,6 @@ package com.improvedoverheads;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -1527,15 +1525,6 @@ final class OverheadsPanel extends PluginPanel
 
     static BufferedImage icon()
     {
-        BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = image.createGraphics();
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics.setColor(new Color(63, 178, 186));
-        graphics.fillRoundRect(2, 2, 28, 15, 8, 8);
-        graphics.fillPolygon(new int[]{8, 8, 15}, new int[]{14, 22, 14}, 3);
-        graphics.setColor(new Color(77, 201, 110));
-        graphics.fillRoundRect(5, 25, 22, 5, 3, 3);
-        graphics.dispose();
-        return image;
+        return net.runelite.client.util.ImageUtil.loadImageResource(OverheadsPanel.class, "sidebar-icon.png");
     }
 }

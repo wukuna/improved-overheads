@@ -21,18 +21,14 @@ public final class OverheadsReleaseNotice
     static final String RELEASE = "2026-11-07-initial-overheads";
     static final String SEEN_KEY = "releaseNoticeId";
     private static final String[] UPDATES = {
-        "Customize overhead chat, HP, hitsplats and prayer icons separately for your player, party, other players and NPCs.",
-        "Choose numbers, bars or both in separate Health, Prayer, Run and Special sections.",
-        "Health, Prayer, Run and Special numbers each support on-bar, above-bar or below-bar placement; HP numbers omit the ~ prefix.",
-        "Share named setups and hitsplat themes with JSON; Undo restores the last applied changes.",
-        "Optional run and special-energy displays can hide while full.",
-        "Edit detailed settings in organized side-panel sections; the regular menu keeps basic visibility toggles.",
-        "Overhead and combat/misc prayers have separate sizes, positions and two-row layouts; each row has independent backgrounds and prayer-point drain effects.",
-        "Attach optional small prayer badges to protection, Redemption, Smite or Retribution icons; empty row spacing collapses, and regular rows return when the overhead turns off.",
-        "Remove only native prayer backings while keeping custom backgrounds, or use Prayer symbols only to remove all backgrounds; symbols and resource-pack artwork are preserved.",
-        "Show healing and prayer-restoration splats independently, with separate display, styling and placement controls.",
-        "HP and hitsplats default to native positions; HP stays beneath prayer icons regardless of which appears first, while saved placements are preserved.",
-        "Hide or restore the sidebar icon from the regular plugin settings.",
+        "Customize overhead chat, health bars, hitsplats and prayer icons separately for yourself, party members, other players and NPCs.",
+        "Choose numbers, bars or both for Health, Prayer, Run and Special displays.",
+        "Add corner prayer badges; empty row spacing collapses while the overhead is active and returns when it turns off.",
+        "Remove native prayer backgrounds only, or remove all backgrounds while keeping the prayer symbols.",
+        "HP stays below prayer icons. Fresh installs use native HP and hitsplat positions; saved placements are preserved.",
+        "Style healing and prayer-restoration splats independently.",
+        "Save and share setups and hitsplat themes, with Undo for the last applied changes.",
+        "Find detailed controls behind the new head-and-prayer sidebar icon; hide the icon through regular settings if preferred.",
     };
 
     @Inject private Client client;
